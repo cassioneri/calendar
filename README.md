@@ -52,3 +52,4 @@ on commodity hardware.)
 <span id="#hinnant">[1] Howard Hinnant, [*chrono-Compatible Low-Level Date Algorithms*](https://howardhinnant.github.io/date_algorithms.html).<br>
 <span id="#division">[2] One can see [here](https://godbolt.org/z/4JxB4J) that division by constants
 of `signed` dividends requires more instructions than on `unsigned` ones.
+

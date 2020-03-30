@@ -40,7 +40,7 @@ operator <<(std::ostream& os, date_t<T> const& d) {
 
 /**
  * Advance date by one day.
- * 
+ *
  * @param date        Date to be advanced.
  */
 template <typename T>
@@ -67,10 +67,10 @@ advance(date_t<T>& date) noexcept {
 template <typename Algo>
 void
 print() {
-  
+
   std::cout << "date_min       = " << Algo::date_min       << '\n';
   std::cout << "date_max       = " << Algo::date_max       << '\n';
-                                                              
+
   std::cout << "days_min       = " << Algo::days_min       << '\n';
   std::cout << "days_max       = " << Algo::days_max       << '\n';
 
@@ -88,9 +88,9 @@ print() {
 template <typename A>
 void // could be constexpr but... No!
 round_trip_test() noexcept {
-  
+
   // Compile-time checks.
-  
+
   static_assert(A::round_days_min == A::to_days(A::round_date_min));
   static_assert(A::round_days_max == A::to_days(A::round_date_max));
 
@@ -98,7 +98,7 @@ round_trip_test() noexcept {
   static_assert(A::round_date_max == A::to_date(A::round_days_max));
 
   // Runtime checks.
-  
+
   for (auto n = A::round_days_min; n <= A::round_days_max; ++n)
     if (n != A::to_days(A::to_date(n)))
       std::cout << "test_bijection failed for n = " << n << '\n';
@@ -121,9 +121,9 @@ standard_compliance_test() noexcept {
 template <typename A>
 void
 to_date_test() noexcept {
-  
+
   auto date = A::to_date(A::days_min);
-  
+
   for (auto days = A::days_min; days < A::days_max; ) {
     auto const tomorrow = A::to_date(++days);
     assert(tomorrow == advance(date));
@@ -155,17 +155,18 @@ main() {
   round_trip_test<ualgos>();
   to_date_test<ualgos>();
   to_days_test<ualgos>();
-  
+
   std::cout << '\n';
-  
+
   std::cout << "--------------------------------------------------------------------------------\n";
   std::cout << "Signed algorithms:\n";
   std::cout << "--------------------------------------------------------------------------------\n";
-  
+
   using salgos = sdate_algos<std::int32_t>;
-  
+
   print<salgos>();
   round_trip_test<salgos>();
   to_date_test<salgos>();
   to_days_test<salgos>();
 }
+
