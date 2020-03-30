@@ -31,14 +31,14 @@ The most important functions are implemented in two template classes:
 
 The former assumes years and day counts are positive and the epoch is 0000-Mar-01. The rationale is
 that `unsigned` computations are generally faster than `signed` ones. (For instance, division by
-constants as [[2]](#division).) Therefore `udate_algos` gets better performance by working only on
+constants [[2]](#division).) Therefore `udate_algos` gets better performance by working only on
 `unsigned` integers.
 
-The latter is more configurable allowing for negative years and day counts as well as different epoch
-(By default, the epoch is the Unix date 1970-Jan-01.) This is a thin but not free layer class around
-`udate_algos`. Indeed, each function in `sdate_algos` simply adapts inputs and outputs (generally
-through one addition and one subtraction) before/after delegating to a corresponding function in
-`udate_algos`.
+The latter is more configurable allowing for negative years and day counts as well as different
+epochs (By default, the epoch is the Unix date 1970-Jan-01.) This is a thin but not free layer
+class around `udate_algos`. Indeed, each function in `sdate_algos` simply adapts inputs and outputs
+(generally through one addition and one subtraction) before/after delegating to a corresponding
+function in `udate_algos`.
 
 # Contents
 
