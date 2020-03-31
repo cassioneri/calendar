@@ -16,17 +16,52 @@ struct date_t {
 };
 
 /**
+ * Checks if a given number is multiple of 100 or not through the mcomp algorithm [1].
+ *
+ * [1] https://accu.org/var/uploads/journals/Overload155.pdf#page=16
+ *
+ * @param             The given number.
+ * @pre               -536870800 <= n && n <= 536870999
+ */
+bool constexpr
+is_multiple_of_100(std::int32_t n) noexcept {
+  // From qmodular: ./div mcomp 100
+  std::uint32_t constexpr multiplier   = 42949673;
+  std::uint32_t constexpr bound        = 42949669;
+  std::uint32_t constexpr max_dividend = 1073741799;
+
+  std::uint32_t constexpr offset       = max_dividend / 2 / 100 * 100; //  536870800
+//std::int32_t  constexpr min          = -offset;                      // -536870800
+//std::int32_t  constexpr max          = max_dividend - offset;        //  536870999
+
+  return multiplier * (n + offset) < bound;
+}
+
+/**
+ * Checks if a given number is multiple of 100 or not.
+ *
+ * @param             The given number.
+ */
+template <typename T>
+bool constexpr
+is_multiple_of_100(T n) noexcept {
+  return n % 100 == 0;
+}
+
+/**
  * Checks if a given year is leap year or not.
  *
  * @tparam T          Type of year argument.
  * @param  year       Given year.
+ *
+ * @pre               -536870800 <= year && year <= 536870999
  */
 template <typename Y>
 bool constexpr
 is_leap_year(Y year) noexcept {
-  // http://quick-bench.com/nar4hUp259k9_55UCNoWTdNv2Pc
+  // http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI
   // http://stackoverflow.com/a/60646967/1137388
-  return (year % 100 != 0 || year % 400 == 0) & (year % 4 == 0);
+  return (!is_multiple_of_100(year) || year % 400 == 0) & (year % 4 == 0);
 }
 
 /**

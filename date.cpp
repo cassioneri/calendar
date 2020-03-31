@@ -85,6 +85,13 @@ print() {
 // Tests
 //--------------------------------------------------------------------------------------------------
 
+void // could be constexpr but... No!
+test_is_multiple_of_100() {
+  for (std::int32_t n = -536870800; n <= 536870999; ++n)
+    if ((n % 100 == 0) != is_multiple_of_100(n))
+      std::cout << "test_is_multiple_of_100 failed for n = " << n << '\n';
+}
+
 template <typename A>
 void // could be constexpr but... No!
 round_trip_test() noexcept {
@@ -101,7 +108,7 @@ round_trip_test() noexcept {
 
   for (auto n = A::round_days_min; n <= A::round_days_max; ++n)
     if (n != A::to_days(A::to_date(n)))
-      std::cout << "test_bijection failed for n = " << n << '\n';
+      std::cout << "round_trip_test failed for n = " << n << '\n';
 }
 
 void constexpr
@@ -144,6 +151,14 @@ to_days_test() noexcept {
 
 int
 main() {
+
+  std::cout << "--------------------------------------------------------------------------------\n";
+  std::cout << "Preliminary tests:\n";
+  std::cout << "--------------------------------------------------------------------------------\n";
+
+  test_is_multiple_of_100();
+
+  std::cout << '\n';
 
   std::cout << "--------------------------------------------------------------------------------\n";
   std::cout << "Unsigned algorithms:\n";
