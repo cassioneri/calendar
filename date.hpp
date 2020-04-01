@@ -18,6 +18,9 @@ struct date_t {
 /**
  * Checks if a given number is multiple of 100 or not through the mcomp algorithm [1].
  *
+ * This a special implementation for a subrange of std::int32_t values containing [-32767, 32767].
+ * It's supposedly faster than 
+ * 
  * [1] https://accu.org/var/uploads/journals/Overload155.pdf#page=16
  *
  * @param             The given number.
@@ -130,7 +133,7 @@ struct udate_algos {
   static constexpr
   date_type to_date(days_type days) noexcept {
 
-    // http://quick-bench.com/lHE2aolOkILburgCIpL-iQLbiG4
+    // http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc
 
     auto const century         = (4 * days + 3) / 146097;
     auto const day_of_century  = days - 146097 * century / 4;
@@ -158,8 +161,8 @@ struct udate_algos {
   static constexpr
   days_type to_days(date_type const& date) noexcept {
 
-    // http://quick-bench.com/lKEBKGAqd3Ln7yJOBc3Cr8VL7DY
-
+    // http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po
+    
     auto const jan_or_feb = date.month < 3;
     auto const month_aux  = jan_or_feb ? date.month + 9 : date.month - 3;
     auto const year_aux   = date.year - jan_or_feb;
@@ -185,6 +188,12 @@ auto constexpr unix_epoch = date_t<Int>{1970, 1, 1};
 
 /**
  * Signed to_days/to_date algorithms and information about these algoritm.
+ * 
+ * This class is more configurable than udates_algos allowing for negative years and day counts as
+ * well as different epoch (By default, the epoch is the Unix date 1970-Jan-01.) This is a thin but
+ * not free layer class around udate_algos. Indeed, each function in sdate_algos simply adapts
+ * inputs and outputs (generally through one addition and one subtraction) before/after delegating
+ * to a corresponding function in udate_algos.
  *
  * Type members:
  *
@@ -280,7 +289,7 @@ public:
    */
   static constexpr
   date_type to_date(days_type days) noexcept {
-    // http://quick-bench.com/lHE2aolOkILburgCIpL-iQLbiG4
+    // http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc
     return from_udate(ualgos::to_date(to_udays(days)));
   }
 
@@ -295,7 +304,7 @@ public:
    */
   static constexpr
   days_type to_days(date_type const& date) noexcept {
-    // http://quick-bench.com/lKEBKGAqd3Ln7yJOBc3Cr8VL7DY
+    // http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po
     return from_udays(ualgos::to_days(to_udate(date)));
   }
 

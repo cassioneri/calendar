@@ -7,8 +7,10 @@ functions:
     year_month_day::operator sys_days()
     year_month_day_last::day()
 
-This work was inspired by Howard Hinnant's excelent paper [[1]](#hinnant) on date algorithms.
-Benchmark results suggest implementations here perform considerably faster (1.7x) than Hinnant's.
+This work was inspired by Howard Hinnant's excelent paper [[1]](https://howardhinnant.github.io/date_algorithms.html)
+on date algorithms. Benchmark results ([[2]](http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc) and
+[[3]](http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po)) suggest implementations here perform
+considerably faster (up to 1.8x) than Hinnant's.
 
 # Design choices
 
@@ -30,8 +32,8 @@ The most important functions are implemented in two template classes:
 2. `sdate_algos`
 
 The former assumes years and day counts are positive and the epoch is 0000-Mar-01. The rationale is
-that `unsigned` computations are generally faster than `signed` ones. (For instance, division by
-constants [[2]](#division).) Therefore `udate_algos` gets better performance by working only on
+that `unsigned` computations are generally faster than `signed` ones. (For instance, [division by
+constants](https://godbolt.org/z/4JxB4J).) Therefore `udate_algos` gets better performance by working only on
 `unsigned` integers.
 
 The latter is more configurable allowing for negative years and day counts as well as different
@@ -49,7 +51,6 @@ on commodity hardware.)
 
 # References
 
-<span id="#hinnant">[1] Howard Hinnant, [*chrono-Compatible Low-Level Date Algorithms*](https://howardhinnant.github.io/date_algorithms.html).<br>
-<span id="#division">[2] One can see [here](https://godbolt.org/z/4JxB4J) that division by constants
-of `signed` dividends requires more instructions than on `unsigned` ones.
-
+[1] Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*, https://howardhinnant.github.io/date_algorithms.html<br>
+[2] Cassio Neri, *`to_date` benchmark*, http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc<br>
+[3] Cassio Neri, *`to_days` benchmark*, http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po<br>
