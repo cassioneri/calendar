@@ -3,17 +3,19 @@
 This repo contains low-level date algorithms that could be used to implement the following C++20's
 functions:
 
-    year_month_day::year_month_day(const sys_days& dp) // uses function to_date
-    year_month_day::operator sys_days()                // uses function to_days
-    year_month_day_last::day()
-
+    std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
+    std::chrono::year_month_day::operator sys_days()             // a.k.a. to_days
+    std::chrono::year::is_leap()
+    std::chrono::year_month_day_last::day()
+    
 This work was inspired by Howard Hinnant's excelent paper [[1]](https://howardhinnant.github.io/date_algorithms.html)
 on date algorithms. The following benchmark results suggest that implementations here perform
-considerably faster (up to 1.8x) than Hinnant's:
+considerably faster (up to 3.5x) than Hinnant's:
 ![to_date](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
-(See live: [[2]](http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc) and
-[[3]](http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po).)
+(See live [[2]](http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc),
+[[3]](http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po) and
+[[4]](http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI).)
 
 # Design choices
 
@@ -57,3 +59,5 @@ on commodity hardware.)
 [1] Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*, https://howardhinnant.github.io/date_algorithms.html<br>
 [2] Cassio Neri, *`to_date` benchmark*, http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc<br>
 [3] Cassio Neri, *`to_days` benchmark*, http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po<br>
+[4] Cassio Neri, *`is_leap_year` benchmark*, http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI<br>
+
