@@ -3,14 +3,22 @@
 This repo contains low-level date algorithms that could be used to implement the following C++20's
 functions:
 
-    year_month_day::year_month_day(const sys_days& dp)
-    year_month_day::operator sys_days()
+    year_month_day::year_month_day(const sys_days& dp) // uses function to_date
+    year_month_day::operator sys_days()                // uses function to_days
     year_month_day_last::day()
 
 This work was inspired by Howard Hinnant's excelent paper [[1]](https://howardhinnant.github.io/date_algorithms.html)
-on date algorithms. Benchmark results ([[2]](http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc) and
-[[3]](http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po)) suggest implementations here perform
-considerably faster (up to 1.8x) than Hinnant's.
+on date algorithms.
+
+Benchmark results suggest implementations here perform considerably faster (up to 1.8x) than Hinnant's. Indeed, the following chart shows quick-bench results for `to_date`:
+![to_date](https://github.com/cassioneri/dates/blob/master/to_date.png)
+
+(See live [[2]](http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc).)
+
+This one shows quick-bench results for `to_days`:
+![to_days](https://github.com/cassioneri/dates/blob/master/to_days.png)
+
+(See live [[3]](http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po).)
 
 # Design choices
 
