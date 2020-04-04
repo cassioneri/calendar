@@ -1,20 +1,20 @@
 # Date algorithms
 
-This repo contains low-level date algorithms that could be used to implement the following C++20's
+This repo contains low-level date algorithms that can be used to implement the following C++20's
 functions:
 
     std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
-    std::chrono::year_month_day::operator sys_days()             // a.k.a. to_days
+    std::chrono::year_month_day::operator sys_days()             // a.k.a. to_count
     std::chrono::year::is_leap()
     std::chrono::year_month_day_last::day()
-    
-This work was inspired by Howard Hinnant's excelent paper [[1]](https://howardhinnant.github.io/date_algorithms.html)
+
+This work was inspired by Howard Hinnant's excellent paper [[1]](https://howardhinnant.github.io/date_algorithms.html)
 on date algorithms. The following benchmark results suggest that implementations here perform
 considerably faster (up to 3.5x) than Hinnant's:
 ![to_date](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
-(See live [[2]](http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc),
-[[3]](http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po) and
+(See live [[2]](http://quick-bench.com/3Fvm8jIhDA-DzMZKyOtDffMeDF0),
+[[3]](http://quick-bench.com/Alkp9m6RusQhMQNkKh-ArhFdfRM) and
 [[4]](http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI).)
 
 # Design choices
@@ -38,8 +38,8 @@ The most important functions are implemented in two template classes:
 
 The former assumes years and day counts are positive and the epoch is 0000-Mar-01. The rationale is
 that `unsigned` computations are generally faster than `signed` ones. (For instance, [division by
-constants](https://godbolt.org/z/4JxB4J).) Therefore `udate_algos` gets better performance by working only on
-`unsigned` integers.
+constants](https://godbolt.org/z/4JxB4J).) Therefore `udate_algos` gets better performance by
+working only on `unsigned` integers.
 
 The latter is more configurable allowing for negative years and day counts as well as different
 epochs (By default, the epoch is the Unix date 1970-Jan-01.) This is a thin but not free layer
@@ -57,7 +57,7 @@ on commodity hardware.)
 # References
 
 [1] Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*, https://howardhinnant.github.io/date_algorithms.html<br>
-[2] Cassio Neri, *`to_date` benchmark*, http://quick-bench.com/4LM-uQ8lvEBHFTdks-bJiEUHqtc<br>
-[3] Cassio Neri, *`to_days` benchmark*, http://quick-bench.com/NP435Q7zNBUBuQUKwHiN6JW75Po<br>
+[2] Cassio Neri, *`to_date` benchmark*, http://quick-bench.com/3Fvm8jIhDA-DzMZKyOtDffMeDF0<br>
+[3] Cassio Neri, *`to_count` benchmark*, http://quick-bench.com/Alkp9m6RusQhMQNkKh-ArhFdfRM<br>
 [4] Cassio Neri, *`is_leap_year` benchmark*, http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI<br>
 

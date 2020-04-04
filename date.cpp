@@ -1,6 +1,5 @@
 #include "date.hpp"
 
-#include <cassert>
 #include <cstdint>
 #include <iostream>
 
@@ -12,13 +11,19 @@
 
 template <typename T>
 bool constexpr
-operator == (date_t<T> const& x, date_t<T> const& y) noexcept {
+operator ==(date_t<T> const& x, date_t<T> const& y) noexcept {
   return x.year == y.year && x.month == y.month && x.day == y.day;
 }
 
 template <typename T>
 bool constexpr
-operator < (date_t<T> const& x, date_t<T> const& y) noexcept {
+operator !=(date_t<T> const& x, date_t<T> const& y) noexcept {
+  return !(x == y);
+}
+
+template <typename T>
+bool constexpr
+operator <(date_t<T> const& x, date_t<T> const& y) noexcept {
   if (x.year  < y.year ) return true;
   if (x.year  > y.year ) return false;
   if (x.month < y.month) return true;
@@ -28,7 +33,7 @@ operator < (date_t<T> const& x, date_t<T> const& y) noexcept {
 
 template <typename T>
 bool constexpr
-operator <= (date_t<T> const& x, date_t<T> const& y) noexcept {
+operator <=(date_t<T> const& x, date_t<T> const& y) noexcept {
   return !(y < x);
 }
 
@@ -68,17 +73,17 @@ template <typename Algo>
 void
 print() {
 
-  std::cout << "date_min       = " << Algo::date_min       << '\n';
-  std::cout << "date_max       = " << Algo::date_max       << '\n';
+  std::cout << "date_min        = " << Algo::date_min        << '\n';
+  std::cout << "date_max        = " << Algo::date_max        << '\n';
 
-  std::cout << "days_min       = " << Algo::days_min       << '\n';
-  std::cout << "days_max       = " << Algo::days_max       << '\n';
+  std::cout << "count_min       = " << Algo::count_min       << '\n';
+  std::cout << "count_max       = " << Algo::count_max       << '\n';
 
-  std::cout << "round_date_min = " << Algo::round_date_min << '\n';
-  std::cout << "round_date_max = " << Algo::round_date_max << '\n';
+  std::cout << "round_date_min  = " << Algo::round_date_min  << '\n';
+  std::cout << "round_date_max  = " << Algo::round_date_max  << '\n';
 
-  std::cout << "round_days_min = " << Algo::round_days_min << '\n';
-  std::cout << "round_days_max = " << Algo::round_days_max << '\n';
+  std::cout << "round_count_min = " << Algo::round_count_min << '\n';
+  std::cout << "round_count_max = " << Algo::round_count_min << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,90 +103,92 @@ round_trip_test() noexcept {
 
   // Compile-time checks.
 
-  static_assert(A::round_days_min == A::to_days(A::round_date_min));
-  static_assert(A::round_days_max == A::to_days(A::round_date_max));
+  static_assert(A::round_count_min == A::to_count(A::round_date_min));
+  static_assert(A::round_count_max == A::to_count(A::round_date_max));
 
-  static_assert(A::round_date_min == A::to_date(A::round_days_min));
-  static_assert(A::round_date_max == A::to_date(A::round_days_max));
+  static_assert(A::round_date_min == A::to_date(A::round_count_min));
+  static_assert(A::round_date_max == A::to_date(A::round_count_max));
 
   // Runtime checks.
 
-  for (auto n = A::round_days_min; n <= A::round_days_max; ++n)
-    if (n != A::to_days(A::to_date(n)))
+  for (auto n = A::round_count_min; n <= A::round_count_max; ++n)
+    if (n != A::to_count(A::to_date(n)))
       std::cout << "round_trip_test failed for n = " << n << '\n';
 }
 
 void constexpr
 standard_compliance_test() noexcept {
 
-  using algos     = sdate_algos<std::int32_t>;
-  using date_type = algos::date_type;
+  using algos  = sdate_algos<std::int32_t>;
+  using date_t = algos::date_t;
 
   // https://eel.is/c++draft/time.clock.system#overview-1
-  static_assert(algos::to_date(0) == date_type{1970, 1, 1});
+  static_assert(algos::to_date(0) == date_t{1970, 1, 1});
 
   // https://eel.is/c++draft/time.cal.ymd#members-20
-  static_assert(algos::round_days_min <= -12687428);
-  static_assert(algos::round_days_max >=  11248737);
+  static_assert(algos::round_count_min <= -12687428);
+  static_assert(algos::round_count_max >=  11248737);
 }
 
 template <typename A>
 void
 to_date_test() noexcept {
 
-  auto date = A::to_date(A::days_min);
+  auto date = A::to_date(A::count_min);
 
-  for (auto days = A::days_min; days < A::days_max; ) {
-    auto const tomorrow = A::to_date(++days);
-    assert(tomorrow == advance(date));
+  for (auto count = A::count_min; count < A::count_max; ) {
+    auto const tomorrow = A::to_date(++count);
+    if (tomorrow != advance(date))
+      std::cout << "to_date_test failed for count = " << count << '\n';
   }
 }
 
 template <typename A>
 void
-to_days_test() noexcept {
+to_count_test() noexcept {
 
-  auto days = A::to_days(A::date_min);
+  auto count = A::to_count(A::date_min);
 
   for (auto date = A::date_min; date < A::date_max; ) {
-    auto const tomorrow = A::to_days(advance(date));
-    assert(tomorrow == ++days);
+    auto const tomorrow = A::to_count(advance(date));
+    if (tomorrow != ++count)
+      std::cout << "to_count_test failed for date = " << date << '\n';
   }
 }
 
 int
 main() {
 
-  std::cout << "--------------------------------------------------------------------------------\n";
-  std::cout << "Preliminary tests:\n";
-  std::cout << "--------------------------------------------------------------------------------\n";
+  std::cout << "--------------------\n";
+  std::cout << "Preliminary tests:  \n";
+  std::cout << "--------------------\n";
 
   test_is_multiple_of_100();
 
   std::cout << '\n';
 
-  std::cout << "--------------------------------------------------------------------------------\n";
+  std::cout << "--------------------\n";
   std::cout << "Unsigned algorithms:\n";
-  std::cout << "--------------------------------------------------------------------------------\n";
+  std::cout << "--------------------\n";
 
   using ualgos = udate_algos<std::uint32_t>;
 
   print<ualgos>();
   round_trip_test<ualgos>();
   to_date_test<ualgos>();
-  to_days_test<ualgos>();
+  to_count_test<ualgos>();
 
   std::cout << '\n';
 
-  std::cout << "--------------------------------------------------------------------------------\n";
-  std::cout << "Signed algorithms:\n";
-  std::cout << "--------------------------------------------------------------------------------\n";
+  std::cout << "--------------------\n";
+  std::cout << "Signed algorithms:  \n";
+  std::cout << "--------------------\n";
 
   using salgos = sdate_algos<std::int32_t>;
 
   print<salgos>();
   round_trip_test<salgos>();
   to_date_test<salgos>();
-  to_days_test<salgos>();
+  to_count_test<salgos>();
 }
 
