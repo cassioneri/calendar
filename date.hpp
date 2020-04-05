@@ -159,19 +159,19 @@ struct udate_algos {
   static constexpr
   date_t to_date(count_t count) noexcept {
 
-    // http://quick-bench.com/3Fvm8jIhDA-DzMZKyOtDffMeDF0
+    // http://quick-bench.com/ut-zzDrHjDIzHAJn2v8iZeC_hoE
 
     auto const century         = (4 * count + 3) / 146097;
     auto const day_of_century  = count - 146097 * century / 4;
     auto const year_of_century = (4 * day_of_century + 3) / 1461;
     auto const day_of_year     = day_of_century - 1461 * year_of_century / 4;
-    auto const year_aux        = 100 * century + year_of_century;
-    auto const month_aux       = (535 * day_of_year + 331) / 16384;
-    auto const day_aux         = day_of_year - (979 * month_aux + 15) / 32;
+    auto const year_modified   = 100 * century + year_of_century;
+    auto const month_modified  = (535 * day_of_year + 331) / 16384;
+    auto const day_modified    = day_of_year - (979 * month_modified + 15) / 32;
     auto const jan_or_feb      = day_of_year > 305;
-    auto const year            = year_aux + jan_or_feb;
-    auto const month           = jan_or_feb ? month_aux - 9 : month_aux + 3;
-    auto const day             = day_aux + 1;
+    auto const year            = year_modified + jan_or_feb;
+    auto const month           = jan_or_feb ? month_modified - 9 : month_modified + 3;
+    auto const day             = day_modified + 1;
     return { year, std::uint8_t(month), std::uint8_t(day) };
   }
 
@@ -194,15 +194,15 @@ struct udate_algos {
   static constexpr
   count_t to_count(date_t const& date) noexcept {
 
-    // http://quick-bench.com/Alkp9m6RusQhMQNkKh-ArhFdfRM
+    // http://quick-bench.com/alvg4IiLvdykY1s9Qw9H4ZFBliA
 
-    auto const jan_or_feb = date.month < 3;
-    auto const day_aux    = date.day - 1;
-    auto const month_aux  = jan_or_feb ? date.month + 9 : date.month - 3;
-    auto const year_aux   = date.year - jan_or_feb;
-    auto const century    = year_aux / 100;
-    auto const count      = 1461 * year_aux / 4 - century + century / 4 +
-      (979 * month_aux + 15) / 32 + day_aux;
+    auto const jan_or_feb     = date.month < 3;
+    auto const day_modified   = date.day - 1;
+    auto const month_modified = jan_or_feb ? date.month + 9 : date.month - 3;
+    auto const year_modified  = date.year - jan_or_feb;
+    auto const century        = year_modified / 100;
+    auto const count          = 1461 * year_modified / 4 - century + century / 4 +
+      (979 * month_modified + 15) / 32 + day_modified;
     return count;
   }
 
@@ -332,7 +332,7 @@ public:
    */
   static constexpr
   date_t to_date(count_t count) noexcept {
-    // http://quick-bench.com/3Fvm8jIhDA-DzMZKyOtDffMeDF0
+    // http://quick-bench.com/ut-zzDrHjDIzHAJn2v8iZeC_hoE
     return from_udate(ualgos::to_date(to_ucount(count)));
   }
 
@@ -354,7 +354,7 @@ public:
    */
   static constexpr
   count_t to_count(date_t const& date) noexcept {
-    // http://quick-bench.com/Alkp9m6RusQhMQNkKh-ArhFdfRM
+    // http://quick-bench.com/alvg4IiLvdykY1s9Qw9H4ZFBliA
     return from_ucount(ualgos::to_count(to_udate(date)));
   }
 
