@@ -11,6 +11,7 @@ functions:
 This work was inspired by Howard Hinnant's excellent paper [[1]](https://howardhinnant.github.io/date_algorithms.html)
 on date algorithms. The following benchmark results suggest that implementations here perform
 considerably faster (up to 3.5x) than Hinnant's:
+
 ![to_date](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
 (See live [[2]](http://quick-bench.com/ut-zzDrHjDIzHAJn2v8iZeC_hoE),
