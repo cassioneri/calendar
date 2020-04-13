@@ -92,17 +92,17 @@ template <typename Algo>
 void
 print() {
 
-  std::cout << "date_min        = " << Algo::date_min        << '\n';
-  std::cout << "date_max        = " << Algo::date_max        << '\n';
+  std::cout << "date_min           = " << Algo::date_min           << '\n';
+  std::cout << "date_max           = " << Algo::date_max           << '\n';
 
-  std::cout << "count_min       = " << Algo::count_min       << '\n';
-  std::cout << "count_max       = " << Algo::count_max       << '\n';
+  std::cout << "rata_die_min       = " << Algo::rata_die_min       << '\n';
+  std::cout << "rata_die_max       = " << Algo::rata_die_max       << '\n';
 
-  std::cout << "round_date_min  = " << Algo::round_date_min  << '\n';
-  std::cout << "round_date_max  = " << Algo::round_date_max  << '\n';
+  std::cout << "round_date_min     = " << Algo::round_date_min     << '\n';
+  std::cout << "round_date_max     = " << Algo::round_date_max     << '\n';
 
-  std::cout << "round_count_min = " << Algo::round_count_min << '\n';
-  std::cout << "round_count_max = " << Algo::round_count_min << '\n';
+  std::cout << "round_rata_die_min = " << Algo::round_rata_die_min << '\n';
+  std::cout << "round_rata_die_max = " << Algo::round_rata_die_max << '\n';
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,16 +122,16 @@ round_trip_test() noexcept {
 
   // Compile-time checks.
 
-  static_assert(A::round_count_min == A::to_count(A::round_date_min));
-  static_assert(A::round_count_max == A::to_count(A::round_date_max));
+  static_assert(A::round_rata_die_min == A::to_rata_die(A::round_date_min));
+  static_assert(A::round_rata_die_max == A::to_rata_die(A::round_date_max));
 
-  static_assert(A::round_date_min == A::to_date(A::round_count_min));
-  static_assert(A::round_date_max == A::to_date(A::round_count_max));
+  static_assert(A::round_date_min == A::to_date(A::round_rata_die_min));
+  static_assert(A::round_date_max == A::to_date(A::round_rata_die_max));
 
   // Runtime checks.
 
-  for (auto n = A::round_count_min; n <= A::round_count_max; ++n)
-    if (n != A::to_count(A::to_date(n)))
+  for (auto n = A::round_rata_die_min; n <= A::round_rata_die_max; ++n)
+    if (n != A::to_rata_die(A::to_date(n)))
       std::cout << "round_trip_test failed for n = " << n << '\n';
 }
 
@@ -145,33 +145,33 @@ standard_compliance_test() noexcept {
   static_assert(algos::to_date(0) == date_t{1970, 1, 1});
 
   // https://eel.is/c++draft/time.cal.ymd#members-20
-  static_assert(algos::round_count_min <= -12687428);
-  static_assert(algos::round_count_max >=  11248737);
+  static_assert(algos::round_rata_die_min <= -12687428);
+  static_assert(algos::round_rata_die_max >=  11248737);
 }
 
 template <typename A>
 void
 to_date_test() noexcept {
 
-  auto date = A::to_date(A::count_min);
+  auto date = A::to_date(A::rata_die_min);
 
-  for (auto count = A::count_min; count < A::count_max; ) {
-    auto const tomorrow = A::to_date(++count);
+  for (auto rata_die = A::rata_die_min; rata_die < A::rata_die_max; ) {
+    auto const tomorrow = A::to_date(++rata_die);
     if (tomorrow != advance(date))
-      std::cout << "to_date_test failed for count = " << count << '\n';
+      std::cout << "to_date_test failed for rata_die = " << rata_die << '\n';
   }
 }
 
 template <typename A>
 void
-to_count_test() noexcept {
+to_rata_die_test() noexcept {
 
-  auto count = A::to_count(A::date_min);
+  auto rata_die = A::to_rata_die(A::date_min);
 
   for (auto date = A::date_min; date < A::date_max; ) {
-    auto const tomorrow = A::to_count(advance(date));
-    if (tomorrow != ++count)
-      std::cout << "to_count_test failed for date = " << date << '\n';
+    auto const tomorrow = A::to_rata_die(advance(date));
+    if (tomorrow != ++rata_die)
+      std::cout << "to_rata_die_test failed for date = " << date << '\n';
   }
 }
 
@@ -195,7 +195,7 @@ main() {
   print<ualgos>();
   round_trip_test<ualgos>();
   to_date_test<ualgos>();
-  to_count_test<ualgos>();
+  to_rata_die_test<ualgos>();
 
   std::cout << '\n';
 
@@ -208,6 +208,6 @@ main() {
   print<salgos>();
   round_trip_test<salgos>();
   to_date_test<salgos>();
-  to_count_test<salgos>();
+  to_rata_die_test<salgos>();
 }
 
