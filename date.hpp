@@ -159,7 +159,7 @@ struct udate_algos {
    */
   static constexpr
   date_t to_date(rata_die_t rata_die) noexcept {
-    // http://quick-bench.com/KpuxxwA5mRr9t8ahuKAwHlpUD3A
+    // http://quick-bench.com/qCwuui5YriZEzf6qdkGMEXk0FYw
     auto const n1              = 4 * rata_die + 3;
     auto const century         = n1 / 146097;
     auto const n2              = n1 % 146097 + century % 4;
@@ -193,18 +193,16 @@ struct udate_algos {
    */
   static constexpr
   rata_die_t to_rata_die(date_t const& date) noexcept {
-
-    // http://quick-bench.com/ayO1N4nsDY6EL1I_8qa7b3nUhi0
-
-    auto const jan_or_feb     = date.month < 3;
-    auto const day_modified   = date.day - 1;
-    auto const month_modified = jan_or_feb ? date.month + 9 : date.month - 3;
-    auto const year_modified  = date.year - jan_or_feb;
-    auto const century        = year_modified / 100;
-    auto const year_count     = 1461 * year_modified / 4 - century + century / 4;
-    auto const month_count    = (979 * month_modified + 15) / 32;
-    auto const day_count      = day_modified;
-    auto const rata_die       = year_count + month_count + day_count;
+    // http://quick-bench.com/mKBtks-eedKyLm8qCF8ZK_fXl2o
+    auto const jan_or_feb = date.month < 3;
+    auto const day_       = date.day - 1;
+    auto const month_     = jan_or_feb ? date.month + 9 : date.month - 3;
+    auto const year_      = date.year - jan_or_feb;
+    auto const century    = year_ / 100;
+    auto const r1         = 1461 * year_ / 4 - century + century / 4;
+    auto const r2         = (979 * month_ + 15) / 32;
+    auto const r3         = day_;
+    auto const rata_die   = r1 + r2 + r3;
     return rata_die;
   }
 
@@ -335,7 +333,7 @@ public:
    */
   static constexpr
   date_t to_date(rata_die_t rata_die) noexcept {
-    // http://quick-bench.com/KpuxxwA5mRr9t8ahuKAwHlpUD3A
+    // http://quick-bench.com/qCwuui5YriZEzf6qdkGMEXk0FYw
     return from_udate(ualgos::to_date(to_urata_die(rata_die)));
   }
 
@@ -357,7 +355,7 @@ public:
    */
   static constexpr
   rata_die_t to_rata_die(date_t const& date) noexcept {
-    // http://quick-bench.com/ayO1N4nsDY6EL1I_8qa7b3nUhi0
+    // http://quick-bench.com/mKBtks-eedKyLm8qCF8ZK_fXl2o
     return from_urata_die(ualgos::to_rata_die(to_udate(date)));
   }
 

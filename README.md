@@ -14,8 +14,8 @@ considerably faster (up to 3.5x) than Hinnant's:
 
 ![to_date](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
-(See live [[2]](http://quick-bench.com/KpuxxwA5mRr9t8ahuKAwHlpUD3A),
-[[3]](http://quick-bench.com/ayO1N4nsDY6EL1I_8qa7b3nUhi0) and
+(See live [[2]](http://quick-bench.com/qCwuui5YriZEzf6qdkGMEXk0FYw),
+[[3]](http://quick-bench.com/mKBtks-eedKyLm8qCF8ZK_fXl2o) and
 [[4]](http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI).)
 
 # Design choices
@@ -58,7 +58,7 @@ on commodity hardware.)
 # References
 
 [1] Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*, https://howardhinnant.github.io/date_algorithms.html<br>
-[2] Cassio Neri, *`to_date` benchmark*, http://quick-bench.com/KpuxxwA5mRr9t8ahuKAwHlpUD3A<br>
-[3] Cassio Neri, *`to_rata_die` benchmark*, http://quick-bench.com/ayO1N4nsDY6EL1I_8qa7b3nUhi0<br>
+[2] Cassio Neri, *`to_date` benchmark*, http://quick-bench.com/qCwuui5YriZEzf6qdkGMEXk0FYw<br>
+[3] Cassio Neri, *`to_rata_die` benchmark*, http://quick-bench.com/mKBtks-eedKyLm8qCF8ZK_fXl2o<br>
 [4] Cassio Neri, *`is_leap_year` benchmark*, http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI<br>
 
