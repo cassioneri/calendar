@@ -35,11 +35,11 @@ using day_t   = std::uint8_t;
 /**
  * @brief   Date storage type.
  *
- * @tparam  Int       Year storage type.
+ * @tparam  Y         Year storage type.
  */
-template <typename Int>
+template <typename Y>
 struct date_t {
-  Int     year;
+  Y       year;
   month_t month;
   day_t   day;
 };
@@ -72,26 +72,26 @@ is_multiple_of_100(std::int32_t n) noexcept {
 /**
  * @brief   Checks if a given number is multiple of 100 or not uisng built-in operator %.
  *
- * @tparam  Int       The type of the given number.
+ * @tparam  T         The type of the given number.
  * @param   n         The given number.
  */
-template <typename Int>
+template <typename T>
 bool constexpr
-is_multiple_of_100(Int n) noexcept {
+is_multiple_of_100(T n) noexcept {
   return n % 100 == 0;
 }
 
 /**
  * @brief   Checks if a given year is leap or not.
  *
- * @tparam  Int       Type of the given year.
+ * @tparam  Y         Type of the given year.
  * @param   year      The given year.
  *
  * @pre               -536870800 <= year && year <= 536870999
  */
-template <typename Int>
+template <typename T>
 bool constexpr
-is_leap_year(Int year) noexcept {
+is_leap_year(T year) noexcept {
   // http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI
   // http://stackoverflow.com/a/60646967/1137388
   return (!is_multiple_of_100(year) || year % 400 == 0) & (year % 4 == 0);
@@ -100,13 +100,13 @@ is_leap_year(Int year) noexcept {
 /**
  * @brief   Returns the last day of the month for a given year and month.
  *
- * @tparam  Int       Type of the given year.
+ * @tparam  Y         Type of the given year.
  * @param   year      The given year.
  * @param   month     The given month.
  */
-template <typename Int>
+template <typename Y>
 std::uint8_t constexpr
-last_day_of_month(Int year, month_t month) noexcept {
+last_day_of_month(Y year, month_t month) noexcept {
   // One MUST see benchmark results below and comments therein.
   // http://quick-bench.com/40yoPY7ZJG6VQKBNv6fJtYA9-E8
   std::uint32_t constexpr b = 0b1010110101010;
@@ -116,19 +116,20 @@ last_day_of_month(Int year, month_t month) noexcept {
 /**
  * @brief   Unsigned algorithms.
  *
- * @tparam  UInt      Rata die and year storage type.
+ * @tparam  Y         Year storage type.
+ * @tparam  R         Ratadie storage type
  * @pre               std::is_unsigned_v<UInt> && std::numeric_limits<UInt>::digits >= 18
  */
-template <typename UInt = std::uint32_t>
+template <typename Y = std::uint32_t, typename R = Y>
 struct udate_algos {
 
-  static_assert(std::is_unsigned_v<UInt>);
-  static_assert(std::numeric_limits<UInt>::digits >= 18); // 146097 is 18-bits long
+  static_assert(std::is_unsigned_v<Y>);
+  static_assert(std::numeric_limits<Y>::digits >= 18); // 146097 is 18-bits long
 
   /**
    * @brief Rata die and year storage type.
    */
-  using rata_die_t = UInt;
+  using rata_die_t = R;
 
   /**
    * @brief Date storage type.
@@ -158,20 +159,19 @@ struct udate_algos {
    */
   static constexpr
   date_t to_date(rata_die_t rata_die) noexcept {
-
     // http://quick-bench.com/KpuxxwA5mRr9t8ahuKAwHlpUD3A
-
-    auto const century         = (4 * rata_die + 3) / 146097;
-    auto const day_of_century  = rata_die - 146097 * century / 4;
-    auto const year_of_century = (4 * day_of_century + 3) / 1461;
-    auto const day_of_year     = day_of_century - 1461 * year_of_century / 4;
-    auto const year_modified   = 100 * century + year_of_century;
-    auto const month_modified  = (535 * day_of_year + 331) / 16384;
-    auto const day_modified    = day_of_year - (979 * month_modified + 15) / 32;
-    auto const jan_or_feb      = day_of_year > 305;
-    auto const year            = year_modified + jan_or_feb;
-    auto const month           = jan_or_feb ? month_modified - 9 : month_modified + 3;
-    auto const day             = day_modified + 1;
+    auto const n1              = 4 * rata_die + 3;
+    auto const century         = n1 / 146097;
+    auto const n2              = n1 % 146097 + century % 4;
+    auto const year_of_century = n2 / 1461;
+    auto const n3              = n2 % 1461 / 4;
+    auto const year_           = 100 * century + year_of_century;
+    auto const month_          = (535 * n3 + 331) / 16384;
+    auto const day_            = n3 - (979 * month_ + 15) / 32;
+    auto const jan_or_feb      = n3 > 305;
+    auto const year            = year_ + jan_or_feb;
+    auto const month           = jan_or_feb ? month_ - 9 : month_ + 3;
+    auto const day             = day_ + 1;
     return { year, std::uint8_t(month), std::uint8_t(day) };
   }
 
@@ -233,10 +233,10 @@ struct udate_algos {
 /**
  * @brief   The Unix epoch, i.e., 1970-Jan-01.
  *
- * @tparam  Int       Type of year data member.
+ * @tparam  Y         Type of year data member.
  */
-template <typename Int = std::int32_t>
-auto constexpr unix_epoch = date_t<Int>{1970, 1, 1};
+template <typename Y = std::int32_t>
+auto constexpr unix_epoch = date_t<Y>{1970, 1, 1};
 
 /**
  * @brief   Signed algorithms.
@@ -247,21 +247,22 @@ auto constexpr unix_epoch = date_t<Int>{1970, 1, 1};
  * through one addition and one subtraction) before/after delegating to a corresponding function in
  * udate_algos.
  *
- * @tparam  Int       Rata die and year storage type.
+ * @tparam  Y         Year storage type.
+ * @tparam  R         Rata die storage type.
  * @tparam  epoch     Date used as epoch.
- * @pre               std::is_signed_v<Int> && epoch.year >= 0
+ * @pre               std::is_signed_v<Y> && epoch.year >= 0
  */
  // Todo: (CN) Acount and document pre-conditions to avoid overflow when adding/subtracting offsets.
-template <typename Int, date_t<Int> epoch = unix_epoch<Int>>
+template <typename Y, typename R = Y, date_t<Y> epoch = unix_epoch<Y>>
 struct sdate_algos {
 
-  static_assert(std::is_signed_v<Int>);
+  static_assert(std::is_signed_v<Y>);
   static_assert(epoch.year >= 0);
 
   /**
    * @brief Rata die and year storage type.
    */
-  using rata_die_t = Int;
+  using rata_die_t = R;
 
   /**
    * @brief Date storage type.
