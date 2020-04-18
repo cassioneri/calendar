@@ -109,7 +109,7 @@ static integer_t constexpr month_limits[12][2] = {
 struct month_from_day_of_year : public finder<month_from_day_of_year, std::ratio<1, 31>> {
 
   bool test(integer_t a, integer_t b, integer_t c) const {
-    for (int m = 0; m < 12; ++m)
+    for (integer_t m = 0; m < 12; ++m)
       if (calc(month_limits[m][0], a, b, c) != m || calc(month_limits[m][1], a, b, c) != m)
         return false;
     return true;
@@ -123,7 +123,7 @@ struct month_from_day_of_year : public finder<month_from_day_of_year, std::ratio
 struct days_since_1st_Mar : public finder<days_since_1st_Mar, std::ratio<30, 1>> {
 
   bool test(integer_t a, integer_t b, integer_t c) const {
-    for (int m = 0; m < 12; ++m)
+    for (integer_t m = 0; m < 12; ++m)
       if (calc(m, a, b, c) != month_limits[m][0])
         return false;
     return true;
@@ -158,4 +158,3 @@ int main() {
   // For integer_t = std::uint64_t cannot find coefficients in a reasonable amount of time.
   year_of_century().find();
 }
-
