@@ -159,18 +159,18 @@ struct udate_algos {
    */
   static constexpr
   date_t to_date(rata_die_t rata_die) noexcept {
-    // http://quick-bench.com/qCwuui5YriZEzf6qdkGMEXk0FYw
+    // http://quick-bench.com/yTDSZpveJ2cMW-Hdc6LcFocXaD8
     auto const n1              = 4 * rata_die + 3;
     auto const century         = n1 / 146097;
     auto const n2              = n1 % 146097 + century % 4;
     auto const year_of_century = n2 / 1461;
     auto const n3              = n2 % 1461 / 4;
     auto const year_           = 100 * century + year_of_century;
-    auto const month_          = (535 * n3 + 331) / 16384;
-    auto const day_            = n3 - (979 * month_ + 15) / 32;
+    auto const month_          = (535 * n3 + 49483) / 16384;
+    auto const day_            = n3 - (979 * month_ - 2922) / 32;
     auto const jan_or_feb      = n3 > 305;
     auto const year            = year_ + jan_or_feb;
-    auto const month           = jan_or_feb ? month_ - 9 : month_ + 3;
+    auto const month           = jan_or_feb ? month_ - 12 : month_;
     auto const day             = day_ + 1;
     return { year, std::uint8_t(month), std::uint8_t(day) };
   }
@@ -193,14 +193,17 @@ struct udate_algos {
    */
   static constexpr
   rata_die_t to_rata_die(date_t const& date) noexcept {
-    // http://quick-bench.com/mKBtks-eedKyLm8qCF8ZK_fXl2o
-    auto const jan_or_feb = date.month < 3;
-    auto const day_       = date.day - 1;
-    auto const month_     = jan_or_feb ? date.month + 9 : date.month - 3;
-    auto const year_      = date.year - jan_or_feb;
+    // http://quick-bench.com/S_xsrh_X6951w6BirmiFjCY1GC4
+    auto const uyear      = rata_die_t(date.year);
+    auto const umonth     = rata_die_t(date.month);
+    auto const uday       = rata_die_t(date.day);
+    auto const jan_or_feb = rata_die_t(umonth < 3);
+    auto const day_       = uday - 1;
+    auto const month_     = jan_or_feb ? umonth + 12 : umonth;
+    auto const year_      = uyear - jan_or_feb;
     auto const century    = year_ / 100;
     auto const r1         = 1461 * year_ / 4 - century + century / 4;
-    auto const r2         = (979 * month_ + 15) / 32;
+    auto const r2         = (979 * month_ - 2922) / 32;
     auto const r3         = day_;
     auto const rata_die   = r1 + r2 + r3;
     return rata_die;
@@ -333,7 +336,7 @@ public:
    */
   static constexpr
   date_t to_date(rata_die_t rata_die) noexcept {
-    // http://quick-bench.com/qCwuui5YriZEzf6qdkGMEXk0FYw
+    // http://quick-bench.com/yTDSZpveJ2cMW-Hdc6LcFocXaD8
     return from_udate(ualgos::to_date(to_urata_die(rata_die)));
   }
 
@@ -355,7 +358,7 @@ public:
    */
   static constexpr
   rata_die_t to_rata_die(date_t const& date) noexcept {
-    // http://quick-bench.com/mKBtks-eedKyLm8qCF8ZK_fXl2o
+    // http://quick-bench.com/S_xsrh_X6951w6BirmiFjCY1GC4
     return from_urata_die(ualgos::to_rata_die(to_udate(date)));
   }
 
