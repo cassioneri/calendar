@@ -24,6 +24,80 @@
 
 // Compile with: g++ -O3 -std=c++2a date.cpp -o date
 
+using year_t     = std::int16_t; // as in std::chrono::year
+using month_t    = std::uint8_t; // as in std::chrono::month
+using day_t      = std::uint8_t; // as in std::chrono::day
+using rata_die_t = std::int32_t;
+
+//--------------------------------------------------------------------------------------------------
+// Other implementations
+//--------------------------------------------------------------------------------------------------
+
+namespace others {
+
+using date_t = ::date_t<year_t>;
+
+namespace hinnant {
+
+// __from_days : https://github.com/llvm/llvm-project/blob/master/libcxx/include/chrono
+date_t constexpr to_date(rata_die_t __d) noexcept {
+  const int      __z = __d + 719468;
+  const int      __era = (__z >= 0 ? __z : __z - 146096) / 146097;
+  const unsigned __doe = static_cast<unsigned>(__z - __era * 146097);              // [0, 146096]
+  const unsigned __yoe = (__doe - __doe/1460 + __doe/36524 - __doe/146096) / 365;  // [0, 399]
+  const int      __yr = static_cast<int>(__yoe) + __era * 400;
+  const unsigned __doy = __doe - (365 * __yoe + __yoe/4 - __yoe/100);              // [0, 365]
+  const unsigned __mp = (5 * __doy + 2)/153;                                       // [0, 11]
+  const unsigned __dy = __doy - (153 * __mp + 2)/5 + 1;                            // [1, 31]
+  const unsigned __mth = __mp + (__mp < 10 ? 3 : -9);                              // [1, 12]
+  return date_t{year_t(__yr + (__mth <= 2)), month_t(__mth), day_t(__dy)};
+}
+
+// __to_days : https://github.com/llvm/llvm-project/blob/master/libcxx/include/chrono
+rata_die_t constexpr to_rata_die(date_t date) noexcept {
+  const int      __yr  = static_cast<int>(date.year) - (date.month <= 2);
+  const unsigned __mth = static_cast<unsigned>(date.month);
+  const unsigned __dy  = static_cast<unsigned>(date.day);
+  const int      __era = (__yr >= 0 ? __yr : __yr - 399) / 400;
+  const unsigned __yoe = static_cast<unsigned>(__yr - __era * 400);                // [0, 399]
+  const unsigned __doy = (153 * (__mth + (__mth > 2 ? -3 : 9)) + 2) / 5 + __dy-1;  // [0, 365]
+  const unsigned __doe = __yoe * 365 + __yoe/4 - __yoe/100 + __doy;                // [0, 146096]
+  return rata_die_t{__era * 146097 + static_cast<int>(__doe) - 719468};
+}
+
+} // namespace hinnant
+
+namespace baum {
+
+// Section 6.2.1/3 : https://www.researchgate.net/publication/316558298_Date_Algorithms
+date_t constexpr to_date(rata_die_t rata_die) noexcept {
+  auto const z      = std::uint32_t(rata_die) + 719103; // adjusted to unix epoch
+  auto const h      = 100 * z + 25;
+  auto const a      = h / 3652425;
+  auto const b      = a - a / 4;
+  auto const year_  = (100 * b + h) / 36525;
+  auto const c      = b + z - 365 * year_ - year_ / 4;
+  auto const month_ = (535 * c + 48950) / 16384;
+  auto const day    = c - (979 * month_ - 2918) / 32;
+  auto const jof    = month_ > 12;
+  auto const year   = year_ + jof;
+  auto const month  = jof ? month_ - 12 : month_;
+  return { year_t(year), month_t(month), day_t(day) };
+}
+
+// Section 5.1 : https://www.researchgate.net/publication/316558298_Date_Algorithms
+rata_die_t constexpr to_rata_die(date_t date) noexcept {
+  auto const jof = date.month < 3;
+  auto const z  = date.year - jof;                // step 1 / alternative 2
+  auto const f  = (979 * date.month - 2918) / 32; // step 2 / alternative 3
+  return rata_die_t{date.day + f +                // step 3 (adjusted to unix epoch)
+    365 * z + z / 4 - z / 100 + z / 400 - 719103};
+}
+
+} // namespace baum
+
+} // namespace others
+
 //--------------------------------------------------------------------------------------------------
 // Helpers
 //--------------------------------------------------------------------------------------------------
@@ -138,7 +212,7 @@ round_trip_test() noexcept {
 void constexpr
 standard_compliance_test() noexcept {
 
-  using algos  = sdate_algos<std::int32_t>;
+  using algos  = sdate_algos<std::int16_t, std::int32_t>;
   using date_t = algos::date_t;
 
   // https://eel.is/c++draft/time.clock.system#overview-1
@@ -175,22 +249,28 @@ to_rata_die_test() noexcept {
   }
 }
 
+void
+test_baum_epoch() {
+  static_assert(others::baum::to_rata_die(date_t<year_t>{1970, 1, 1}) == 0);
+}
+
 int
 main() {
 
-  std::cout << "--------------------\n";
-  std::cout << "Preliminary tests:  \n";
-  std::cout << "--------------------\n";
+  std::cout << "--------------------------\n";
+  std::cout << "Preliminary tests:        \n";
+  std::cout << "--------------------------\n";
 
   test_is_multiple_of_100();
+  test_baum_epoch();
 
   std::cout << '\n';
 
-  std::cout << "--------------------\n";
-  std::cout << "Unsigned algorithms:\n";
-  std::cout << "--------------------\n";
+  std::cout << "--------------------------\n";
+  std::cout << "Unsigned algorithms tests:\n";
+  std::cout << "--------------------------\n";
 
-  using ualgos = udate_algos<std::uint32_t>;
+  using ualgos = udate_algos<std::make_unsigned_t<year_t>, std::make_unsigned_t<rata_die_t>>;
 
   print<ualgos>();
   round_trip_test<ualgos>();
@@ -199,11 +279,11 @@ main() {
 
   std::cout << '\n';
 
-  std::cout << "--------------------\n";
-  std::cout << "Signed algorithms:  \n";
-  std::cout << "--------------------\n";
+  std::cout << "--------------------------\n";
+  std::cout << "Signed algorithms:        \n";
+  std::cout << "--------------------------\n";
 
-  using salgos = sdate_algos<std::int32_t>;
+  using salgos = sdate_algos<year_t, rata_die_t>;
 
   print<salgos>();
   round_trip_test<salgos>();

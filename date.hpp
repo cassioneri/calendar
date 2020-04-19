@@ -118,13 +118,15 @@ last_day_of_month(Y year, month_t month) noexcept {
  *
  * @tparam  Y         Year storage type.
  * @tparam  R         Ratadie storage type
- * @pre               std::is_unsigned_v<UInt> && std::numeric_limits<UInt>::digits >= 18
+ * @pre               std::is_unsigned_v<Y> && std::is_unsigned_v<R> &&
+ *                    std::numeric_limits<R>::digits >= 18
  */
 template <typename Y = std::uint32_t, typename R = Y>
 struct udate_algos {
 
-  static_assert(std::is_unsigned_v<Y>);
-  static_assert(std::numeric_limits<Y>::digits >= 18); // 146097 is 18-bits long
+  // Note: 146097 is 18-bits long
+  static_assert(std::is_unsigned_v<Y> && std::is_unsigned_v<R> &&
+    std::numeric_limits<R>::digits >= 18);
 
   /**
    * @brief Rata die and year storage type.
@@ -159,7 +161,7 @@ struct udate_algos {
    */
   static constexpr
   date_t to_date(rata_die_t rata_die) noexcept {
-    // http://quick-bench.com/yTDSZpveJ2cMW-Hdc6LcFocXaD8
+    // http://quick-bench.com/jXnc-jdHbqYyp4BHrKrCDpzqbpU
     auto const n1              = 4 * rata_die + 3;
     auto const century         = n1 / 146097;
     auto const n2              = n1 % 146097 + century % 4;
@@ -193,7 +195,7 @@ struct udate_algos {
    */
   static constexpr
   rata_die_t to_rata_die(date_t const& date) noexcept {
-    // http://quick-bench.com/S_xsrh_X6951w6BirmiFjCY1GC4
+    // http://quick-bench.com/fNRyutHsrVJClleqLcw5Szg4z6g
     auto const uyear      = rata_die_t(date.year);
     auto const umonth     = rata_die_t(date.month);
     auto const uday       = rata_die_t(date.day);
@@ -253,12 +255,11 @@ auto constexpr unix_epoch = date_t<Y>{1970, 1, 1};
  * @tparam  epoch     Date used as epoch.
  * @pre               std::is_signed_v<Y> && epoch.year >= 0
  */
- // Todo: (CN) Acount and document pre-conditions to avoid overflow when adding/subtracting offsets.
+ // TODO: Account and document pre-conditions to avoid overflow when adding/subtracting offsets.
 template <typename Y, typename R = Y, date_t<Y> epoch = unix_epoch<Y>>
 struct sdate_algos {
 
-  static_assert(std::is_signed_v<Y>);
-  static_assert(epoch.year >= 0);
+  static_assert(std::is_signed_v<Y> && epoch.year >= 0);
 
   /**
    * @brief Rata die and year storage type.
@@ -336,7 +337,7 @@ public:
    */
   static constexpr
   date_t to_date(rata_die_t rata_die) noexcept {
-    // http://quick-bench.com/yTDSZpveJ2cMW-Hdc6LcFocXaD8
+    // http://quick-bench.com/jXnc-jdHbqYyp4BHrKrCDpzqbpU
     return from_udate(ualgos::to_date(to_urata_die(rata_die)));
   }
 
@@ -358,7 +359,7 @@ public:
    */
   static constexpr
   rata_die_t to_rata_die(date_t const& date) noexcept {
-    // http://quick-bench.com/S_xsrh_X6951w6BirmiFjCY1GC4
+    // http://quick-bench.com/fNRyutHsrVJClleqLcw5Szg4z6g
     return from_urata_die(ualgos::to_rata_die(to_udate(date)));
   }
 
