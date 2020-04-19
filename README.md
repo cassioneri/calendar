@@ -8,15 +8,17 @@ functions:
     std::chrono::year::is_leap()
     std::chrono::year_month_day_last::day()
 
-This work was inspired by Howard Hinnant's excellent paper [[1]](https://howardhinnant.github.io/date_algorithms.html)
-on date algorithms. The following benchmark results suggest that implementations here perform
-considerably faster (up to 3.5x) than Hinnant's:
+This work was inspired by Howard Hinnant's excellent paper [[2]](#hinnant) on date algorithms. It
+has also a large overlap with Peter Baum's work [[1]](#baum).
+
+The following benchmark results suggest that implementations here perform considerably faster than
+Hinnant's and Baum's:
 
 ![to_date](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
-(See live [[2]](http://quick-bench.com/mduZ9h8HoLnqskrghGNDr8GPBLU),
-[[3]](http://quick-bench.com/fNRyutHsrVJClleqLcw5Szg4z6g) and
-[[4]](http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI).)
+(See live [[3]](http://quick-bench.com/mduZ9h8HoLnqskrghGNDr8GPBLU),
+[[4]](http://quick-bench.com/fNRyutHsrVJClleqLcw5Szg4z6g) and
+[[5]](http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI).)
 
 # Design choices
 
@@ -57,8 +59,14 @@ on commodity hardware.)
 
 # References
 
-[1] Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*, https://howardhinnant.github.io/date_algorithms.html<br>
-[2] Cassio Neri, *`to_date` benchmark*, http://quick-bench.com/mduZ9h8HoLnqskrghGNDr8GPBLU<br>
-[3] Cassio Neri, *`to_rata_die` benchmark*, http://quick-bench.com/fNRyutHsrVJClleqLcw5Szg4z6g<br>
-[4] Cassio Neri, *`is_leap_year` benchmark*, http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI<br>
+[1] <span id="baum"> Peter Baum, *Date Algorithms*,
+  https://www.researchgate.net/publication/316558298_Date_Algorithms<br>
+[2] <span id="hinnant"> Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*,
+  https://howardhinnant.github.io/date_algorithms.html<br>
+[3] <span id="to_date"> Cassio Neri, *`to_date` benchmark*,
+  http://quick-bench.com/mduZ9h8HoLnqskrghGNDr8GPBLU<br>
+[4] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmark*,
+  http://quick-bench.com/fNRyutHsrVJClleqLcw5Szg4z6g<br>
+[5] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmark*,
+  http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI<br>
 
