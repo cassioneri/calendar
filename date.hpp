@@ -185,7 +185,7 @@ struct udate_algos {
  /**
   * @brief  Maximum date allowed as input to to_rata_die.
   */
-  static date_t constexpr date_max = {std::numeric_limits<rata_die_t>::max() / 1461 + 1, 2, 28};
+  static date_t constexpr date_max = {std::numeric_limits<rata_die_t>::max() / 1461, 2, 28};
 
   /**
    * @brief Returns the rata die corresponding to a given date.
@@ -224,12 +224,12 @@ struct udate_algos {
   /**
    * @brief Minimum date allowed as input to to_rata_die for round trip.
    */
-  static date_t  constexpr round_date_min = to_date(round_rata_die_min);
+  static date_t constexpr round_date_min = to_date(round_rata_die_min);
 
   /**
    * @brief Maximum date allowed as input to to_rata_die for round trip.
    */
-  static date_t  constexpr round_date_max = to_date(round_rata_die_max);
+  static date_t constexpr round_date_max = to_date(round_rata_die_max);
 
 }; // struct udate_algos
 
