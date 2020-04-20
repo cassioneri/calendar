@@ -180,33 +180,12 @@ print() {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Tests
+// Static tests
 //--------------------------------------------------------------------------------------------------
 
-void // could be constexpr but... No!
-test_is_multiple_of_100() {
-  for (std::int32_t n = -536870800; n <= 536870999; ++n)
-    if ((n % 100 == 0) != is_multiple_of_100(n))
-      std::cout << "test_is_multiple_of_100 failed for n = " << n << '\n';
-}
-
-template <typename A>
-void // could be constexpr but... No!
-round_trip_test() noexcept {
-
-  // Compile-time checks.
-
-  static_assert(A::round_rata_die_min == A::to_rata_die(A::round_date_min));
-  static_assert(A::round_rata_die_max == A::to_rata_die(A::round_date_max));
-
-  static_assert(A::round_date_min == A::to_date(A::round_rata_die_min));
-  static_assert(A::round_date_max == A::to_date(A::round_rata_die_max));
-
-  // Runtime checks.
-
-  for (auto n = A::round_rata_die_min; n <= A::round_rata_die_max; ++n)
-    if (n != A::to_rata_die(A::to_date(n)))
-      std::cout << "round_trip_test failed for n = " << n << '\n';
+void constexpr
+baum_epoch_test() {
+  static_assert(others::baum::to_rata_die(date_t<year_t>{1970, 1, 1}) == 0);
 }
 
 void constexpr
@@ -223,35 +202,104 @@ standard_compliance_test() noexcept {
   static_assert(algos::round_rata_die_max >=  11248737);
 }
 
+void constexpr
+get_month_test() {
+  auto constexpr f = [](std::int32_t n) { return (535 * n + 49483) / 16384; };
+  #define GET_MONTH_TEST(m, b, e) static_assert(f(b) == m && f(e) == m)
+  GET_MONTH_TEST( 3,   0,  30);
+  GET_MONTH_TEST( 4,  31,  60);
+  GET_MONTH_TEST( 5,  61,  91);
+  GET_MONTH_TEST( 6,  92, 121);
+  GET_MONTH_TEST( 7, 122, 152);
+  GET_MONTH_TEST( 8, 153, 183);
+  GET_MONTH_TEST( 9, 184, 213);
+  GET_MONTH_TEST(10, 214, 244);
+  GET_MONTH_TEST(11, 245, 274);
+  GET_MONTH_TEST(12, 275, 305);
+  GET_MONTH_TEST(13, 306, 336);
+  GET_MONTH_TEST(14, 337, 365);
+  #undef GET_MONTH_TEST
+}
+
+//--------------------------------------------------------------------------------------------------
+// Dynamic tests
+//--------------------------------------------------------------------------------------------------
+
+void
+is_multiple_of_100_test() {
+
+  std::cout << "test_is_multiple_of_100... ";
+  auto failed = false;
+
+  for (std::int32_t n = -536870800; n <= 536870999; ++n)
+    if (failed = ((n % 100 == 0) != is_multiple_of_100(n)))
+      std::cout << "failed for n = " << n << '\n';
+
+  if (!failed)
+    std::cout << "OK\n";
+}
+
 template <typename A>
 void
-to_date_test() noexcept {
+round_trip_test() {
+
+  std::cout << "round_trip_test... ";
+  auto failed = false;
+
+  // Compile-time checks.
+
+  static_assert(A::round_rata_die_min == A::to_rata_die(A::round_date_min));
+  static_assert(A::round_rata_die_max == A::to_rata_die(A::round_date_max));
+
+  static_assert(A::round_date_min == A::to_date(A::round_rata_die_min));
+  static_assert(A::round_date_max == A::to_date(A::round_rata_die_max));
+
+  // Runtime checks.
+
+  for (auto n = A::round_rata_die_min; n <= A::round_rata_die_max; ++n)
+    if (failed = (n != A::to_rata_die(A::to_date(n))))
+      std::cout << "failed for n = " << n << '\n';
+
+  if (!failed)
+    std::cout << "OK\n";
+}
+
+template <typename A>
+void
+to_date_test() {
+
+  std::cout << "to_date_test... ";
+  auto failed = false;
 
   auto date = A::to_date(A::rata_die_min);
 
   for (auto rata_die = A::rata_die_min; rata_die < A::rata_die_max; ) {
     auto const tomorrow = A::to_date(++rata_die);
-    if (tomorrow != advance(date))
-      std::cout << "to_date_test failed for rata_die = " << rata_die << '\n';
+    if (failed = (tomorrow != advance(date)))
+      std::cout << "failed for rata_die = " << rata_die << '\n';
   }
+
+  if (!failed)
+    std::cout << "OK\n";
 }
 
 template <typename A>
 void
-to_rata_die_test() noexcept {
+to_rata_die_test() {
+
+  std::cout << "to_rata_die_test... ";
+  auto failed = false;
 
   auto rata_die = A::to_rata_die(A::date_min);
 
   for (auto date = A::date_min; date < A::date_max; ) {
     auto const tomorrow = A::to_rata_die(advance(date));
-    if (tomorrow != ++rata_die)
-      std::cout << "to_rata_die_test failed for date = " << date << '\n';
+    if (failed = (tomorrow != ++rata_die))
+      std::cout << "failed for date = " << date << '\n';
   }
-}
 
-void
-test_baum_epoch() {
-  static_assert(others::baum::to_rata_die(date_t<year_t>{1970, 1, 1}) == 0);
+  if (!failed)
+    std::cout << "OK\n";
 }
 
 int
@@ -261,8 +309,8 @@ main() {
   std::cout << "Preliminary tests:        \n";
   std::cout << "--------------------------\n";
 
-  test_is_multiple_of_100();
-  test_baum_epoch();
+  is_multiple_of_100_test();
+  get_month_test();
 
   std::cout << '\n';
 
@@ -290,4 +338,3 @@ main() {
   to_date_test<salgos>();
   to_rata_die_test<salgos>();
 }
-
