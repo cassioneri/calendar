@@ -116,16 +116,6 @@ operator !=(date_t<T> const& x, date_t<T> const& y) noexcept {
 
 template <typename T>
 bool constexpr
-operator <(date_t<T> const& x, date_t<T> const& y) noexcept {
-  if (x.year  < y.year ) return true;
-  if (x.year  > y.year ) return false;
-  if (x.month < y.month) return true;
-  if (x.month > y.month) return false;
-  return x.day < y.day;
-}
-
-template <typename T>
-bool constexpr
 operator <=(date_t<T> const& x, date_t<T> const& y) noexcept {
   return !(y < x);
 }
@@ -191,7 +181,7 @@ baum_epoch_test() {
 void constexpr
 standard_compliance_test() noexcept {
 
-  using algos  = sdate_algos<std::int16_t, std::int32_t>;
+  using algos  = sdate_algos<year_t, rata_die_t>;
   using date_t = algos::date_t;
 
   // https://eel.is/c++draft/time.clock.system#overview-1
@@ -204,7 +194,7 @@ standard_compliance_test() noexcept {
 
 void constexpr
 get_month_test() {
-  auto constexpr f = [](std::int32_t n) { return (535 * n + 49483) / 16384; };
+  auto constexpr f = [](std::uint32_t n) { return (535 * n + 49483) / 16384; };
   #define GET_MONTH_TEST(m, b, e) static_assert(f(b) == m && f(e) == m)
   GET_MONTH_TEST( 3,   0,  30);
   GET_MONTH_TEST( 4,  31,  60);
@@ -333,8 +323,8 @@ main() {
 
   using salgos = sdate_algos<year_t, rata_die_t>;
 
-  print<salgos>();
-  round_trip_test<salgos>();
-  to_date_test<salgos>();
-  to_rata_die_test<salgos>();
+   print<salgos>();
+   round_trip_test<salgos>();
+   to_date_test<salgos>();
+   to_rata_die_test<salgos>();
 }
