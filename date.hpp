@@ -427,28 +427,6 @@ private:
     return n - offset.rata_die;
   }
 
-  ///TODO(CN) Remove used just once.
-  /**
-   * @brief Adjusts year from signed to unsigned.
-   *
-   * @param y         The given year.
-   */
-  uyear_t static constexpr
-  to_uyear(year_t y) noexcept {
-    return y + offset.year;
-  }
-
-  ///TODO(CN) Remove used just once.
-  /**
-   * @brief Adjusts year from unsigned to signed.
-   *
-   * @param y         The given year.
-   */
-  year_t static constexpr
-  from_uyear(uyear_t y) noexcept {
-    return year_t(y - offset.year);
-  }
-
   /**
    * @brief Adjusts date from signed to unsigned.
    *
@@ -456,7 +434,7 @@ private:
    */
   udate_t static constexpr
   to_udate(date_t const& x) noexcept {
-    return { to_uyear(x.year), x.month, x.day };
+    return { x.year + offset.year, x.month, x.day };
   }
 
   /**
@@ -466,7 +444,7 @@ private:
    */
   date_t static constexpr
   from_udate(udate_t const& x) noexcept {
-    return { from_uyear(x.year), x.month, x.day };
+    return { year_t(x.year - offset.year), x.month, x.day };
   }
 
 public:
