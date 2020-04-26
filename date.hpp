@@ -169,35 +169,24 @@ private:
   rata_die_t static constexpr rata_die_sup = std::numeric_limits<rata_die_t>::max();
 
   /**
-   * @brief Returns the number of days prior to a given year. (Fast version.)
+   * @brief Returns the number of days prior to a given year.
    *
    * @param y         The given year.
-   * @pre             y <= year_sup / 1461
+   * @pre             y <= year_sup / (std::is_constant_evaluated() ? 366 : 1461)
    */
   rata_die_t static constexpr
   year_count(rata_die_t y) noexcept {
+    if (std::is_constant_evaluated())
+      return 365 * y + y / 4 - y / 100 + y / 400;
     auto const c = y / 100;
     return 1461 * y / 4 - c + c / 4;
-  }
-
-  /**
-   * @brief Returns the number of days prior to a given year. (Safe version.)
-   *
-   * Here, "safe" means that it has a weaker precondition than the fast version.
-   *
-   * @param y         The given year.
-   * @pre             y <= year_sup / 366
-   */
-  rata_die_t static constexpr
-  year_count_safe(rata_die_t y) noexcept {
-    return 365 * y + y / 4 - y / 100 + y / 400;
   }
 
   /**
    * @brief Returns the number of days prior to a given month.
    *
    * @param m         The given month.
-   * @pre             3 <= m && 14 <= m
+   * @pre             3 <= m && m <= 14
    */
   rata_die_t static constexpr
   month_count(rata_die_t m) noexcept {
@@ -235,7 +224,7 @@ public:
   rata_die_t static constexpr rata_die_max = []{
 
     auto constexpr y  = rata_die_t(year_sup);
-    auto constexpr n1 = year_count_safe(y);
+    auto constexpr n1 = year_count(y);
     auto constexpr n2 = (rata_die_sup - 3) / 4;
 
     if (y <= year_and_rest(n2).first)
@@ -274,7 +263,7 @@ public:
   date_t static constexpr date_max = []{
 
     auto constexpr y = rata_die_sup / 1461;
-    auto constexpr r = rata_die_sup - year_count_safe(y);
+    auto constexpr r = rata_die_sup - year_count(y);
     auto constexpr i = is_leap_year(y + 1);
 
     if (y >= year_sup)
