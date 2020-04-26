@@ -106,6 +106,28 @@ operator <<(std::ostream& os, date_t<Y> const& d) {
 }
 
 /**
+ * @brief Maximum value of a given type.
+ *
+ * @tparam T          The given type.
+ */
+template <typename T>
+auto constexpr max = std::numeric_limits<T>::max();
+
+template <typename Y>
+auto constexpr max<date_t<Y>> = date_t<Y>{max<Y>, 12, 31};
+
+/**
+ * @brief Minimum value of a given type.
+ *
+ * @tparam T          The given type.
+ */
+template <typename T>
+auto constexpr min = std::numeric_limits<T>::min();
+
+template <typename Y>
+auto constexpr min<date_t<Y>> = date_t<Y>{min<Y>,  1,  1};
+
+/**
  * @brief   Checks if a given number is multiple of 100 or not using the mcomp algorithm [1].
  *
  * This a special implementation, supposedly faster than built-in operator %, for a subrange of
@@ -210,14 +232,11 @@ struct udate_algos {
 
 private:
 
-  year_t     static constexpr year_sup     = std::numeric_limits<year_t    >::max();
-  rata_die_t static constexpr rata_die_sup = std::numeric_limits<rata_die_t>::max();
-
   /**
    * @brief Returns the number of days prior to a given year.
    *
    * @param y         The given year.
-   * @pre             y <= year_sup / (std::is_constant_evaluated() ? 366 : 1461)
+   * @pre             y <= max<year_t> / (std::is_constant_evaluated() ? 366 : 1461)
    */
   rata_die_t static constexpr
   year_count(rata_die_t y) noexcept {
@@ -243,7 +262,7 @@ private:
    * given rata die.
    *
    * @param n         The given rata die.
-   * @pre             n <= (rata_die_inf - 3) / 4
+   * @pre             n <= (max<rata_die_t> - 3) / 4
    */
   std::pair<rata_die_t, rata_die_t> static constexpr
   year_and_rest(rata_die_t n) noexcept {
@@ -268,12 +287,12 @@ public:
    */
   rata_die_t static constexpr rata_die_max = []{
 
-    auto constexpr y  = rata_die_t(year_sup);
+    auto constexpr y  = rata_die_t(max<year_t>);
     auto constexpr n1 = year_count(y);
-    auto constexpr n2 = (rata_die_sup - 3) / 4;
+    auto constexpr n2 = (max<rata_die_t> - 3) / 4;
 
     if (y <= year_and_rest(n2).first)
-      return n1 + std::min(rata_die_t(305), rata_die_sup - n1);
+      return n1 + std::min(rata_die_t(305), max<rata_die_t> - n1);
 
     return n2;
   }();
@@ -307,12 +326,12 @@ public:
   */
   date_t static constexpr date_max = []{
 
-    auto constexpr y = rata_die_sup / 1461;
-    auto constexpr r = rata_die_sup - year_count(y);
+    auto constexpr y = max<rata_die_t> / 1461;
+    auto constexpr r = max<rata_die_t> - year_count(y);
     auto constexpr i = is_leap_year(y + 1);
 
-    if (y >= year_sup)
-      return date_t{year_sup, 12, 31};
+    if (y >= max<year_t>)
+      return date_t{max<year_t>, 12, 31};
 
     if (r > 365 + i)
       return date_t{year_t(y + 1), month_t(2), day_t(28 + i)};
@@ -411,13 +430,6 @@ struct sdate_algos {
 
 private:
 
-  year_t     static constexpr year_inf     = std::numeric_limits<year_t    >::min();
-  year_t     static constexpr year_sup     = std::numeric_limits<year_t    >::max();
-  rata_die_t static constexpr rata_die_inf = std::numeric_limits<rata_die_t>::min();
-  rata_die_t static constexpr rata_die_sup = std::numeric_limits<rata_die_t>::max();
-  date_t     static constexpr date_inf     = {year_inf,  1,  1};
-  date_t     static constexpr date_sup     = {year_sup, 12, 31};
-
   // Preconditions related to representability of years by its storage type should be addressed in
   // this class and not in the unsigned algorithm helper. Therefore, to disable such contraints in
   // the helper class it uses the storage type for years is set to be the same as for rata dies.
@@ -486,23 +498,23 @@ public:
   */
   date_t static constexpr date_min = []{
     // Morally, the condition below should be
-    //   if (to_udate(date_inf) < ualgos::date_min)
+    //   if (to_udate(min<date_t>) < ualgos::date_min)
     // However, due to the modular arithmetics of unsigned types, this would happen when
-    // to_udate(date_inf) overflows, becoming too large and going outside the domain of
+    // to_udate(min<date_t>) overflows, becoming too large and going outside the domain of
     // ualgos::to_rata_die.
-    if (ualgos::date_max < to_udate(date_inf))
+    if (ualgos::date_max < to_udate(min<date_t>))
       return from_udate(ualgos::date_min);
-    return date_inf;
+    return min<date_t>;
   }();
 
  /**
   * @brief  Maximum date allowed as input to to_rata_die.
   */
   date_t static constexpr date_max = []{
-    auto constexpr x = to_udate(date_sup);
+    auto constexpr x = to_udate(max<date_t>);
     if (ualgos::date_max < x)
       return from_udate(ualgos::date_max);
-    return date_sup;
+    return max<date_t>;
   }();
 
   /**
@@ -522,22 +534,22 @@ public:
    */
   rata_die_t static constexpr rata_die_min = []{
     // Morally, the condition below should be
-    //   if (to_udate(date_inf) < ualgos::to_date(ualgos::rata_die_min))
+    //   if (to_udate(min<date_t>) < ualgos::to_date(ualgos::rata_die_min))
     // However, due to the modular arithmetics of unsigned types, this would happen when
-    // to_udate(date_inf) overflows, becoming too large and going outside the image of
+    // to_udate(min<date_t>) overflows, becoming too large and going outside the image of
     // ualgos::to_date.
-    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(date_inf))
+    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(min<date_t>))
       return from_urata_die(ualgos::rata_die_min);
-    return to_rata_die(date_inf);
+    return to_rata_die(min<date_t>);
   }();
 
   /**
    * @brief Maximum rata die allowed as input to to_date.
    */
   rata_die_t static constexpr rata_die_max = []{
-    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(date_sup))
+    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(max<date_t>))
       return from_urata_die(ualgos::rata_die_max);
-    return to_rata_die(date_sup);
+    return to_rata_die(max<date_t>);
   }();
 
   /**
