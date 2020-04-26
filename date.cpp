@@ -102,30 +102,6 @@ rata_die_t constexpr to_rata_die(date_t date) noexcept {
 // Helpers
 //--------------------------------------------------------------------------------------------------
 
-template <typename T>
-bool constexpr
-operator ==(date_t<T> const& x, date_t<T> const& y) noexcept {
-  return x.year == y.year && x.month == y.month && x.day == y.day;
-}
-
-template <typename T>
-bool constexpr
-operator !=(date_t<T> const& x, date_t<T> const& y) noexcept {
-  return !(x == y);
-}
-
-template <typename T>
-bool constexpr
-operator <=(date_t<T> const& x, date_t<T> const& y) noexcept {
-  return !(y < x);
-}
-
-template <typename T>
-std::ostream&
-operator <<(std::ostream& os, date_t<T> const& d) {
-  return os << d.year << '-' << (int) d.month << '-' << (int) d.day;
-}
-
 /**
  * Advance date by one day.
  *

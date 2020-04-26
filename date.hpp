@@ -45,8 +45,31 @@ struct date_t {
 };
 
 //TODO (CN): Use operator <=>.
+
 /**
- * @brief Lexicographical order in date_t (operator <).
+ * @brief Date comparison (operator ==).
+ *
+ * @tparam  Y         Year storage type.
+ */
+template <typename Y>
+bool constexpr
+operator ==(date_t<Y> const& x, date_t<Y> const& y) noexcept {
+  return x.year == y.year && x.month == y.month && x.day == y.day;
+}
+
+/**
+ * @brief Date comparison (operator !=).
+ *
+ * @tparam  Y         Year storage type.
+ */
+template <typename Y>
+bool constexpr
+operator !=(date_t<Y> const& x, date_t<Y> const& y) noexcept {
+  return !(x == y);
+}
+
+/**
+ * @brief Lexicographical order for dates (operator <).
  *
  * @tparam  Y         Year storage type.
  */
@@ -58,6 +81,28 @@ operator <(date_t<Y> const& x, date_t<Y> const& y) noexcept {
   if (x.month < y.month) return true;
   if (x.month > y.month) return false;
   return x.day < y.day;
+}
+
+/**
+ * @brief Lexicographical order for dates (operator <=).
+ *
+ * @tparam  Y         Year storage type.
+ */
+template <typename Y>
+bool constexpr
+operator <=(date_t<Y> const& x, date_t<Y> const& y) noexcept {
+  return !(y < x);
+}
+
+/**
+ * @brief Stream operator for dates (operator <<).
+ *
+ * @tparam  Y         Year storage type.
+ */
+template <typename Y>
+std::ostream&
+operator <<(std::ostream& os, date_t<Y> const& d) {
+  return os << d.year << '-' << (int) d.month << '-' << (int) d.day;
 }
 
 /**
