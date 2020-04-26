@@ -151,17 +151,17 @@ print() {
 
 void constexpr
 baum_epoch_test() {
-  static_assert(others::baum::to_rata_die(date_t<year_t>{1970, 1, 1}) == 0);
+  static_assert(others::baum::to_rata_die(unix_epoch<year_t>) == 0);
 }
 
 void constexpr
 standard_compliance_test() noexcept {
 
-  using algos  = sdate_algos<year_t, rata_die_t>;
-  using date_t = algos::date_t;
+  using algos = sdate_algos<year_t, rata_die_t, unix_epoch<year_t>>;
 
   // https://eel.is/c++draft/time.clock.system#overview-1
-  static_assert(algos::to_date(0) == date_t{1970, 1, 1});
+  static_assert(unix_epoch<year_t> == date_t<year_t>{1970, 1, 1});
+  static_assert(algos::to_date(0) == unix_epoch<year_t>);
 
   // https://eel.is/c++draft/time.cal.ymd#members-20
   static_assert(algos::round_rata_die_min <= -12687428);
