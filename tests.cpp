@@ -24,7 +24,7 @@
 
 // Compile with: g++ -O3 -std=c++2a tests.cpp -o tests
 
-using year_t     = std::int16_t; // as in std::chrono::year
+using year_t     = std::int32_t; // as in std::chrono::year
 using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t;
@@ -120,6 +120,39 @@ advance(date_t<T>& date) noexcept {
       date.month = 1;
       ++date.year;
     }
+  }
+  return date;
+}
+
+/**
+ * Return next date.
+ *
+ * @param date        Date to be advanced.
+ */
+template <typename T>
+date_t<T> constexpr
+next(date_t<T> date) noexcept {
+  return advance(date);
+}
+
+/**
+ * Return previous date.
+ *
+ * @param date        Date to be regressed.
+ */
+template <typename T>
+date_t<T> constexpr
+previous(date_t<T> date) noexcept {
+  if (date.day != 1)
+    --date.day;
+  else {
+    if (date.month != 1)
+      --date.month;
+    else {
+      date.month = 12;
+      --date.year;
+    }
+    date.day = last_day_of_month(date.year, date.month);
   }
   return date;
 }
@@ -239,6 +272,17 @@ to_date_test() {
   std::cout << "to_date_test... ";
   auto failed = false;
 
+  using date_t     = A::date_t;
+  using rata_die_t = A::rata_die_t;
+
+  auto constexpr first = A::to_date(A::rata_die_min);
+   static_assert(A::rata_die_min == min<rata_die_t> || first == min<date_t> ||
+     A::to_date(A::rata_die_min - 1) != previous(first));
+
+  auto constexpr last = A::to_date(A::rata_die_max);
+  static_assert(A::rata_die_max == max<rata_die_t> || last == max<date_t> ||
+    A::to_date(A::rata_die_max + 1) != next(A::to_date(A::rata_die_max)));
+
   auto date = A::to_date(A::rata_die_min);
 
   for (auto rata_die = A::rata_die_min; rata_die < A::rata_die_max; ) {
@@ -253,12 +297,26 @@ to_date_test() {
     std::cout << "OK\n";
 }
 
+template <auto>
+struct foo;
+
 template <typename A>
 void
 to_rata_die_test() {
 
   std::cout << "to_rata_die_test... ";
   auto failed = false;
+
+  using date_t     = A::date_t;
+  using rata_die_t = A::rata_die_t;
+
+  auto constexpr first = A::to_rata_die(A::date_min);
+  static_assert(A::date_min == min<date_t> || first == min<rata_die_t> ||
+     A::to_rata_die(previous(A::date_min)) != first - 1);
+
+  auto constexpr last = A::to_rata_die(A::date_max);
+  static_assert(A::date_max == max<date_t> || last == max<rata_die_t> ||
+     A::to_rata_die(next(A::date_max)) != last + 1);
 
   auto rata_die = A::to_rata_die(A::date_min);
 

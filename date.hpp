@@ -233,17 +233,26 @@ struct udate_algos {
 private:
 
   /**
-   * @brief Returns the number of days prior to a given year.
+   * @brief Returns the number of days prior to a given year. (Fast version.)
    *
    * @param y         The given year.
-   * @pre             y <= max<year_t> / (std::is_constant_evaluated() ? 366 : 1461)
+   * @pre             y <= max<year_t> / 1461
    */
   rata_die_t static constexpr
   year_count(rata_die_t y) noexcept {
-    if (std::is_constant_evaluated())
-      return 365 * y + y / 4 - y / 100 + y / 400;
     auto const c = y / 100;
     return 1461 * y / 4 - c + c / 4;
+  }
+
+  /**
+   * @brief Returns the number of days prior to a given year. (Safe version.)
+   *
+   * @param y         The given year.
+   * @pre             y <= max<year_t> / 366
+   */
+  rata_die_t static constexpr
+  year_count_safe(rata_die_t y) noexcept {
+    return 365 * y + y / 4 - y / 100 + y / 400;
   }
 
   /**
@@ -288,7 +297,7 @@ public:
   rata_die_t static constexpr rata_die_max = []{
 
     auto constexpr y  = rata_die_t(max<year_t>);
-    auto constexpr n1 = year_count(y);
+    auto constexpr n1 = year_count_safe(y);
     auto constexpr n2 = (max<rata_die_t> - 3) / 4;
 
     if (y <= year_and_rest(n2).first)
@@ -327,11 +336,11 @@ public:
   date_t static constexpr date_max = []{
 
     auto constexpr y = max<rata_die_t> / 1461;
-    auto constexpr r = max<rata_die_t> - year_count(y);
+    auto constexpr r = max<rata_die_t> - year_count_safe(y);
     auto constexpr i = is_leap_year(y + 1);
 
     if (y >= max<year_t>)
-      return date_t{max<year_t>, 12, 31};
+      return max<date_t>;
 
     if (r > 365 + i)
       return date_t{year_t(y + 1), month_t(2), day_t(28 + i)};
