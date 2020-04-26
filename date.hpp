@@ -165,14 +165,14 @@ struct udate_algos {
 
 private:
 
-  year_t     static constexpr year_inf     = std::numeric_limits<year_t    >::max();
-  rata_die_t static constexpr rata_die_inf = std::numeric_limits<rata_die_t>::max();
+  year_t     static constexpr year_sup     = std::numeric_limits<year_t    >::max();
+  rata_die_t static constexpr rata_die_sup = std::numeric_limits<rata_die_t>::max();
 
   /**
    * @brief Returns the number of days prior to a given year. (Fast version.)
    *
    * @param y         The given year.
-   * @pre             y <= year_inf / 1461
+   * @pre             y <= year_sup / 1461
    */
   rata_die_t static constexpr
   year_count(rata_die_t y) noexcept {
@@ -186,7 +186,7 @@ private:
    * Here, "safe" means that it has a weaker precondition than the fast version.
    *
    * @param y         The given year.
-   * @pre             y <= year_inf / 366
+   * @pre             y <= year_sup / 366
    */
   rata_die_t static constexpr
   year_count_safe(rata_die_t y) noexcept {
@@ -234,14 +234,12 @@ public:
    */
   rata_die_t static constexpr rata_die_max = []{
 
-    auto constexpr y1 = rata_die_t(year_inf);
-    auto constexpr n1 = year_count_safe(y1);
+    auto constexpr y  = rata_die_t(year_sup);
+    auto constexpr n1 = year_count_safe(y);
+    auto constexpr n2 = (rata_die_sup - 3) / 4;
 
-    auto constexpr n2 = (rata_die_inf - 3) / 4;
-    auto constexpr y2 = year_and_rest(n2).first;
-
-    if (y1 <= y2)
-      return n1 + std::min(rata_die_t(305), rata_die_inf - n1);
+    if (y <= year_and_rest(n2).first)
+      return n1 + std::min(rata_die_t(305), rata_die_sup - n1);
 
     return n2;
   }();
@@ -275,12 +273,12 @@ public:
   */
   date_t static constexpr date_max = []{
 
-    auto constexpr y = rata_die_inf / 1461;
-    auto constexpr r = rata_die_inf - year_count_safe(y);
+    auto constexpr y = rata_die_sup / 1461;
+    auto constexpr r = rata_die_sup - year_count_safe(y);
     auto constexpr i = is_leap_year(y + 1);
 
-    if (y >= year_inf)
-      return date_t{year_inf, 12, 31};
+    if (y >= year_sup)
+      return date_t{year_sup, 12, 31};
 
     if (r > 365 + i)
       return date_t{year_t(y + 1), month_t(2), day_t(28 + i)};
