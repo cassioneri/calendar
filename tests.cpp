@@ -223,8 +223,10 @@ round_trip_test() {
   // Runtime checks.
 
   for (auto n = A::round_rata_die_min; n <= A::round_rata_die_max; ++n)
-    if (failed = (n != A::to_rata_die(A::to_date(n))))
+    if (failed = (n != A::to_rata_die(A::to_date(n)))) {
       std::cout << "failed for n = " << n << '\n';
+      break;
+    }
 
   if (!failed)
     std::cout << "OK\n";
@@ -241,8 +243,10 @@ to_date_test() {
 
   for (auto rata_die = A::rata_die_min; rata_die < A::rata_die_max; ) {
     auto const tomorrow = A::to_date(++rata_die);
-    if (failed = (tomorrow != advance(date)))
+    if (failed = (tomorrow != advance(date))) {
       std::cout << "failed for rata_die = " << rata_die << '\n';
+      break;
+    }
   }
 
   if (!failed)
@@ -260,8 +264,10 @@ to_rata_die_test() {
 
   for (auto date = A::date_min; date < A::date_max; ) {
     auto const tomorrow = A::to_rata_die(advance(date));
-    if (failed = (tomorrow != ++rata_die))
+    if (failed = (tomorrow != ++rata_die)) {
       std::cout << "failed for date = " << date << '\n';
+      break;
+    }
   }
 
   if (!failed)
