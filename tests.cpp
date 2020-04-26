@@ -22,7 +22,7 @@
 #include <cstdint>
 #include <iostream>
 
-// Compile with: g++ -O3 -std=c++2a date.cpp -o date
+// Compile with: g++ -O3 -std=c++2a tests.cpp -o tests
 
 using year_t     = std::int16_t; // as in std::chrono::year
 using month_t    = std::uint8_t; // as in std::chrono::month

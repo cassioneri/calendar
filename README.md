@@ -53,7 +53,7 @@ function in `udate_algos`.
 # Contents
 
 1. `date.hpp`   : Implementations.
-2. `date.cpp`   : Tests. (Including exhastive full-range round-trips taking around 30s to complete
+2. `tests.cpp`  : Tests. (Including exhastive full-range round-trips taking around 30s to complete
 on commodity hardware.)
 3. `search.cpp` : Helper program that was used to find some coefficients used by the algorithms.
 
