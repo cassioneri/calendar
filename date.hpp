@@ -240,29 +240,6 @@ private:
   using pdate_t     = palgos::date_t;
 
   /**
-   * @brief Returns the number of days prior to a given year. (Fast version.)
-   *
-   * @param y         The given year.
-   * @pre             y <= max<year_t> / 1461
-   */
-  rata_die_t static constexpr
-  year_count(rata_die_t y) noexcept {
-    auto const c = y / 100;
-    return 1461 * y / 4 - c + c / 4;
-  }
-
-  /**
-   * @brief Returns the number of days prior to a given year. (Safe version.)
-   *
-   * @param y         The given year.
-   * @pre             y <= max<year_t> / 366
-   */
-  rata_die_t static constexpr
-  year_count_safe(rata_die_t y) noexcept {
-    return 365 * y + y / 4 - y / 100 + y / 400;
-  }
-
-  /**
    * @brief Returns the number of days prior to a given month.
    *
    * @param m         The given month.
@@ -271,24 +248,6 @@ private:
   rata_die_t static constexpr
   month_count(rata_die_t m) noexcept {
     return (979 * m - 2922) / 32;
-  }
-
-  /**
-   * @brief Returns the year and the rest (sum of month count and day count) corresponding to a
-   * given rata die.
-   *
-   * @param n         The given rata die.
-   * @pre             n <= (max<rata_die_t> - 3) / 4
-   */
-  std::pair<rata_die_t, rata_die_t> static constexpr
-  year_and_rest(rata_die_t n) noexcept {
-    auto const n1 = 4 * n + 3;
-    auto const c1 = n1 / 146097;
-    auto const n2 = n1 % 146097 + c1 % 4;
-    auto const c2 = n2 / 1461;
-    auto const n3 = n2 % 1461 / 4;
-    auto const z  = 100 * c1 + c2;
-    return {z, n3};
   }
 
 public:
@@ -321,13 +280,18 @@ public:
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
     // http://quick-bench.com/jXnc-jdHbqYyp4BHrKrCDpzqbpU
-    auto const [y_, n3] = year_and_rest(n);
-    auto const m_       = (535 * n3 + 49483) / 16384;
-    auto const d_       = n3 - month_count(m_);
-    auto const j        = n3 > 305;
-    auto const y        = y_ + j;
-    auto const m        = j ? m_ - 12 : m_;
-    auto const d        = d_ + 1;
+    auto const n1 = 4 * n + 3;
+    auto const c1 = n1 / 146097;
+    auto const n2 = n1 % 146097 + c1 % 4;
+    auto const c2 = n2 / 1461;
+    auto const n3 = n2 % 1461 / 4;
+    auto const y_ = 100 * c1 + c2;
+    auto const m_ = (535 * n3 + 49483) / 16384;
+    auto const d_ = n3 - month_count(m_);
+    auto const j  = n3 > 305;
+    auto const y  = y_ + j;
+    auto const m  = j ? m_ - 12 : m_;
+    auto const d  = d_ + 1;
     return { year_t(y), month_t(m), day_t(d) };
   }
 
@@ -364,7 +328,8 @@ public:
     auto const d_ = d - 1;
     auto const m_ = j ? m + 12 : m;
     auto const y_ = y - j;
-    return year_count(y_) + month_count(m_) + d_;
+    auto const c  = y_ / 100;
+    return (1461 * y_ / 4 - c + c / 4) + month_count(m_) + d_;
   }
 
   /**
