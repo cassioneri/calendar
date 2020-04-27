@@ -268,7 +268,7 @@ public:
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-    // http://quick-bench.com/jXnc-jdHbqYyp4BHrKrCDpzqbpU
+    // http://quick-bench.com/uYr8laeJuLo3cZZ9jAQs9N15_3k
     auto const n1 = 4 * n + 3;
     auto const c1 = n1 / 146097;
     auto const n2 = n1 % 146097 + c1 % 4;
@@ -309,7 +309,7 @@ public:
    */
   rata_die_t static constexpr
   to_rata_die(date_t const& x) noexcept {
-    // http://quick-bench.com/fNRyutHsrVJClleqLcw5Szg4z6g
+    // http://quick-bench.com/AyPoCpCQW7WZ2A5V4icKieswqnM
     auto const y  = rata_die_t(x.year);
     auto const m  = rata_die_t(x.month);
     auto const d  = rata_die_t(x.day);
@@ -487,7 +487,7 @@ public:
    */
   rata_die_t static constexpr
   to_rata_die(date_t const& x) noexcept {
-    // http://quick-bench.com/fNRyutHsrVJClleqLcw5Szg4z6g
+    // http://quick-bench.com/AyPoCpCQW7WZ2A5V4icKieswqnM
     return from_urata_die(ualgos::to_rata_die(to_udate(x)));
   }
 
@@ -522,7 +522,7 @@ public:
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-    // http://quick-bench.com/jXnc-jdHbqYyp4BHrKrCDpzqbpU
+    // http://quick-bench.com/uYr8laeJuLo3cZZ9jAQs9N15_3k
     return from_udate(ualgos::to_date(to_urata_die(n)));
   }
 

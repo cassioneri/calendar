@@ -71,25 +71,25 @@ namespace baum {
 
 // Section 6.2.1/3 : https://www.researchgate.net/publication/316558298_Date_Algorithms
 date_t constexpr to_date(rata_die_t rata_die) noexcept {
-  auto const z      = std::uint32_t(rata_die) + 719103; // adjusted to unix epoch
-  auto const h      = 100 * z + 25;
-  auto const a      = h / 3652425;
-  auto const b      = a - a / 4;
-  auto const year_  = (100 * b + h) / 36525;
-  auto const c      = b + z - 365 * year_ - year_ / 4;
-  auto const month_ = (535 * c + 48950) / 16384;
-  auto const day    = c - (979 * month_ - 2918) / 32;
-  auto const jof    = month_ > 12;
-  auto const year   = year_ + jof;
-  auto const month  = jof ? month_ - 12 : month_;
-  return { year_t(year), month_t(month), day_t(day) };
+  auto const z   = std::uint32_t(rata_die) + 719103; // adjusted to unix epoch
+  auto const h  = 100 * z + 25;
+  auto const a  = h / 3652425;
+  auto const b  = a - a / 4;
+  auto const y_ = (100 * b + h) / 36525;
+  auto const c  = b + z - 365 * y_ - y_ / 4;
+  auto const m_ = (535 * c + 48950) / 16384;
+  auto const d  = c - (979 * m_ - 2918) / 32;
+  auto const j  = m_ > 12;
+  auto const y  = y_ + j;
+  auto const m  = j ? m_ - 12 : m_;
+  return { year_t(y), month_t(m), day_t(d) };
 }
 
 // Section 5.1 : https://www.researchgate.net/publication/316558298_Date_Algorithms
 rata_die_t constexpr to_rata_die(date_t date) noexcept {
-  auto const jof = date.month < 3;
-  auto const z  = date.year - jof;                // step 1 / alternative 2
-  auto const f  = (979 * date.month - 2918) / 32; // step 2 / alternative 3
+  auto const j = date.month < 3;
+  auto const z = date.year - j;                   // step 1 / alternative 2
+  auto const f = (979 * date.month - 2918) / 32;  // step 2 / alternative 3
   return rata_die_t{date.day + f +                // step 3 (adjusted to unix epoch)
     365 * z + z / 4 - z / 100 + z / 400 - 719103};
 }
