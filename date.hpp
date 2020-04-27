@@ -232,23 +232,12 @@ private:
 
   // Promoted algorithms are used to calculate rata_die_max and date_max. By promoting the year
   // storage type to rata_die_t, they mitigate the risk of having intermediate year results that are
-  // not representable by year_t. This allos comparisons against max<year_t> to be safely performed
+  // not representable by year_t. This allows comparisons against max<year_t> to be safely performed
   // on rata_die_max objects.
   using palgos      = udate_algos<rata_die_t, rata_die_t>;
   using pyear_t     = palgos::year_t;
   using prata_die_t = palgos::rata_die_t;
   using pdate_t     = palgos::date_t;
-
-  /**
-   * @brief Returns the number of days prior to a given month.
-   *
-   * @param m         The given month.
-   * @pre             3 <= m && m <= 14
-   */
-  rata_die_t static constexpr
-  month_count(rata_die_t m) noexcept {
-    return (979 * m - 2922) / 32;
-  }
 
 public:
 
@@ -287,7 +276,7 @@ public:
     auto const n3 = n2 % 1461 / 4;
     auto const y_ = 100 * c1 + c2;
     auto const m_ = (535 * n3 + 49483) / 16384;
-    auto const d_ = n3 - month_count(m_);
+    auto const d_ = n3 - (979 * m_ - 2922) / 32;
     auto const j  = n3 > 305;
     auto const y  = y_ + j;
     auto const m  = j ? m_ - 12 : m_;
@@ -329,7 +318,7 @@ public:
     auto const m_ = j ? m + 12 : m;
     auto const y_ = y - j;
     auto const c  = y_ / 100;
-    return (1461 * y_ / 4 - c + c / 4) + month_count(m_) + d_;
+    return (1461 * y_ / 4 - c + c / 4) + (979 * m_ - 2922) / 32 + d_;
   }
 
   /**
@@ -404,8 +393,8 @@ struct sdate_algos {
 private:
 
   // Preconditions related to representability of years by its storage type should be addressed in
-  // this class and not in the unsigned algorithm helper. Therefore, to disable such contraints in
-  // the helper class it uses the storage type for years is set to be the same as for rata dies.
+  // this class and not in the unsigned algorithm helper. Therefore, to disable such constraints in
+  // the helper class, the storage type for years is set to be the same as for rata dies.
   using uyear_t     = std::make_unsigned_t<rata_die_t>;
   using urata_die_t = std::make_unsigned_t<rata_die_t>;
   using ualgos      = udate_algos<uyear_t, urata_die_t>;
