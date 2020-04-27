@@ -44,8 +44,6 @@ struct date_t {
   day_t   day;
 };
 
-//TODO (CN): Use operator <=>.
-
 /**
  * @brief Date comparison (operator ==).
  *
@@ -232,8 +230,10 @@ struct udate_algos {
 
 private:
 
-  ///TODO (CN) Update doc.
-  // Promoted algorithms:
+  // Promoted algorithms are used to calculate rata_die_max and date_max. By promoting the year
+  // storage type to rata_die_t, they mitigate the risk of having intermediate year results that are
+  // not representable by year_t. This allos comparisons against max<year_t> to be safely performed
+  // on rata_die_max objects.
   using palgos      = udate_algos<rata_die_t, rata_die_t>;
   using pyear_t     = palgos::year_t;
   using prata_die_t = palgos::rata_die_t;
