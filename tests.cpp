@@ -106,6 +106,8 @@ rata_die_t constexpr to_rata_die(date_t date) noexcept {
  * Advance date by one day.
  *
  * @param date        Date to be advanced.
+ *
+ * @pre               date < max<date_t>.
  */
 template <typename T>
 date_t<T> constexpr
@@ -128,6 +130,8 @@ advance(date_t<T>& date) noexcept {
  * Return next date.
  *
  * @param date        Date to be advanced.
+ *
+ * @pre               date < max<date_t>.
  */
 template <typename T>
 date_t<T> constexpr
@@ -136,13 +140,15 @@ next(date_t<T> date) noexcept {
 }
 
 /**
- * Return previous date.
+ * Regress date by one day.
  *
  * @param date        Date to be regressed.
+ *
+ * @pre               date > min<date_t>.
  */
 template <typename T>
 date_t<T> constexpr
-previous(date_t<T> date) noexcept {
+regress(date_t<T>& date) noexcept {
   if (date.day != 1)
     --date.day;
   else {
@@ -155,6 +161,19 @@ previous(date_t<T> date) noexcept {
     date.day = last_day_of_month(date.year, date.month);
   }
   return date;
+}
+
+/**
+ * Return previos date.
+ *
+ * @param date        Date to be regressed.
+ *
+ * @pre               date > min<date_t>.
+ */
+template <typename T>
+date_t<T> constexpr
+previous(date_t<T> date) noexcept {
+  return regress(date);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,7 +289,6 @@ void
 to_date_test() {
 
   std::cout << "to_date_test... ";
-  auto failed = false;
 
   using date_t     = A::date_t;
   using rata_die_t = A::rata_die_t;
@@ -281,20 +299,47 @@ to_date_test() {
 
   auto constexpr last = A::to_date(A::rata_die_max);
   static_assert(A::rata_die_max == max<rata_die_t> || last == max<date_t> ||
-    A::to_date(A::rata_die_max + 1) != next(A::to_date(A::rata_die_max)));
+    A::to_date(A::rata_die_max + 1) != next(last));
 
-  auto date = A::to_date(A::rata_die_min);
+  date_t date;
 
-  for (auto rata_die = A::rata_die_min; rata_die < A::rata_die_max; ) {
+  // Move forward: from 0 to rata_die_max.
+  // Fails if rata_die_max is too large (shows correct value plus one).
+  date = A::epoch;
+  for (auto rata_die = 0; rata_die < A::rata_die_max; ) {
+
     auto const tomorrow = A::to_date(++rata_die);
-    if (failed = (tomorrow != advance(date))) {
-      std::cout << "failed for rata_die = " << rata_die << '\n';
-      break;
+
+    if (date == max<date_t>) {
+      std::cout << "(forward) failed for rata_die = " << rata_die << " (date == max<date_t>).\n";
+      return;
+    }
+
+    if (tomorrow != advance(date)) {
+      std::cout << "(forward) failed for rata_die = " << rata_die << '\n';
+      return;
     }
   }
 
-  if (!failed)
-    std::cout << "OK\n";
+  // Move backward: from 0 to rata_die_min.
+  // Fails if rata_die_min is too small (shows the correct value minus one).
+  date = A::epoch;
+  for (auto rata_die = 0; A::rata_die_min < rata_die; ) {
+
+    auto const yesterday = A::to_date(--rata_die);
+
+    if (date == min<date_t>) {
+      std::cout << "(backward) failed for rata_die = " << rata_die << " (date == min<date_t>).\n";
+      return;
+    }
+
+    if (yesterday != regress(date)) {
+      std::cout << "(backward) failed for rata_die = " << rata_die << '\n';
+      return;
+    }
+  }
+
+  std::cout << "OK\n";
 }
 
 template <auto>
@@ -305,7 +350,6 @@ void
 to_rata_die_test() {
 
   std::cout << "to_rata_die_test... ";
-  auto failed = false;
 
   using date_t     = A::date_t;
   using rata_die_t = A::rata_die_t;
@@ -318,18 +362,45 @@ to_rata_die_test() {
   static_assert(A::date_max == max<date_t> || last == max<rata_die_t> ||
      A::to_rata_die(next(A::date_max)) != last + 1);
 
-  auto rata_die = A::to_rata_die(A::date_min);
+  rata_die_t rata_die;
 
-  for (auto date = A::date_min; date < A::date_max; ) {
+  // Move forward: from epoch to date_max.
+  // Fails if date_max is too large (shows correct value plus one day).
+  rata_die = 0;
+  for (auto date = A::epoch; date < A::date_max; ) {
+
     auto const tomorrow = A::to_rata_die(advance(date));
-    if (failed = (tomorrow != ++rata_die)) {
-      std::cout << "failed for date = " << date << '\n';
-      break;
+
+    if (rata_die == max<rata_die_t>) {
+      std::cout << "(forward) failed for date = " << date << " (rata die == max<rata_die_t>).\n";
+      return;
+    }
+
+    if (tomorrow != ++rata_die) {
+      std::cout << "(forward) failed for date = " << date << '\n';
+      return;
     }
   }
 
-  if (!failed)
-    std::cout << "OK\n";
+  // Move backward: from epoch to date_min.
+  // Fails if date_min is too small (shows the correct value minus one day).
+  rata_die = 0;
+  for (auto date = A::epoch; A::date_min < date; ) {
+
+    auto const yesterday = A::to_rata_die(regress(date));
+
+    if (rata_die == min<rata_die_t>) {
+      std::cout << "(backward) failed for date = " << date << " (rata die == min<rata_die_t>).\n";
+      return;
+    }
+
+    if (yesterday != --rata_die) {
+      std::cout << "(forward) failed for date = " << date << '\n';
+      return;
+    }
+  }
+
+  std::cout << "OK\n";
 }
 
 int
@@ -363,8 +434,8 @@ main() {
 
   using salgos = sdate_algos<year_t, rata_die_t>;
 
-   print<salgos>();
-   round_trip_test<salgos>();
-   to_date_test<salgos>();
-   to_rata_die_test<salgos>();
+  print<salgos>();
+  round_trip_test<salgos>();
+  to_date_test<salgos>();
+  to_rata_die_test<salgos>();
 }
