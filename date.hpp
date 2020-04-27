@@ -232,6 +232,13 @@ struct udate_algos {
 
 private:
 
+  ///TODO (CN) Update doc.
+  // Promoted algorithms:
+  using palgos      = udate_algos<rata_die_t, rata_die_t>;
+  using pyear_t     = palgos::year_t;
+  using prata_die_t = palgos::rata_die_t;
+  using pdate_t     = palgos::date_t;
+
   /**
    * @brief Returns the number of days prior to a given year. (Fast version.)
    *
@@ -296,14 +303,13 @@ public:
    */
   rata_die_t static constexpr rata_die_max = []{
 
-    auto constexpr y  = rata_die_t(max<year_t>);
-    auto constexpr n1 = year_count_safe(y);
-    auto constexpr n2 = (max<rata_die_t> - 3) / 4;
+    auto constexpr n = (max<rata_die_t> - 3) / 4;
+    auto constexpr x1 = palgos::to_date(n);
+    auto constexpr x2 = pdate_t{ pyear_t(max<date_t>.year), max<date_t>.month, max<date_t>.day};
 
-    if (y <= year_and_rest(n2).first)
-      return n1 + std::min(rata_die_t(305), max<rata_die_t> - n1);
-
-    return n2;
+    if (x1 <= x2)
+      return n;
+    return palgos::to_rata_die(x2);
   }();
 
   /**
