@@ -342,17 +342,10 @@ public:
   date_t static constexpr date_max = []{
 
     auto constexpr y = max<rata_die_t> / 1461;
-    auto constexpr r = max<rata_die_t> - year_count_safe(y);
-    auto constexpr i = is_leap_year(y + 1);
 
-    if (y >= max<year_t>)
+    if (max<year_t> <= y)
       return max<date_t>;
-
-    if (r > 365 + i)
-      return date_t{year_t(y + 1), month_t(2), day_t(28 + i)};
-
-    auto constexpr x = to_date(r);
-    return date_t{year_t(y + (r > 305)), x.month, x.day};
+    return date_t{year_t(y + 1), month_t(2), day_t(28 + is_leap_year(y + 1))};
   }();
 
   /**
