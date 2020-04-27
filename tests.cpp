@@ -24,7 +24,7 @@
 
 // Compile with: g++ -O3 -std=c++2a tests.cpp -o tests
 
-using year_t     = std::int32_t; // as in std::chrono::year
+using year_t     = std::int16_t; // as in std::chrono::year
 using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t;
@@ -221,9 +221,12 @@ standard_compliance_test() noexcept {
 }
 
 void constexpr
-get_month_test() {
+month_functions_test() {
   auto constexpr f = [](std::uint32_t n) { return (535 * n + 49483) / 16384; };
-  #define GET_MONTH_TEST(m, b, e) static_assert(f(b) == m && f(e) == m)
+  auto constexpr g = [](std::uint8_t  m) { return (979 * m - 2922) / 32; };
+  #define GET_MONTH_TEST(m, b, e)          \
+    static_assert(f(b) == m && f(e) == m); \
+    static_assert(g(m) == b)
   GET_MONTH_TEST( 3,   0,  30);
   GET_MONTH_TEST( 4,  31,  60);
   GET_MONTH_TEST( 5,  61,  91);
@@ -247,14 +250,14 @@ void
 is_multiple_of_100_test() {
 
   std::cout << "test_is_multiple_of_100... ";
-  auto failed = false;
 
   for (std::int32_t n = -536870800; n <= 536870999; ++n)
-    if (failed = ((n % 100 == 0) != is_multiple_of_100(n)))
+    if ((n % 100 == 0) != is_multiple_of_100(n)) {
       std::cout << "failed for n = " << n << '\n';
+      return;
+    }
 
-  if (!failed)
-    std::cout << "OK\n";
+  std::cout << "OK\n";
 }
 
 template <typename A>
@@ -262,7 +265,6 @@ void
 round_trip_test() {
 
   std::cout << "round_trip_test... ";
-  auto failed = false;
 
   // Compile-time checks.
 
@@ -275,13 +277,12 @@ round_trip_test() {
   // Runtime checks.
 
   for (auto n = A::round_rata_die_min; n <= A::round_rata_die_max; ++n)
-    if (failed = (n != A::to_rata_die(A::to_date(n)))) {
+    if (n != A::to_rata_die(A::to_date(n))) {
       std::cout << "failed for n = " << n << '\n';
-      break;
+      return;
     }
 
-  if (!failed)
-    std::cout << "OK\n";
+  std::cout << "OK\n";
 }
 
 template <typename A>
@@ -306,7 +307,7 @@ to_date_test() {
   // Move forward: from 0 to rata_die_max.
   // Fails if rata_die_max is too large (shows correct value plus one).
   date = A::epoch;
-  for (auto rata_die = 0; rata_die < A::rata_die_max; ) {
+  for (rata_die_t rata_die = 0; rata_die < A::rata_die_max; ) {
 
     auto const tomorrow = A::to_date(++rata_die);
 
@@ -324,7 +325,7 @@ to_date_test() {
   // Move backward: from 0 to rata_die_min.
   // Fails if rata_die_min is too small (shows the correct value minus one).
   date = A::epoch;
-  for (auto rata_die = 0; A::rata_die_min < rata_die; ) {
+  for (rata_die_t rata_die = 0; A::rata_die_min < rata_die; ) {
 
     auto const yesterday = A::to_date(--rata_die);
 
@@ -411,7 +412,6 @@ main() {
   std::cout << "--------------------------\n";
 
   is_multiple_of_100_test();
-  get_month_test();
 
   std::cout << '\n';
 
@@ -429,7 +429,7 @@ main() {
   std::cout << '\n';
 
   std::cout << "--------------------------\n";
-  std::cout << "Signed algorithms:        \n";
+  std::cout << "Signed algorithms tests:  \n";
   std::cout << "--------------------------\n";
 
   using salgos = sdate_algos<year_t, rata_die_t>;

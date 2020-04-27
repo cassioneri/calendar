@@ -399,7 +399,7 @@ struct sdate_algos {
   /**
    * @brief Date used as epoch.
    */
-  static date_t constexpr epoch = epoch_;
+  date_t static constexpr epoch = epoch_;
 
 private:
 
