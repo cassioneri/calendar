@@ -262,7 +262,7 @@ public:
    */
   rata_die_t static constexpr rata_die_max = []{
 
-    auto constexpr n = (max<rata_die_t> - 3) / 4;
+    auto constexpr n  = (max<rata_die_t> - 3) / 4;
     auto constexpr x1 = palgos::to_date(n);
     auto constexpr x2 = pdate_t{ pyear_t(max<date_t>.year), max<date_t>.month, max<date_t>.day};
 
