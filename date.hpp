@@ -406,11 +406,10 @@ private:
   };
 
   offset_t static constexpr offset = []{
-    auto constexpr era     = uyear_t(epoch.year) / 400;
-    auto constexpr yoe     = uyear_t(epoch.year) % 400;
-    auto constexpr r       = ualgos::to_rata_die({yoe, epoch.month, epoch.day});
-    auto constexpr mid_era = (ualgos::rata_die_max / 2 - r) / 146097;
-    return offset_t{ 400 * (mid_era - uyear_t(epoch.year) / 400), 146097 * mid_era + r};
+    auto constexpr y = uyear_t(epoch.year) % 400;
+    auto constexpr r = ualgos::to_rata_die({y, epoch.month, epoch.day});
+    auto constexpr n = (ualgos::rata_die_max / 2 - r) / 146097;
+    return offset_t{ 400 * (n - uyear_t(epoch.year) / 400), 146097 * n + r};
   }();
 
   /**
