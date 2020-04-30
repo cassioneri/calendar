@@ -9,8 +9,8 @@ Contains low-level date algorithms that can be used to implement the following C
     std::chrono::year::is_leap()
     std::chrono::year_month_day_last::day()
 
-This work compares to those by Peter Baum [[1]](#baum) and Howard Hinnant [[2]](#hinnant).Benchmark
-results suggest that implementations here perform considerably faster than theirs:
+This work compares to those by Peter Baum [[1]](#baum) and Howard Hinnant [[2]](#hinnant). Benchmark
+results suggest that implementations here perform considerably faster than theirs and boost's:
 
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
@@ -26,8 +26,8 @@ Implementations are split into building blocks allowing configurable features. F
 interested in the case specified by the C++ Standard (previous paragraph), ready to copy-and-paste
 implementations can be seen in the benchmark links above.
 
-The configurable features allow even better performance than showed by the benchmarks above, at the
-expense of diverging from the C++ Standard choices on types, range of dates and epoch. Best
+The configurable features allow even better performance than showed by the benchmarks above at the
+expense of diverging from the C++ Standard choices on types, range of dates and epoch. The best
 performance is achieved when only dates after 0000-Mar-01 are allowed.
 
 ## Design choices
@@ -54,7 +54,7 @@ that `unsigned` computations are generally faster than `signed` ones. (For insta
 constants](https://godbolt.org/z/4JxB4J).) Therefore `udate_algos` gets better performance by
 working only on `unsigned` integers.
 
-The latter is more configurable allowing for negative years and to_rata_dies, as well as different
+The latter is more configurable allowing for negative years and rata dies, as well as different
 epochs (By default, the epoch is the Unix date 1970-Jan-01.) This is a thin but not free layer
 class around `udate_algos`. Indeed, each function in `sdate_algos` simply adapts inputs and outputs
 (generally through one addition and one subtraction) before/after delegating to a corresponding
