@@ -14,8 +14,8 @@ results suggest that implementations here perform considerably faster than their
 
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
-(See live [[3]](http://quick-bench.com/uYr8laeJuLo3cZZ9jAQs9N15_3k),
-[[4]](http://quick-bench.com/AyPoCpCQW7WZ2A5V4icKieswqnM) and
+(See live [[3]](http://quick-bench.com/bDv27nZ3dymtL_VaH9ZNFAX_MW8),
+[[4]](http://quick-bench.com/fVG1rETQvhmIHRmvgdraaPkzpFU) and
 [[5]](http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI).)
 
 Tests show correctness and compliance with the C++ Standard, that is, the algorithms are strictly
@@ -74,9 +74,9 @@ on commodity hardware.)
 [2] <span id="hinnant"> Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*,
   https://howardhinnant.github.io/date_algorithms.html<br>
 [3] <span id="to_date"> Cassio Neri, *`to_date` benchmark*,
-  http://quick-bench.com/uYr8laeJuLo3cZZ9jAQs9N15_3k<br>
+  http://quick-bench.com/bDv27nZ3dymtL_VaH9ZNFAX_MW8<br>
 [4] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmark*,
-  http://quick-bench.com/AyPoCpCQW7WZ2A5V4icKieswqnM<br>
+  http://quick-bench.com/fVG1rETQvhmIHRmvgdraaPkzpFU<br>
 [5] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmark*,
   http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI<br>
 

@@ -268,7 +268,7 @@ public:
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-    // http://quick-bench.com/uYr8laeJuLo3cZZ9jAQs9N15_3k
+    // http://quick-bench.com/bDv27nZ3dymtL_VaH9ZNFAX_MW8
     auto const n1 = 4 * n + 3;
     auto const c1 = n1 / 146097;
     auto const n2 = n1 % 146097 + c1 % 4;
@@ -309,7 +309,7 @@ public:
    */
   rata_die_t static constexpr
   to_rata_die(date_t const& x) noexcept {
-    // http://quick-bench.com/AyPoCpCQW7WZ2A5V4icKieswqnM
+    // http://quick-bench.com/fVG1rETQvhmIHRmvgdraaPkzpFU
     auto const y  = rata_die_t(x.year);
     auto const m  = rata_die_t(x.month);
     auto const d  = rata_die_t(x.day);
@@ -454,6 +454,41 @@ private:
 
 public:
 
+  /**
+   * @brief Minimum rata die allowed as input to to_date.
+   */
+  rata_die_t static constexpr rata_die_min = []{
+    // Morally, the condition below should be
+    //   if (to_udate(min<date_t>) < ualgos::to_date(ualgos::rata_die_min))
+    // However, due to the modular arithmetics of unsigned types, this would happen when
+    // to_udate(min<date_t>) overflows, becoming too large and going outside the image of
+    // ualgos::to_date.
+    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(min<date_t>))
+      return from_urata_die(ualgos::rata_die_min);
+    return to_rata_die(min<date_t>);
+  }();
+
+  /**
+   * @brief Maximum rata die allowed as input to to_date.
+   */
+  rata_die_t static constexpr rata_die_max = []{
+    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(max<date_t>))
+      return from_urata_die(ualgos::rata_die_max);
+    return to_rata_die(max<date_t>);
+  }();
+
+  /**
+   * @brief Returns the date corresponding to a given rata die.
+   *
+   * @param n         The given rata die.
+   * @pre             rata_die_min <= n && n <= rata_die_max
+   */
+  date_t static constexpr
+  to_date(rata_die_t n) noexcept {
+    // http://quick-bench.com/bDv27nZ3dymtL_VaH9ZNFAX_MW8
+    return from_udate(ualgos::to_date(to_urata_die(n)));
+  }
+
  /**
   * @brief  Minimum date allowed as input to to_rata_die.
   */
@@ -486,43 +521,8 @@ public:
    */
   rata_die_t static constexpr
   to_rata_die(date_t const& x) noexcept {
-    // http://quick-bench.com/AyPoCpCQW7WZ2A5V4icKieswqnM
+    // http://quick-bench.com/fVG1rETQvhmIHRmvgdraaPkzpFU
     return from_urata_die(ualgos::to_rata_die(to_udate(x)));
-  }
-
-  /**
-   * @brief Minimum rata die allowed as input to to_date.
-   */
-  rata_die_t static constexpr rata_die_min = []{
-    // Morally, the condition below should be
-    //   if (to_udate(min<date_t>) < ualgos::to_date(ualgos::rata_die_min))
-    // However, due to the modular arithmetics of unsigned types, this would happen when
-    // to_udate(min<date_t>) overflows, becoming too large and going outside the image of
-    // ualgos::to_date.
-    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(min<date_t>))
-      return from_urata_die(ualgos::rata_die_min);
-    return to_rata_die(min<date_t>);
-  }();
-
-  /**
-   * @brief Maximum rata die allowed as input to to_date.
-   */
-  rata_die_t static constexpr rata_die_max = []{
-    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(max<date_t>))
-      return from_urata_die(ualgos::rata_die_max);
-    return to_rata_die(max<date_t>);
-  }();
-
-  /**
-   * @brief Returns the date corresponding to a given rata die.
-   *
-   * @param n         The given rata die.
-   * @pre             rata_die_min <= n && n <= rata_die_max
-   */
-  date_t static constexpr
-  to_date(rata_die_t n) noexcept {
-    // http://quick-bench.com/uYr8laeJuLo3cZZ9jAQs9N15_3k
-    return from_udate(ualgos::to_date(to_urata_die(n)));
   }
 
   /**
