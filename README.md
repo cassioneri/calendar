@@ -16,7 +16,7 @@ than boost's:
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
 (See live [[3]](http://quick-bench.com/_OI1rnuJjp9pRhzqqQraA7wQgg8),
-[[4]](http://quick-bench.com/wllqR6GbtZDGrPfGYBpjow-E22o),
+[[4]](http://quick-bench.com/t4jQqdLKFyahAhHQ83vorj2-EQs),
 [[5]](http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs) and
 [[6]](http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co).)
 
@@ -83,7 +83,7 @@ on commodity hardware.)
 [3] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmark*,
   http://quick-bench.com/_OI1rnuJjp9pRhzqqQraA7wQgg8<br>
 [4] <span id="last_day_of_month"> Cassio Neri, *`last_day_of_month` benchmark*,
-  http://quick-bench.com/wllqR6GbtZDGrPfGYBpjow-E22o<br>
+  http://quick-bench.com/t4jQqdLKFyahAhHQ83vorj2-EQs<br>
 [5] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmark*,
   http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs<br>
 [6] <span id="to_date"> Cassio Neri, *`to_date` benchmark*,
