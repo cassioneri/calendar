@@ -350,9 +350,9 @@ auto constexpr unix_epoch = date_t<Y>{1970, 1, 1};
  *
  * This class is more configurable than ugregorian_t allowing negative years and rata dies. It also
  * allows different epochs (by default, unix_epoch). This is a thin but not free layer class around
- * ugregorian_t. Indeed, each function in sdate_algos simply adapts inputs and outputs (generally
+ * ugregorian_t. Indeed, each function in gregorian_t simply adapts inputs and outputs (generally
  * through one addition and one subtraction) before/after delegating to a corresponding function in
- * udate_algos.
+ * ugregorian_t.
  *
  * @tparam  Y         Year storage type.
  * @tparam  R         Rata die storage type.

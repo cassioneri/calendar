@@ -18,7 +18,7 @@ than boost's:
 (See live [[3]](http://quick-bench.com/_OI1rnuJjp9pRhzqqQraA7wQgg8),
 [[4]](http://quick-bench.com/wllqR6GbtZDGrPfGYBpjow-E22o),
 [[5]](http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs) and
-[[6]](http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co))
+[[6]](http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co).)
 
 Tests show correctness and compliance with the C++ Standard, that is, the algorithms are strictly
 increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in [-12687794,
@@ -48,24 +48,24 @@ by the code and are available for evaluations in `constexpr` contexts.
 
 The most important functions are implemented in two template classes:
 
-1. `udate_algos`
-2. `sdate_algos`
+1. `ugregorian_t`
+2. `gregorian_t`
 
 The former assumes years and rata dies are positive and the epoch is 0000-Mar-01. The rationale is
 that `unsigned` computations are generally faster than `signed` ones. (For instance, [division by
-constants](https://godbolt.org/z/4JxB4J).) Therefore `udate_algos` gets better performance by
+constants](https://godbolt.org/z/4JxB4J).) Therefore `ugregorian_t` gets better performance by
 working only on `unsigned` integers.
 
-The latter is more configurable allowing for negative years and rata dies, as well as different
-epochs (By default, the epoch is the Unix date 1970-Jan-01.) This is a thin but not free layer
-class around `udate_algos`. Indeed, each function in `sdate_algos` simply adapts inputs and outputs
-(generally through one addition and one subtraction) before/after delegating to a corresponding
-function in `udate_algos`.
+The latter is more configurable than ugregorian_t allowing negative years and rata dies. It also
+allows different epochs. (By default, the epoch is the Unix date 1970-Jan-01.) This is a thin but
+not free layer class around `ugregorian_t`. Indeed, each function in `gregorian_t` simply adapts
+inputs and outputs (generally through one addition and one subtraction) before/after delegating to a
+corresponding function in `ugregorian_t`.
 
 ## Contents
 
 1. `date.hpp`   : Implementations.
-2. `tests.cpp`  : Tests. (Including exhastive full-range round-trips taking around 30s to complete
+2. `tests.cpp`  : Tests. (Including exhaustive full-range round-trips taking around 30s to complete
 on commodity hardware.)
 3. `search.cpp` : Helper program that was used to find some coefficients used by the algorithms.
 
