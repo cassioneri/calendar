@@ -20,6 +20,11 @@ than boost's:
 [[5]](http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs) and
 [[6]](http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co).)
 
+**Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They might have been
+slightly edited, mainly to get consistent function signatures across implementations. Storage types
+for years, months, days and day counts might have been changed for closer compliance with C++20
+requirements.)
+
 Tests show correctness and compliance with the C++ Standard, that is, the algorithms are strictly
 increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in [-12687794,
 11248737] with 1970-01-01 being mapped into 0.
