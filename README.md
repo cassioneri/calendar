@@ -4,19 +4,21 @@
 
 Contains low-level date algorithms that can be used to implement the following C++20's functions:
 
-    std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
+    std::chrono::year::is_leap()                                 // a.k.a. is_leap_year
+    std::chrono::year_month_day_last::day()                      // a.k.a. last_day_of_month
     std::chrono::year_month_day::operator sys_days()             // a.k.a. to_rata_die
-    std::chrono::year::is_leap()
-    std::chrono::year_month_day_last::day()
+    std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
 
-This work compares to those by Peter Baum [[1]](#baum) and Howard Hinnant [[2]](#hinnant). Benchmark
-results suggest that implementations here perform considerably faster than theirs and boost's:
+This work is similar to those by Peter Baum [[1]](#baum) and Howard Hinnant [[2]](#hinnant).
+Benchmark results suggest that implementations here perform considerably faster than theirs and also
+than boost's:
 
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
-(See live [[3]](http://quick-bench.com/bDv27nZ3dymtL_VaH9ZNFAX_MW8),
-[[4]](http://quick-bench.com/fVG1rETQvhmIHRmvgdraaPkzpFU) and
-[[5]](http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI).)
+(See live [[3]](http://quick-bench.com/_OI1rnuJjp9pRhzqqQraA7wQgg8),
+[[4]](http://quick-bench.com/wllqR6GbtZDGrPfGYBpjow-E22o),
+[[5]](http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs) and
+[[6]](http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co))
 
 Tests show correctness and compliance with the C++ Standard, that is, the algorithms are strictly
 increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in [-12687794,
@@ -73,10 +75,11 @@ on commodity hardware.)
   https://www.researchgate.net/publication/316558298_Date_Algorithms<br>
 [2] <span id="hinnant"> Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*,
   https://howardhinnant.github.io/date_algorithms.html<br>
-[3] <span id="to_date"> Cassio Neri, *`to_date` benchmark*,
-  http://quick-bench.com/bDv27nZ3dymtL_VaH9ZNFAX_MW8<br>
-[4] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmark*,
-  http://quick-bench.com/fVG1rETQvhmIHRmvgdraaPkzpFU<br>
-[5] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmark*,
-  http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI<br>
-
+[3] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmark*,
+  http://quick-bench.com/_OI1rnuJjp9pRhzqqQraA7wQgg8<br>
+[4] <span id="last_day_of_month"> Cassio Neri, *`last_day_of_month` benchmark*,
+  http://quick-bench.com/wllqR6GbtZDGrPfGYBpjow-E22o<br>
+[5] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmark*,
+  http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs<br>
+[6] <span id="to_date"> Cassio Neri, *`to_date` benchmark*,
+  http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co<br>

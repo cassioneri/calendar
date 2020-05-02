@@ -24,10 +24,16 @@
 
 // Compile with: g++ -O3 -std=c++2a tests.cpp -o tests
 
+//--------------------------------------------------------------------------------------------------
+// Config
+//--------------------------------------------------------------------------------------------------
+
+auto constexpr disable_static_asserts = false;
+
 using year_t     = std::int16_t; // as in std::chrono::year
 using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
-using rata_die_t = std::int32_t;
+using rata_die_t = std::int32_t; // as in std::chrono::days
 
 //--------------------------------------------------------------------------------------------------
 // Other implementations
@@ -37,62 +43,101 @@ namespace others {
 
 using date_t = ::date_t<year_t>;
 
+namespace boost {
+
+  // https://github.com/boostorg/date_time/blob/develop/include/boost/date_time/gregorian_calendar.ipp
+
+  // gregorian_calendar_base::day_number
+  rata_die_t constexpr
+  to_rata_die(const date_t& ymd) noexcept {
+    unsigned short a = static_cast<unsigned short>((14-ymd.month)/12);
+    unsigned short y = static_cast<unsigned short>(ymd.year + 4800 - a);
+    unsigned short m = static_cast<unsigned short>(ymd.month + 12*a - 3);
+    unsigned long  d = ymd.day + ((153*m + 2)/5) + 365*y + (y/4) - (y/100) + (y/400) - 32045;
+    return static_cast<rata_die_t>(d);
+  }
+
+  // gregorian_calendar_base::from_day_number
+  date_t constexpr
+  to_date(rata_die_t dayNumber) noexcept {
+    rata_die_t a = dayNumber + 32044;
+    rata_die_t b = (4*a + 3)/146097;
+    rata_die_t c = a-((146097*b)/4);
+    rata_die_t d = (4*c + 3)/1461;
+    rata_die_t e = c - (1461*d)/4;
+    rata_die_t m = (5*e + 2)/153;
+    day_t day = static_cast<day_t>(e - ((153*m + 2)/5) + 1);
+    month_t month = static_cast<month_t>(m + 3 - 12 * (m/10));
+    year_t year = static_cast<year_t>(100*b + d - 4800 + (m/10));
+    return date_t{static_cast<year_t>(year),month,day};
+  }
+
+} // namespace boost
+
 namespace hinnant {
 
-// __from_days : https://github.com/llvm/llvm-project/blob/master/libcxx/include/chrono
-date_t constexpr to_date(rata_die_t __d) noexcept {
-  const int      __z = __d + 719468;
-  const int      __era = (__z >= 0 ? __z : __z - 146096) / 146097;
-  const unsigned __doe = static_cast<unsigned>(__z - __era * 146097);              // [0, 146096]
-  const unsigned __yoe = (__doe - __doe/1460 + __doe/36524 - __doe/146096) / 365;  // [0, 399]
-  const int      __yr = static_cast<int>(__yoe) + __era * 400;
-  const unsigned __doy = __doe - (365 * __yoe + __yoe/4 - __yoe/100);              // [0, 365]
-  const unsigned __mp = (5 * __doy + 2)/153;                                       // [0, 11]
-  const unsigned __dy = __doy - (153 * __mp + 2)/5 + 1;                            // [1, 31]
-  const unsigned __mth = __mp + (__mp < 10 ? 3 : -9);                              // [1, 12]
-  return date_t{year_t(__yr + (__mth <= 2)), month_t(__mth), day_t(__dy)};
-}
+  // https://github.com/llvm/llvm-project/blob/master/libcxx/include/chrono
 
-// __to_days : https://github.com/llvm/llvm-project/blob/master/libcxx/include/chrono
-rata_die_t constexpr to_rata_die(date_t date) noexcept {
-  const int      __yr  = static_cast<int>(date.year) - (date.month <= 2);
-  const unsigned __mth = static_cast<unsigned>(date.month);
-  const unsigned __dy  = static_cast<unsigned>(date.day);
-  const int      __era = (__yr >= 0 ? __yr : __yr - 399) / 400;
-  const unsigned __yoe = static_cast<unsigned>(__yr - __era * 400);                // [0, 399]
-  const unsigned __doy = (153 * (__mth + (__mth > 2 ? -3 : 9)) + 2) / 5 + __dy-1;  // [0, 365]
-  const unsigned __doe = __yoe * 365 + __yoe/4 - __yoe/100 + __doy;                // [0, 146096]
-  return rata_die_t{__era * 146097 + static_cast<int>(__doe) - 719468};
-}
+  // year_month_day::__to_days
+  rata_die_t constexpr
+  to_rata_die(date_t date) noexcept {
+    const int      __yr  = static_cast<int>(date.year) - (date.month <= 2);
+    const unsigned __mth = static_cast<unsigned>(date.month);
+    const unsigned __dy  = static_cast<unsigned>(date.day);
+    const int      __era = (__yr >= 0 ? __yr : __yr - 399) / 400;
+    const unsigned __yoe = static_cast<unsigned>(__yr - __era * 400);                // [0, 399]
+    const unsigned __doy = (153 * (__mth + (__mth > 2 ? -3 : 9)) + 2) / 5 + __dy-1;  // [0, 365]
+    const unsigned __doe = __yoe * 365 + __yoe/4 - __yoe/100 + __doy;                // [0, 146096]
+    return rata_die_t{__era * 146097 + static_cast<int>(__doe) - 719468};
+  }
+
+  // year_month_day::__from_days
+  date_t constexpr
+  to_date(rata_die_t __d) noexcept {
+    const int      __z = __d + 719468;
+    const int      __era = (__z >= 0 ? __z : __z - 146096) / 146097;
+    const unsigned __doe = static_cast<unsigned>(__z - __era * 146097);              // [0, 146096]
+    const unsigned __yoe = (__doe - __doe/1460 + __doe/36524 - __doe/146096) / 365;  // [0, 399]
+    const int      __yr = static_cast<int>(__yoe) + __era * 400;
+    const unsigned __doy = __doe - (365 * __yoe + __yoe/4 - __yoe/100);              // [0, 365]
+    const unsigned __mp = (5 * __doy + 2)/153;                                       // [0, 11]
+    const unsigned __dy = __doy - (153 * __mp + 2)/5 + 1;                            // [1, 31]
+    const unsigned __mth = __mp + (__mp < 10 ? 3 : -9);                              // [1, 12]
+    return date_t{year_t(__yr + (__mth <= 2)), month_t(__mth), day_t(__dy)};
+  }
 
 } // namespace hinnant
 
 namespace baum {
 
-// Section 6.2.1/3 : https://www.researchgate.net/publication/316558298_Date_Algorithms
-date_t constexpr to_date(rata_die_t rata_die) noexcept {
-  auto const z   = std::uint32_t(rata_die) + 719103; // adjusted to unix epoch
-  auto const h  = 100 * z + 25;
-  auto const a  = h / 3652425;
-  auto const b  = a - a / 4;
-  auto const y_ = (100 * b + h) / 36525;
-  auto const c  = b + z - 365 * y_ - y_ / 4;
-  auto const m_ = (535 * c + 48950) / 16384;
-  auto const d  = c - (979 * m_ - 2918) / 32;
-  auto const j  = m_ > 12;
-  auto const y  = y_ + j;
-  auto const m  = j ? m_ - 12 : m_;
-  return { year_t(y), month_t(m), day_t(d) };
-}
+  // https://www.researchgate.net/publication/316558298_Date_Algorithms
 
-// Section 5.1 : https://www.researchgate.net/publication/316558298_Date_Algorithms
-rata_die_t constexpr to_rata_die(date_t date) noexcept {
-  auto const j = date.month < 3;
-  auto const z = date.year - j;                   // step 1 / alternative 2
-  auto const f = (979 * date.month - 2918) / 32;  // step 2 / alternative 3
-  return rata_die_t{date.day + f +                // step 3 (adjusted to unix epoch)
-    365 * z + z / 4 - z / 100 + z / 400 - 719103};
-}
+  // Section 5.1
+  rata_die_t constexpr
+  to_rata_die(date_t date) noexcept {
+    auto const j = date.month < 3;
+    auto const z = date.year - j;                   // step 1 / alternative 2
+    auto const f = (979 * date.month - 2918) / 32;  // step 2 / alternative 3
+    return rata_die_t{date.day + f +                // step 3 (adjusted to unix epoch)
+      365 * z + z / 4 - z / 100 + z / 400 - 719103};
+  }
+
+  // Section 6.2.1/3
+  date_t constexpr
+  to_date(rata_die_t rata_die) noexcept {
+    auto const z   = std::uint32_t(rata_die) + 719103; // adjusted to unix epoch
+    auto const h  = 100 * z + 25;
+    auto const a  = h / 3652425;
+    auto const b  = a - a / 4;
+    auto const y_ = (100 * b + h) / 36525;
+    auto const c  = b + z - 365 * y_ - y_ / 4;
+    auto const m_ = (535 * c + 48950) / 16384;
+    auto const d  = c - (979 * m_ - 2918) / 32;
+    auto const j  = m_ > 12;
+    auto const y  = y_ + j;
+    auto const m  = j ? m_ - 12 : m_;
+    return { year_t(y), month_t(m), day_t(d) };
+  }
 
 } // namespace baum
 
@@ -203,21 +248,26 @@ print() {
 
 void constexpr
 baum_epoch_test() {
-  static_assert(others::baum::to_rata_die(unix_epoch<year_t>) == 0);
+  static_assert(disable_static_asserts ||
+    others::baum::to_rata_die(unix_epoch<year_t>) == 0);
 }
 
 void constexpr
 standard_compliance_test() noexcept {
 
-  using algos = sdate_algos<year_t, rata_die_t, unix_epoch<year_t>>;
+  using gregorian_t = ::gregorian_t<year_t, rata_die_t, unix_epoch<year_t>>;
 
   // https://eel.is/c++draft/time.clock.system#overview-1
-  static_assert(unix_epoch<year_t> == date_t<year_t>{1970, 1, 1});
-  static_assert(algos::to_date(0) == unix_epoch<year_t>);
+  static_assert(disable_static_asserts ||
+    unix_epoch<year_t> == date_t<year_t>{1970, 1, 1});
+  static_assert(disable_static_asserts ||
+    gregorian_t::to_date(0) == unix_epoch<year_t>);
 
   // https://eel.is/c++draft/time.cal.ymd#members-20
-  static_assert(algos::round_rata_die_min <= -12687428);
-  static_assert(algos::round_rata_die_max >=  11248737);
+  static_assert(disable_static_asserts ||
+    gregorian_t::round_rata_die_min <= -12687428);
+  static_assert(disable_static_asserts ||
+    gregorian_t::round_rata_die_max >=  11248737);
 }
 
 void constexpr
@@ -225,8 +275,8 @@ month_functions_test() {
   auto constexpr f = [](std::uint32_t n) { return (535 * n + 49483) / 16384; };
   auto constexpr g = [](std::uint8_t  m) { return (979 * m - 2922) / 32; };
   #define GET_MONTH_TEST(m, b, e)          \
-    static_assert(f(b) == m && f(e) == m); \
-    static_assert(g(m) == b)
+    static_assert(disable_static_asserts || (f(b) == m && f(e) == m)); \
+    static_assert(disable_static_asserts || g(m) == b)
   GET_MONTH_TEST( 3,   0,  30);
   GET_MONTH_TEST( 4,  31,  60);
   GET_MONTH_TEST( 5,  61,  91);
@@ -268,11 +318,15 @@ round_trip_test() {
 
   // Compile-time checks.
 
-  static_assert(A::round_rata_die_min == A::to_rata_die(A::round_date_min));
-  static_assert(A::round_rata_die_max == A::to_rata_die(A::round_date_max));
+  static_assert(disable_static_asserts ||
+    A::round_rata_die_min == A::to_rata_die(A::round_date_min));
+  static_assert(disable_static_asserts ||
+    A::round_rata_die_max == A::to_rata_die(A::round_date_max));
 
-  static_assert(A::round_date_min == A::to_date(A::round_rata_die_min));
-  static_assert(A::round_date_max == A::to_date(A::round_rata_die_max));
+  static_assert(disable_static_asserts ||
+    A::round_date_min == A::to_date(A::round_rata_die_min));
+  static_assert(disable_static_asserts ||
+    A::round_date_max == A::to_date(A::round_rata_die_max));
 
   // Runtime checks.
 
@@ -291,15 +345,17 @@ to_date_test() {
 
   std::cout << "to_date_test... ";
 
-  using date_t     = A::date_t;
-  using rata_die_t = A::rata_die_t;
+  using date_t     = typename A::date_t;
+  using rata_die_t = typename A::rata_die_t;
 
   auto constexpr first = A::to_date(A::rata_die_min);
-   static_assert(A::rata_die_min == min<rata_die_t> || first == min<date_t> ||
-     A::to_date(A::rata_die_min - 1) != previous(first));
+  static_assert(disable_static_asserts ||
+    A::rata_die_min == min<rata_die_t> || first == min<date_t> ||
+    A::to_date(A::rata_die_min - 1) != previous(first));
 
   auto constexpr last = A::to_date(A::rata_die_max);
-  static_assert(A::rata_die_max == max<rata_die_t> || last == max<date_t> ||
+  static_assert(disable_static_asserts ||
+    A::rata_die_max == max<rata_die_t> || last == max<date_t> ||
     A::to_date(A::rata_die_max + 1) != next(last));
 
   date_t date;
@@ -352,16 +408,18 @@ to_rata_die_test() {
 
   std::cout << "to_rata_die_test... ";
 
-  using date_t     = A::date_t;
-  using rata_die_t = A::rata_die_t;
+  using date_t     = typename A::date_t;
+  using rata_die_t = typename A::rata_die_t;
 
   auto constexpr first = A::to_rata_die(A::date_min);
-  static_assert(A::date_min == min<date_t> || first == min<rata_die_t> ||
-     A::to_rata_die(previous(A::date_min)) != first - 1);
+  static_assert(disable_static_asserts ||
+    A::date_min == min<date_t> || first == min<rata_die_t> ||
+    A::to_rata_die(previous(A::date_min)) != first - 1);
 
   auto constexpr last = A::to_rata_die(A::date_max);
-  static_assert(A::date_max == max<date_t> || last == max<rata_die_t> ||
-     A::to_rata_die(next(A::date_max)) != last + 1);
+  static_assert(disable_static_asserts ||
+    A::date_max == max<date_t> || last == max<rata_die_t> ||
+    A::to_rata_die(next(A::date_max)) != last + 1);
 
   rata_die_t rata_die;
 
@@ -407,35 +465,36 @@ to_rata_die_test() {
 int
 main() {
 
-  std::cout << "--------------------------\n";
-  std::cout << "Preliminary tests:        \n";
-  std::cout << "--------------------------\n";
+  std::cout << "-------------------\n";
+  std::cout << "Preliminary tests: \n";
+  std::cout << "-------------------\n";
 
   is_multiple_of_100_test();
 
   std::cout << '\n';
 
-  std::cout << "--------------------------\n";
-  std::cout << "Unsigned algorithms tests:\n";
-  std::cout << "--------------------------\n";
+  std::cout << "-------------------\n";
+  std::cout << "ugregorian_t tests:\n";
+  std::cout << "-------------------\n";
 
-  using ualgos = udate_algos<std::make_unsigned_t<year_t>, std::make_unsigned_t<rata_die_t>>;
+  using ugregorian_t = ::ugregorian_t<std::make_unsigned_t<year_t>,
+    std::make_unsigned_t<rata_die_t>>;
 
-  print<ualgos>();
-  round_trip_test<ualgos>();
-  to_date_test<ualgos>();
-  to_rata_die_test<ualgos>();
+  print<ugregorian_t>();
+  round_trip_test<ugregorian_t>();
+  to_date_test<ugregorian_t>();
+  to_rata_die_test<ugregorian_t>();
 
   std::cout << '\n';
 
-  std::cout << "--------------------------\n";
-  std::cout << "Signed algorithms tests:  \n";
-  std::cout << "--------------------------\n";
+  std::cout << "-------------------\n";
+  std::cout << "gregorian_t tests: \n";
+  std::cout << "-------------------\n";
 
-  using salgos = sdate_algos<year_t, rata_die_t>;
+  using gregorian_t = ::gregorian_t<year_t, rata_die_t>;
 
-  print<salgos>();
-  round_trip_test<salgos>();
-  to_date_test<salgos>();
-  to_rata_die_test<salgos>();
+  print<gregorian_t>();
+  round_trip_test<gregorian_t>();
+  to_date_test<gregorian_t>();
+  to_rata_die_test<gregorian_t>();
 }

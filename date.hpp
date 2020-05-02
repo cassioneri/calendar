@@ -173,9 +173,9 @@ is_multiple_of_100(T n) noexcept {
 template <typename T>
 bool constexpr
 is_leap_year(T year) noexcept {
-  // http://quick-bench.com/BRo2jU8FDDt1jKqAhTwRasFPoXI
+  // http://quick-bench.com/_OI1rnuJjp9pRhzqqQraA7wQgg8
   // http://stackoverflow.com/a/60646967/1137388
-  return (!is_multiple_of_100(year) || year % 400 == 0) & (year % 4 == 0);
+  return (!is_multiple_of_100(year) || year % 16 == 0) & (year % 4 == 0);
 }
 
 /**
@@ -188,14 +188,13 @@ is_leap_year(T year) noexcept {
 template <typename Y>
 month_t constexpr
 last_day_of_month(Y year, month_t month) noexcept {
-  // One MUST see benchmark results below and comments therein.
-  // http://quick-bench.com/40yoPY7ZJG6VQKBNv6fJtYA9-E8
-  std::uint32_t constexpr b = 0b1010110101010;
-  return month != 2 ? 30 + ((b >> month) & 1) : (is_leap_year(year) ? 29 : 28);
+  // http://quick-bench.com/wllqR6GbtZDGrPfGYBpjow-E22o
+  return month != 2 ? ((month ^ (month >> 3)) & 1) | 30 :
+    is_leap_year(year) ? 29 : 28;
 }
 
 /**
- * @brief   Unsigned algorithms.
+ * @brief   Gregorian calendar on unsigned integer types.
  *
  * @tparam  Y         Year storage type.
  * @tparam  R         Ratadie storage type
@@ -203,7 +202,7 @@ last_day_of_month(Y year, month_t month) noexcept {
  *                    std::numeric_limits<R>::max() >= 146097
  */
 template <typename Y = std::uint32_t, typename R = Y>
-struct udate_algos {
+struct ugregorian_t {
 
   static_assert(std::is_unsigned_v<Y> && std::is_unsigned_v<R> &&  sizeof(R) >= sizeof(Y) &&
     std::numeric_limits<R>::max() >= 146097);
@@ -228,37 +227,25 @@ struct udate_algos {
    */
   static date_t constexpr epoch = date_t{0, 3, 1};
 
-private:
-
-  // Promoted algorithms are used to calculate rata_die_max and date_max. By promoting the year
-  // storage type to rata_die_t, they mitigate the risk of having intermediate year results that are
-  // not representable by year_t. This allows comparisons against max<year_t> to be safely performed
-  // on rata_die_max objects.
-  using palgos      = udate_algos<rata_die_t, rata_die_t>;
-  using pyear_t     = palgos::year_t;
-  using prata_die_t = palgos::rata_die_t;
-  using pdate_t     = palgos::date_t;
-
-public:
-
   /**
-   * @brief Minimum rata die allowed as input to to_date.
+   * @brief Returns the rata die corresponding to a given date.
+   *
+   * @param x         The given date.
+   * @pre             date_min <= x && x <= date_max
    */
-  rata_die_t static constexpr rata_die_min = 0;
-
-  /**
-   * @brief Maximum rata die allowed as input to to_date.
-   */
-  rata_die_t static constexpr rata_die_max = []{
-
-    auto constexpr n  = (max<rata_die_t> - 3) / 4;
-    auto constexpr x1 = palgos::to_date(n);
-    auto constexpr x2 = pdate_t{ pyear_t(max<date_t>.year), max<date_t>.month, max<date_t>.day};
-
-    if (x1 <= x2)
-      return n;
-    return palgos::to_rata_die(x2);
-  }();
+  rata_die_t static constexpr
+  to_rata_die(date_t const& x) noexcept {
+    // http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs
+    auto const y  = rata_die_t(x.year);
+    auto const m  = rata_die_t(x.month);
+    auto const d  = rata_die_t(x.day);
+    auto const j  = rata_die_t(m < 3);
+    auto const d_ = d - 1;
+    auto const m_ = j ? m + 12 : m;
+    auto const y_ = y - j;
+    auto const c  = y_ / 100;
+    return (1461 * y_ / 4 - c + c / 4) + (979 * m_ - 2922) / 32 + d_;
+  }
 
   /**
    * @brief Returns the date corresponding to a given rata die.
@@ -268,7 +255,7 @@ public:
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-    // http://quick-bench.com/bDv27nZ3dymtL_VaH9ZNFAX_MW8
+    // http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co
     auto const n1 = 4 * n + 3;
     auto const c1 = n1 / 146097;
     auto const n2 = n1 % 146097 + c1 % 4;
@@ -302,24 +289,31 @@ public:
   }();
 
   /**
-   * @brief Returns the rata die corresponding to a given date.
-   *
-   * @param x         The given date.
-   * @pre             date_min <= x && x <= date_max
+   * @brief Minimum rata die allowed as input to to_date.
    */
-  rata_die_t static constexpr
-  to_rata_die(date_t const& x) noexcept {
-    // http://quick-bench.com/fVG1rETQvhmIHRmvgdraaPkzpFU
-    auto const y  = rata_die_t(x.year);
-    auto const m  = rata_die_t(x.month);
-    auto const d  = rata_die_t(x.day);
-    auto const j  = rata_die_t(m < 3);
-    auto const d_ = d - 1;
-    auto const m_ = j ? m + 12 : m;
-    auto const y_ = y - j;
-    auto const c  = y_ / 100;
-    return (1461 * y_ / 4 - c + c / 4) + (979 * m_ - 2922) / 32 + d_;
-  }
+  rata_die_t static constexpr rata_die_min = 0;
+
+  /**
+   * @brief Maximum rata die allowed as input to to_date.
+   */
+  rata_die_t static constexpr rata_die_max = []{
+
+    // Promoted algorithms are used to calculate rata_die_max and date_max. By promoting the year
+    // storage type to rata_die_t, they mitigate the risk of having intermediate year results that
+    // are not representable by year_t. This allows comparisons against max<year_t> to be safely
+    // performed on rata_die_max objects.
+    using pugregorian_t = ugregorian_t<rata_die_t, rata_die_t>;
+    using pyear_t       = typename pugregorian_t::year_t;
+    using pdate_t       = typename pugregorian_t::date_t;
+
+    auto constexpr n  = (max<rata_die_t> - 3) / 4;
+    auto constexpr x1 = pugregorian_t::to_date(n);
+    auto constexpr x2 = pdate_t{ pyear_t(max<date_t>.year), max<date_t>.month, max<date_t>.day};
+
+    if (x1 <= x2)
+      return n;
+    return pugregorian_t::to_rata_die(x2);
+  }();
 
   /**
    * @brief Minimum rata die allowed as input to to_date for round trip.
@@ -341,7 +335,7 @@ public:
    */
   date_t static constexpr round_date_max = to_date(round_rata_die_max);
 
-}; // struct udate_algos
+}; // struct ugregorian_t
 
 /**
  * @brief   The Unix epoch, i.e., 1970-Jan-01.
@@ -352,11 +346,11 @@ template <typename Y = std::int32_t>
 auto constexpr unix_epoch = date_t<Y>{1970, 1, 1};
 
 /**
- * @brief   Signed algorithms.
+ * @brief   Gregorian calendar on signed integer types.
  *
- * This class is more configurable than udate_algos allowing negative years and rata dies as well as
- * a different epoch (by default, unix_epoch). This is a thin but not free layer class around
- * udate_algos. Indeed, each function in sdate_algos simply adapts inputs and outputs (generally
+ * This class is more configurable than ugregorian_t allowing negative years and rata dies. It also
+ * allows different epochs (by default, unix_epoch). This is a thin but not free layer class around
+ * ugregorian_t. Indeed, each function in sdate_algos simply adapts inputs and outputs (generally
  * through one addition and one subtraction) before/after delegating to a corresponding function in
  * udate_algos.
  *
@@ -366,7 +360,7 @@ auto constexpr unix_epoch = date_t<Y>{1970, 1, 1};
  * @pre               std::is_signed_v<Y> && std::is_signed_v<R> && epoch.year >= 0
  */
 template <typename Y, typename R = Y, date_t<Y> epoch_ = unix_epoch<Y>>
-struct sdate_algos {
+struct gregorian_t {
 
   static_assert(std::is_signed_v<Y> && std::is_signed_v<R> && epoch_.year >= 0);
 
@@ -393,12 +387,12 @@ struct sdate_algos {
 private:
 
   // Preconditions related to representability of years by its storage type should be addressed in
-  // this class and not in the unsigned algorithm helper. Therefore, to disable such constraints in
-  // the helper class, the storage type for years is set to be the same as for rata dies.
-  using uyear_t     = std::make_unsigned_t<rata_die_t>;
-  using urata_die_t = std::make_unsigned_t<rata_die_t>;
-  using ualgos      = udate_algos<uyear_t, urata_die_t>;
-  using udate_t     = ualgos::date_t;
+  // this class and not in the ugregorian_t helper. Therefore, to disable such constraints in the
+  // helper class, the storage type for years is set to be the same as for rata dies.
+  using uyear_t      = std::make_unsigned_t<rata_die_t>;
+  using urata_die_t  = std::make_unsigned_t<rata_die_t>;
+  using ugregorian_t = ::ugregorian_t<uyear_t, urata_die_t>;
+  using udate_t      = typename ugregorian_t::date_t;
 
   struct offset_t {
     uyear_t     year;
@@ -407,8 +401,8 @@ private:
 
   offset_t static constexpr offset = []{
     auto constexpr y = uyear_t(epoch.year) % 400;
-    auto constexpr r = ualgos::to_rata_die({y, epoch.month, epoch.day});
-    auto constexpr n = (ualgos::rata_die_max / 2 - r) / 146097;
+    auto constexpr r = ugregorian_t::to_rata_die({y, epoch.month, epoch.day});
+    auto constexpr n = (ugregorian_t::rata_die_max / 2 - r) / 146097;
     return offset_t{ 400 * (n - uyear_t(epoch.year) / 400), 146097 * n + r};
   }();
 
@@ -455,27 +449,16 @@ private:
 public:
 
   /**
-   * @brief Minimum rata die allowed as input to to_date.
+   * @brief Returns the rata die corresponding to a given date.
+   *
+   * @param x         The given date.
+   * @pre             date_min <= x && x <= date_max
    */
-  rata_die_t static constexpr rata_die_min = []{
-    // Morally, the condition below should be
-    //   if (to_udate(min<date_t>) < ualgos::to_date(ualgos::rata_die_min))
-    // However, due to the modular arithmetics of unsigned types, this would happen when
-    // to_udate(min<date_t>) overflows, becoming too large and going outside the image of
-    // ualgos::to_date.
-    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(min<date_t>))
-      return from_urata_die(ualgos::rata_die_min);
-    return to_rata_die(min<date_t>);
-  }();
-
-  /**
-   * @brief Maximum rata die allowed as input to to_date.
-   */
-  rata_die_t static constexpr rata_die_max = []{
-    if (ualgos::to_date(ualgos::rata_die_max) < to_udate(max<date_t>))
-      return from_urata_die(ualgos::rata_die_max);
-    return to_rata_die(max<date_t>);
-  }();
+  rata_die_t static constexpr
+  to_rata_die(date_t const& x) noexcept {
+    // http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs
+    return from_urata_die(ugregorian_t::to_rata_die(to_udate(x)));
+  }
 
   /**
    * @brief Returns the date corresponding to a given rata die.
@@ -485,8 +468,8 @@ public:
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-    // http://quick-bench.com/bDv27nZ3dymtL_VaH9ZNFAX_MW8
-    return from_udate(ualgos::to_date(to_urata_die(n)));
+    // http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co
+    return from_udate(ugregorian_t::to_date(to_urata_die(n)));
   }
 
  /**
@@ -494,12 +477,12 @@ public:
   */
   date_t static constexpr date_min = []{
     // Morally, the condition below should be
-    //   if (to_udate(min<date_t>) < ualgos::date_min)
+    //   if (to_udate(min<date_t>) < ugregorian_t::date_min)
     // However, due to the modular arithmetics of unsigned types, this would happen when
     // to_udate(min<date_t>) overflows, becoming too large and going outside the domain of
-    // ualgos::to_rata_die.
-    if (ualgos::date_max < to_udate(min<date_t>))
-      return from_udate(ualgos::date_min);
+    // ugregorian_t::to_rata_die.
+    if (ugregorian_t::date_max < to_udate(min<date_t>))
+      return from_udate(ugregorian_t::date_min);
     return min<date_t>;
   }();
 
@@ -508,22 +491,33 @@ public:
   */
   date_t static constexpr date_max = []{
     auto constexpr x = to_udate(max<date_t>);
-    if (ualgos::date_max < x)
-      return from_udate(ualgos::date_max);
+    if (ugregorian_t::date_max < x)
+      return from_udate(ugregorian_t::date_max);
     return max<date_t>;
   }();
 
   /**
-   * @brief Returns the rata die corresponding to a given date.
-   *
-   * @param x         The given date.
-   * @pre             date_min <= x && x <= date_max
+   * @brief Minimum rata die allowed as input to to_date.
    */
-  rata_die_t static constexpr
-  to_rata_die(date_t const& x) noexcept {
-    // http://quick-bench.com/fVG1rETQvhmIHRmvgdraaPkzpFU
-    return from_urata_die(ualgos::to_rata_die(to_udate(x)));
-  }
+  rata_die_t static constexpr rata_die_min = []{
+    // Morally, the condition below should be
+    //   if (to_udate(min<date_t>) < ugregorian_t::to_date(ugregorian_t::rata_die_min))
+    // However, due to the modular arithmetics of unsigned types, this would happen when
+    // to_udate(min<date_t>) overflows, becoming too large and going outside the image of
+    // ugregorian_t::to_date.
+    if (ugregorian_t::to_date(ugregorian_t::rata_die_max) < to_udate(min<date_t>))
+      return from_urata_die(ugregorian_t::rata_die_min);
+    return to_rata_die(min<date_t>);
+  }();
+
+  /**
+   * @brief Maximum rata die allowed as input to to_date.
+   */
+  rata_die_t static constexpr rata_die_max = []{
+    if (ugregorian_t::to_date(ugregorian_t::rata_die_max) < to_udate(max<date_t>))
+      return from_urata_die(ugregorian_t::rata_die_max);
+    return to_rata_die(max<date_t>);
+  }();
 
   /**
    * @brief Minimum rata die allowed as input to to_date for round trip.
@@ -545,4 +539,4 @@ public:
    */
   date_t static constexpr round_date_max = to_date(round_rata_die_max);
 
-}; // struct sdate_algos
+}; // struct gregorian_t
