@@ -188,7 +188,7 @@ is_leap_year(T year) noexcept {
 template <typename Y>
 month_t constexpr
 last_day_of_month(Y year, month_t month) noexcept {
-  // http://quick-bench.com/wllqR6GbtZDGrPfGYBpjow-E22o
+  // http://quick-bench.com/t4jQqdLKFyahAhHQ83vorj2-EQs
   return month != 2 ? ((month ^ (month >> 3)) & 1) | 30 :
     is_leap_year(year) ? 29 : 28;
 }
