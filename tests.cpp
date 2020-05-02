@@ -39,76 +39,9 @@ using rata_die_t = std::int32_t; // as in std::chrono::days
 // Other implementations
 //--------------------------------------------------------------------------------------------------
 
-namespace others {
-
-using date_t = ::date_t<year_t>;
-
-namespace boost {
-
-  // https://github.com/boostorg/date_time/blob/develop/include/boost/date_time/gregorian_calendar.ipp
-
-  // gregorian_calendar_base::day_number
-  rata_die_t constexpr
-  to_rata_die(const date_t& ymd) noexcept {
-    unsigned short a = static_cast<unsigned short>((14-ymd.month)/12);
-    unsigned short y = static_cast<unsigned short>(ymd.year + 4800 - a);
-    unsigned short m = static_cast<unsigned short>(ymd.month + 12*a - 3);
-    unsigned long  d = ymd.day + ((153*m + 2)/5) + 365*y + (y/4) - (y/100) + (y/400) - 32045;
-    return static_cast<rata_die_t>(d);
-  }
-
-  // gregorian_calendar_base::from_day_number
-  date_t constexpr
-  to_date(rata_die_t dayNumber) noexcept {
-    rata_die_t a = dayNumber + 32044;
-    rata_die_t b = (4*a + 3)/146097;
-    rata_die_t c = a-((146097*b)/4);
-    rata_die_t d = (4*c + 3)/1461;
-    rata_die_t e = c - (1461*d)/4;
-    rata_die_t m = (5*e + 2)/153;
-    day_t day = static_cast<day_t>(e - ((153*m + 2)/5) + 1);
-    month_t month = static_cast<month_t>(m + 3 - 12 * (m/10));
-    year_t year = static_cast<year_t>(100*b + d - 4800 + (m/10));
-    return date_t{static_cast<year_t>(year),month,day};
-  }
-
-} // namespace boost
-
-namespace hinnant {
-
-  // https://github.com/llvm/llvm-project/blob/master/libcxx/include/chrono
-
-  // year_month_day::__to_days
-  rata_die_t constexpr
-  to_rata_die(date_t date) noexcept {
-    const int      __yr  = static_cast<int>(date.year) - (date.month <= 2);
-    const unsigned __mth = static_cast<unsigned>(date.month);
-    const unsigned __dy  = static_cast<unsigned>(date.day);
-    const int      __era = (__yr >= 0 ? __yr : __yr - 399) / 400;
-    const unsigned __yoe = static_cast<unsigned>(__yr - __era * 400);                // [0, 399]
-    const unsigned __doy = (153 * (__mth + (__mth > 2 ? -3 : 9)) + 2) / 5 + __dy-1;  // [0, 365]
-    const unsigned __doe = __yoe * 365 + __yoe/4 - __yoe/100 + __doy;                // [0, 146096]
-    return rata_die_t{__era * 146097 + static_cast<int>(__doe) - 719468};
-  }
-
-  // year_month_day::__from_days
-  date_t constexpr
-  to_date(rata_die_t __d) noexcept {
-    const int      __z = __d + 719468;
-    const int      __era = (__z >= 0 ? __z : __z - 146096) / 146097;
-    const unsigned __doe = static_cast<unsigned>(__z - __era * 146097);              // [0, 146096]
-    const unsigned __yoe = (__doe - __doe/1460 + __doe/36524 - __doe/146096) / 365;  // [0, 399]
-    const int      __yr = static_cast<int>(__yoe) + __era * 400;
-    const unsigned __doy = __doe - (365 * __yoe + __yoe/4 - __yoe/100);              // [0, 365]
-    const unsigned __mp = (5 * __doy + 2)/153;                                       // [0, 11]
-    const unsigned __dy = __doy - (153 * __mp + 2)/5 + 1;                            // [1, 31]
-    const unsigned __mth = __mp + (__mp < 10 ? 3 : -9);                              // [1, 12]
-    return date_t{year_t(__yr + (__mth <= 2)), month_t(__mth), day_t(__dy)};
-  }
-
-} // namespace hinnant
-
 namespace baum {
+
+  using date_t = ::date_t<year_t>;
 
   // https://www.researchgate.net/publication/316558298_Date_Algorithms
 
@@ -140,8 +73,6 @@ namespace baum {
   }
 
 } // namespace baum
-
-} // namespace others
 
 //--------------------------------------------------------------------------------------------------
 // Helpers
@@ -249,7 +180,7 @@ print() {
 void constexpr
 baum_epoch_test() {
   static_assert(disable_static_asserts ||
-    others::baum::to_rata_die(unix_epoch<year_t>) == 0);
+    baum::to_rata_die(unix_epoch<year_t>) == 0);
 }
 
 void constexpr
