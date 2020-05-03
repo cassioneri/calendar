@@ -30,10 +30,14 @@
 
 auto constexpr disable_static_asserts = false;
 
-using year_t     = std::int16_t; // as in std::chrono::year
-using month_t    = std::uint8_t; // as in std::chrono::month
-using day_t      = std::uint8_t; // as in std::chrono::day
-using rata_die_t = std::int32_t; // as in std::chrono::days
+namespace std_chrono {
+
+  using year_t     = std::int16_t; // as in std::chrono::year
+  using month_t    = std::uint8_t; // as in std::chrono::month
+  using day_t      = std::uint8_t; // as in std::chrono::day
+  using rata_die_t = std::int32_t; // as in std::chrono::days
+
+};
 
 //--------------------------------------------------------------------------------------------------
 // Other implementations
@@ -41,6 +45,7 @@ using rata_die_t = std::int32_t; // as in std::chrono::days
 
 namespace baum {
 
+  using namespace std_chrono;
   using date_t = ::date_t<year_t>;
 
   // https://www.researchgate.net/publication/316558298_Date_Algorithms
@@ -70,6 +75,12 @@ namespace baum {
     auto const y  = y_ + j;
     auto const m  = j ? m_ - 12 : m_;
     return { year_t(y), month_t(m), day_t(d) };
+  }
+
+  void constexpr
+  epoch_test() {
+    static_assert(disable_static_asserts ||
+      to_rata_die(unix_epoch<year_t>) == 0);
   }
 
 } // namespace baum
@@ -156,9 +167,18 @@ previous(date_t<T> date) noexcept {
 // Information
 //--------------------------------------------------------------------------------------------------
 
+void
+print_banner(char const* banner) {
+  std::cout << "------------------------------------------\n";
+  std::cout << banner << '\n';
+  std::cout << "------------------------------------------\n";
+}
+
 template <typename Algo>
 void
-print() {
+print_info() {
+
+  std::cout << "epoch              = " << Algo::epoch              << '\n';
 
   std::cout << "date_min           = " << Algo::date_min           << '\n';
   std::cout << "date_max           = " << Algo::date_max           << '\n';
@@ -178,15 +198,10 @@ print() {
 //--------------------------------------------------------------------------------------------------
 
 void constexpr
-baum_epoch_test() {
-  static_assert(disable_static_asserts ||
-    baum::to_rata_die(unix_epoch<year_t>) == 0);
-}
-
-void constexpr
 standard_compliance_test() noexcept {
 
-  using gregorian_t = ::gregorian_t<year_t, rata_die_t, unix_epoch<year_t>>;
+  using namespace std_chrono;
+  using gregorian_t = ::gregorian_t<year_t, rata_die_t>;
 
   // https://eel.is/c++draft/time.clock.system#overview-1
   static_assert(disable_static_asserts ||
@@ -330,9 +345,6 @@ to_date_test() {
   std::cout << "OK\n";
 }
 
-template <auto>
-struct foo;
-
 template <typename A>
 void
 to_rata_die_test() {
@@ -393,39 +405,59 @@ to_rata_die_test() {
   std::cout << "OK\n";
 }
 
+template <typename A>
+void
+calendar_tests(char const* banner) {
+  print_banner(banner);
+  print_info<A>();
+  round_trip_test<A>();
+  to_date_test<A>();
+  to_rata_die_test<A>();
+}
+
 int
 main() {
 
-  std::cout << "-------------------\n";
-  std::cout << "Preliminary tests: \n";
-  std::cout << "-------------------\n";
-
+  print_banner("Preliminary tests");
   is_multiple_of_100_test();
 
-  std::cout << '\n';
+  // 16 bits
 
-  std::cout << "-------------------\n";
-  std::cout << "ugregorian_t tests:\n";
-  std::cout << "-------------------\n";
+  calendar_tests<ugregorian_t<std::uint16_t, std::uint32_t>>
+    ("unsigned : 16");
 
-  using ugregorian_t = ::ugregorian_t<std::make_unsigned_t<year_t>,
-    std::make_unsigned_t<rata_die_t>>;
+  calendar_tests<gregorian_t<std::int16_t, std::int32_t>>
+    ("signed : 16 : default epoch");
 
-  print<ugregorian_t>();
-  round_trip_test<ugregorian_t>();
-  to_date_test<ugregorian_t>();
-  to_rata_die_test<ugregorian_t>();
+  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{0, 3, 1}>>
+    ("signed : 16 : 0000-Mar-01");
 
-  std::cout << '\n';
+  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{0, 1, 1}>>
+    ("signed : 16 : 0000-Jan-01");
 
-  std::cout << "-------------------\n";
-  std::cout << "gregorian_t tests: \n";
-  std::cout << "-------------------\n";
+  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{-1, 1, 1}>>
+    ("signed : 16 : -0001-Jan-01");
 
-  using gregorian_t = ::gregorian_t<year_t, rata_die_t>;
+  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{-400, 1, 1}>>
+    ("signed : 16 : -0400-Jan-01");
 
-  print<gregorian_t>();
-  round_trip_test<gregorian_t>();
-  to_date_test<gregorian_t>();
-  to_rata_die_test<gregorian_t>();
+  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{-1970, 1, 1}>>
+    ("signed : 16 : -1970-Jan-01");
+
+  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{-32768, 1, 1}>>
+    ("signed : 16 : -32768-Jan-01");
+
+  // 32 bits
+
+  calendar_tests<ugregorian_t<std::uint32_t, std::uint32_t>>
+    ("unsigned : 32");
+
+  calendar_tests<gregorian_t<std::int32_t, std::int32_t>>
+    ("signed : 32 : default epoch");
+
+  calendar_tests<gregorian_t<std::int32_t, std::int32_t, date_t<std::int32_t>{1912, 6, 23}>>
+    ("signed : 32 : 1912-Jun-23");
+
+  calendar_tests<gregorian_t<std::int32_t, std::int32_t, date_t<std::int32_t>{-1912, 6, 23}>>
+    ("signed : 32 : -1912-Jun-23");
 }
