@@ -357,12 +357,12 @@ auto constexpr unix_epoch = date_t<Y>{1970, 1, 1};
  * @tparam  Y         Year storage type.
  * @tparam  R         Rata die storage type.
  * @tparam  epoch     Date used as epoch.
- * @pre               std::is_signed_v<Y> && std::is_signed_v<R> && epoch.year >= 0
+ * @pre               std::is_signed_v<Y> && std::is_signed_v<R>
  */
 template <typename Y, typename R = Y, date_t<Y> epoch_ = unix_epoch<Y>>
 struct gregorian_t {
 
-  static_assert(std::is_signed_v<Y> && std::is_signed_v<R> && epoch_.year >= 0);
+  static_assert(std::is_signed_v<Y> && std::is_signed_v<R>);
 
   /**
    * @brief Year storage type.
@@ -400,10 +400,30 @@ private:
   };
 
   offset_t static constexpr offset = []{
-    auto constexpr y = uyear_t(epoch.year) % 400;
-    auto constexpr r = ugregorian_t::to_rata_die({y, epoch.month, epoch.day});
-    auto constexpr n = (ugregorian_t::rata_die_max / 2 - r) / 146097;
-    return offset_t{ 400 * (n - uyear_t(epoch.year) / 400), 146097 * n + r};
+
+    // We seek the quotient y1 and remainder y2 of the division of epoch.year by 400 as per
+    // Euclidean division, that is, epoch.year = 400 * y1 + y2, with 0 <= y2 < 400. Notice that
+    // operators / and % give these results for truncated division [1]. The results of Euclidean and
+    // truncated division match for non-negative operands but do not for negative ones and a
+    // correction is required.
+    // [1] https://eel.is/c++draft/expr.mul#4
+    auto constexpr y2 = epoch.year % 400 + (epoch.year >= 0 ? 0 : 400);
+    // The constexpr substraction below is performed on year_t, a signed integer type, and when it
+    // oveflows we get a compiler error. This is good.
+    auto constexpr z  = epoch.year - y2; // z = 400 * y1
+
+    // Let r(y, m, d) = ugregorian_t::to_rata_die({y, m, d}). Morally, quantity calculated below
+    // should be r = r(y2, epoch.month, epoch.day). However, recall that r is not defined for dates
+    // prior to 0000-Mar-01 and hence, r(0, m, d) is not defined for dates (0, m, d) in
+    // [0000-Jan-01, 0000-Feb-29]. Also, for the calculations that follow to work, the expected
+    // results for dates in this interval should be negative numbers. Using, f(y + 400, m, d) =
+    // f(y, m, d) + 146097, a well known property of rata die functions, allowings avoiding the
+    // ill-defined issue and ensures the obtained result is equivalent to the expected one
+    // (including negative values) modulus 2^w where w is the number of bits of rata_die_t.
+    auto constexpr r = ugregorian_t::to_rata_die({y2 + 400, epoch.month, epoch.day}) - 146097;
+
+    auto constexpr t = (ugregorian_t::rata_die_max / 2 - r) / 146097;
+    return offset_t{400 * t - z, 146097 * t + r};
   }();
 
   /**
