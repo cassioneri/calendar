@@ -13,7 +13,7 @@ This work is similar to those by Peter Baum [[1]](#baum) and Howard Hinnant [[2]
 Benchmark results suggest that implementations here perform considerably faster than theirs and also
 than boost's:
 
-![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
+![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks/benchmarks.png)
 
 (See live [[3]](http://quick-bench.com/LybJ2bUF67numbQAryYTyRuJQVE),
 [[4]](http://quick-bench.com/RDy_9sfmJDhZH7Nh5asYQJSvEjc),
