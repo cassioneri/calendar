@@ -173,7 +173,6 @@ is_multiple_of_100(T n) noexcept {
 template <typename T>
 bool constexpr
 is_leap_year(T year) noexcept {
-  // http://quick-bench.com/_OI1rnuJjp9pRhzqqQraA7wQgg8
   // http://stackoverflow.com/a/60646967/1137388
   return (!is_multiple_of_100(year) || year % 16 == 0) & (year % 4 == 0);
 }
@@ -188,7 +187,6 @@ is_leap_year(T year) noexcept {
 template <typename Y>
 month_t constexpr
 last_day_of_month(Y year, month_t month) noexcept {
-  // http://quick-bench.com/t4jQqdLKFyahAhHQ83vorj2-EQs
   return month != 2 ? ((month ^ (month >> 3)) & 1) | 30 :
     is_leap_year(year) ? 29 : 28;
 }
@@ -201,6 +199,7 @@ last_day_of_month(Y year, month_t month) noexcept {
  * @pre               std::is_unsigned_v<Y> && std::is_unsigned_v<R> &&  sizeof(R) >= sizeof(Y) &&
  *                    std::numeric_limits<R>::max() >= 146097
  */
+
 template <typename Y = std::uint32_t, typename R = Y>
 struct ugregorian_t {
 
@@ -235,7 +234,6 @@ struct ugregorian_t {
    */
   rata_die_t static constexpr
   to_rata_die(date_t const& x) noexcept {
-    // http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs
     auto const y  = rata_die_t(x.year);
     auto const m  = rata_die_t(x.month);
     auto const d  = rata_die_t(x.day);
@@ -255,7 +253,6 @@ struct ugregorian_t {
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-    // http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co
     auto const n1 = 4 * n + 3;
     auto const c1 = n1 / 146097;
     auto const n2 = n1 % 146097 + c1 % 4;
@@ -476,7 +473,6 @@ public:
    */
   rata_die_t static constexpr
   to_rata_die(date_t const& x) noexcept {
-    // http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs
     return from_urata_die(ugregorian_t::to_rata_die(to_udate(x)));
   }
 
@@ -488,7 +484,6 @@ public:
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-    // http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co
     return from_udate(ugregorian_t::to_date(to_urata_die(n)));
   }
 

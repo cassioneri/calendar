@@ -15,10 +15,10 @@ than boost's:
 
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks.png)
 
-(See live [[3]](http://quick-bench.com/_OI1rnuJjp9pRhzqqQraA7wQgg8),
-[[4]](http://quick-bench.com/t4jQqdLKFyahAhHQ83vorj2-EQs),
-[[5]](http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs) and
-[[6]](http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co).)
+(See live [[3]](http://quick-bench.com/LybJ2bUF67numbQAryYTyRuJQVE),
+[[4]](http://quick-bench.com/RDy_9sfmJDhZH7Nh5asYQJSvEjc),
+[[5]](http://quick-bench.com/mCJ8dbzevMX0ssfee4mfgx4IMbA) and
+[[6]](http://quick-bench.com/N49JDfWYLmAPYPdJyuiTHFiWrVo).)
 
 **Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They have been slightly
 edited, mainly to get consistent function signatures across implementations. Storage types for
@@ -81,10 +81,10 @@ on commodity hardware.)
 [2] <span id="hinnant"> Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*,
   https://howardhinnant.github.io/date_algorithms.html<br>
 [3] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmark*,
-  http://quick-bench.com/_OI1rnuJjp9pRhzqqQraA7wQgg8<br>
+  http://quick-bench.com/LybJ2bUF67numbQAryYTyRuJQVE<br>
 [4] <span id="last_day_of_month"> Cassio Neri, *`last_day_of_month` benchmark*,
-  http://quick-bench.com/t4jQqdLKFyahAhHQ83vorj2-EQs<br>
+  http://quick-bench.com/RDy_9sfmJDhZH7Nh5asYQJSvEjc<br>
 [5] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmark*,
-  http://quick-bench.com/SftlamkK4KQl_eEBt0x7eDySaLs<br>
+  http://quick-bench.com/mCJ8dbzevMX0ssfee4mfgx4IMbA<br>
 [6] <span id="to_date"> Cassio Neri, *`to_date` benchmark*,
-  http://quick-bench.com/fmnJPDeeseX3il_P5fvODAmv6co<br>
+  http://quick-bench.com/N49JDfWYLmAPYPdJyuiTHFiWrVo<br>
