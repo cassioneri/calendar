@@ -10,8 +10,9 @@ Contains low-level date algorithms that can be used to implement the following C
     std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
 
 This work is similar to those by Peter Baum [[1]](#baum) and Howard Hinnant [[2]](#hinnant).
-Benchmark results suggest that implementations here perform considerably faster than theirs and also
-than boost's:
+Many ideas implemented here were inspired by their work. Benchmark results suggest that
+implementations here perform considerably faster than theirs and also than those of GLIBC, .NET and
+boost:
 
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks/benchmarks.png)
 
@@ -20,10 +21,21 @@ than boost's:
 [[5]](http://quick-bench.com/mCJ8dbzevMX0ssfee4mfgx4IMbA) and
 [[6]](http://quick-bench.com/N49JDfWYLmAPYPdJyuiTHFiWrVo).)
 
-**Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They have been slightly
-edited, mainly to get consistent function signatures across implementations. Storage types for
-years, months, days and day counts might have been changed for closer compliance with C++20
-requirements.
+`is_leap_year`: Neri_mcomp is 3.3x faster than Hinnant. Neri_mod is 2x faster than Hinnant.
+
+`last_day_of_month`: Neri is 1x faster than Boost and 1x faster than Hinnant.
+
+`to_rata_die`: Neri is 2.3x faster than GLIBC, 2x faster than .NET, 1.7x fater than boost, 1.5x
+faster than Hinnant and 1.3x faster than Baum.
+
+`to_date`: Neri is 5.1x faster than GLIBC, 2.2x faster than .NET, 2.1x faster than boost, 1.8x
+faster than Hinnant and 1.3x faster than Baum.
+
+**Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They have been edited,
+mainly to get consistent function signatures across implementations. Storage types for years,
+months, days and day counts might have been changed for closer compliance with C++20 requirements.
+Some original implementations deal with time and for this benchmark we have used simplified versions
+that only deals with dates.
 
 Tests show correctness and compliance with the C++ Standard, that is, the algorithms are strictly
 increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in [-12687794,
