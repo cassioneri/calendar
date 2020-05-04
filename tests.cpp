@@ -28,36 +28,58 @@
 // Config
 //--------------------------------------------------------------------------------------------------
 
-auto constexpr disable_static_asserts = false;
-
 using year_t     = std::int16_t; // as in std::chrono::year
 using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t; // as in std::chrono::days
 
+auto constexpr disable_static_asserts = false;
+auto constexpr test_baum              = true;
+
 //--------------------------------------------------------------------------------------------------
 // Other implementations
 //--------------------------------------------------------------------------------------------------
 
-namespace baum {
+struct base_others {
+  using year_t     = ::year_t;
+  using month_t    = ::month_t;
+  using day_t      = ::day_t;
+  using rata_die_t = ::rata_die_t;
+  using date_t     = ::date_t<year_t>;
+};
+
+struct baum : base_others {
+
+  date_t     static constexpr epoch             = unix_epoch<year_t>;
+
+  date_t     static constexpr date_min           = date_t{0, 3, 1};
+  date_t     static constexpr date_max           = max<date_t>;
+  rata_die_t static constexpr rata_die_min       = -719468;
+  rata_die_t static constexpr rata_die_max       = 11248737;
+
+  date_t     static constexpr round_date_min     = date_t{0, 3, 1};
+  date_t     static constexpr round_date_max     = max<date_t>;
+  rata_die_t static constexpr round_rata_die_min = -719468;
+  rata_die_t static constexpr round_rata_die_max = 11248737;
 
   // https://www.researchgate.net/publication/316558298_Date_Algorithms
 
   // Section 5.1
-  rata_die_t constexpr
-  to_rata_die(date_t<year_t> date) noexcept {
+  rata_die_t static constexpr
+  to_rata_die(date_t date) noexcept {
     auto const j = date.month < 3;
-    auto const z = date.year - j;                   // step 1 / alternative 2
-    auto const f = (979 * date.month - 2918) / 32;  // step 2 / alternative 3
-    return rata_die_t{date.day + f +                // step 3 (adjusted to unix epoch)
-      365 * z + z / 4 - z / 100 + z / 400 - 719103};
+    auto const z = date.year - j;                    // step 1 / alternative 2
+    auto const m = j ? date.month + 12 : date.month; // step 2 / alternative 3
+    auto const f = (979 * m - 2918) / 32;            //
+    return rata_die_t{date.day + f +                 // step 3 (adjusted to unix epoch)
+      365 * z + z / 4 - z / 100 + z / 400 - 719469};
   }
 
   // Section 6.2.1/3
-  date_t<year_t> constexpr
+  date_t static constexpr
   to_date(rata_die_t rata_die) noexcept {
-    auto const z   = std::uint32_t(rata_die) + 719103; // adjusted to unix epoch
-    auto const h  = 100 * z + 25;
+    auto const z  = std::uint32_t(rata_die) + 719469; // adjusted to unix epoch
+    auto const h  = 100 * z - 25;
     auto const a  = h / 3652425;
     auto const b  = a - a / 4;
     auto const y_ = (100 * b + h) / 36525;
@@ -70,14 +92,9 @@ namespace baum {
     return { year_t(y), month_t(m), day_t(d) };
   }
 
-  void constexpr
-  epoch_test() {
-    static_assert(disable_static_asserts ||
-      to_rata_die(unix_epoch<year_t>) == 0);
-  }
+}; // struct baum
 
-} // namespace baum
-
+static_assert(disable_static_asserts || baum::to_rata_die(unix_epoch<year_t>) == 0);
 
 //--------------------------------------------------------------------------------------------------
 // Helpers
@@ -395,7 +412,7 @@ to_rata_die_test() {
     }
 
     if (yesterday != --rata_die) {
-      std::cout << "(forward) failed for date = " << date << '\n';
+      std::cout << "(backward) failed for date = " << date << '\n';
       return;
     }
   }
@@ -418,6 +435,9 @@ main() {
 
   print_banner("Preliminary tests");
   is_multiple_of_100_test();
+
+  if (test_baum)
+    calendar_tests<baum>("Baum tests");
 
   // 16 bits
 
