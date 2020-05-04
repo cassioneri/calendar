@@ -35,20 +35,21 @@ using rata_die_t = std::int32_t; // as in std::chrono::days
 
 auto constexpr disable_static_asserts = false;
 auto constexpr test_baum              = true;
+auto constexpr test_glibc             = true;
 
 //--------------------------------------------------------------------------------------------------
 // Other implementations
 //--------------------------------------------------------------------------------------------------
 
-struct base_others {
-  using year_t     = ::year_t;
-  using month_t    = ::month_t;
-  using day_t      = ::day_t;
-  using rata_die_t = ::rata_die_t;
+struct other_base {
+  using year_t     = std::int16_t; // as in std::chrono::year
+  using month_t    = std::uint8_t; // as in std::chrono::month
+  using day_t      = std::uint8_t; // as in std::chrono::day
+  using rata_die_t = std::int32_t; // as in std::chrono::days
   using date_t     = ::date_t<year_t>;
 };
 
-struct baum : base_others {
+struct baum : other_base {
 
   date_t     static constexpr epoch             = unix_epoch<year_t>;
 
@@ -94,7 +95,107 @@ struct baum : base_others {
 
 }; // struct baum
 
-static_assert(disable_static_asserts || baum::to_rata_die(unix_epoch<year_t>) == 0);
+struct glibc : other_base {
+
+  date_t     static constexpr epoch              = unix_epoch<year_t>;
+
+  date_t     static constexpr date_min           = min<date_t>;
+  date_t     static constexpr date_max           = max<date_t>;
+  rata_die_t static constexpr rata_die_min       = -12687794;
+  rata_die_t static constexpr rata_die_max       = 11248737;
+
+  date_t     static constexpr round_date_min     = min<date_t>;
+  date_t     static constexpr round_date_max     = max<date_t>;
+  rata_die_t static constexpr round_rata_die_min = -12687794;
+  rata_die_t static constexpr round_rata_die_max = 11248737;
+
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l138
+  rata_die_t static constexpr
+  shr(rata_die_t a, int b) noexcept {
+    rata_die_t one = 1;
+    return (-one >> 1 == -1 ? a >> b : a / (one << b) - (a % (one << b) < 0));
+  }
+
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l157
+  #define EPOCH_YEAR 1970
+  #define TM_YEAR_BASE 1900
+
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l161
+  bool static constexpr
+  leapyear (rata_die_t year) noexcept {
+    return ((year & 3) == 0 && (year % 100 != 0 ||
+      ((year / 100) & 3) == (- (TM_YEAR_BASE / 100) & 3)));
+  }
+
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l173
+  unsigned short int static constexpr __mon_yday[2][13] =
+    {
+      /* Normal years.  */
+      { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
+      /* Leap years.  */
+      { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
+    };
+
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l194
+  rata_die_t static constexpr
+  ydhms_diff (rata_die_t year1, rata_die_t yday1, rata_die_t year0) noexcept {
+    rata_die_t a4 = shr (year1, 2) + shr (TM_YEAR_BASE, 2) - ! (year1 & 3);
+    rata_die_t b4 = shr (year0, 2) + shr (TM_YEAR_BASE, 2) - ! (year0 & 3);
+    rata_die_t a100 = a4 / 25 - (a4 % 25 < 0);
+    rata_die_t b100 = b4 / 25 - (b4 % 25 < 0);
+    rata_die_t a400 = shr (a100, 2);
+    rata_die_t b400 = shr (b100, 2);
+    rata_die_t intervening_leap_days = (a4 - b4) - (a100 - b100) + (a400 - b400);
+    rata_die_t years = year1 - year0;
+    rata_die_t days = 365 * years + yday1 + intervening_leap_days;
+    return days;
+  }
+
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l312
+  rata_die_t static constexpr
+  to_rata_die(date_t date) noexcept {
+    rata_die_t mday     = date.day;
+    rata_die_t mon      = date.month - 1;
+    rata_die_t year     = date.year - TM_YEAR_BASE;
+    rata_die_t mon_yday = (__mon_yday[leapyear(year)][mon]) - 1;
+    rata_die_t yday     = mon_yday + mday;
+    rata_die_t t0       = ydhms_diff (year, yday, EPOCH_YEAR - TM_YEAR_BASE);
+    return t0;
+  }
+
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/time.h;h=015bc1c7f3b5d3db689f68de2a0c6ebbbc94f138#l179
+  #define __isleap(year)	\
+    ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
+
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/offtime.c;h=1415b1b4013834f39e4b0c11f0479dd866aab617#l24
+  date_t static constexpr
+  to_date(rata_die_t days) noexcept {
+
+    rata_die_t y = 1970;
+    #define DIV(a, b) ((a) / (b) - ((a) % (b) < 0))
+    #define LEAPS_THRU_END_OF(y) (DIV (y, 4) - DIV (y, 100) + DIV (y, 400))
+
+    while (days < 0 || days >= (__isleap (y) ? 366 : 365))
+      {
+        /* Guess a corrected year, assuming 365 days per year.  */
+        rata_die_t yg = y + days / 365 - (days % 365 < 0);
+
+        /* Adjust DAYS and Y to match the guessed year.  */
+        days -= ((yg - y) * 365
+                + LEAPS_THRU_END_OF (yg - 1)
+                - LEAPS_THRU_END_OF (y - 1));
+        y = yg;
+      }
+
+    auto ip = __mon_yday[__isleap(y)];
+    rata_die_t m = 0;
+    for (m = 11; days < (long int) ip[m]; --m)
+      continue;
+    days -= ip[m];
+    return date_t{year_t(y), month_t(m + 1), day_t(days + 1)};
+  }
+
+}; // struct glibc
 
 //--------------------------------------------------------------------------------------------------
 // Helpers
@@ -439,7 +540,10 @@ main() {
   if (test_baum)
     calendar_tests<baum>("Baum tests");
 
-  // 16 bits
+  if (test_glibc)
+    calendar_tests<glibc>("glibc tests");
+
+// 16 bits
 
   calendar_tests<ugregorian_t<std::uint16_t, std::uint32_t>>
     ("unsigned : 16");
