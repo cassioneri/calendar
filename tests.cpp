@@ -35,6 +35,7 @@ using rata_die_t = std::int32_t; // as in std::chrono::days
 
 auto constexpr disable_static_asserts = false;
 auto constexpr test_baum              = true;
+auto constexpr test_dotnet            = true;
 auto constexpr test_glibc             = true;
 
 //--------------------------------------------------------------------------------------------------
@@ -94,6 +95,73 @@ struct baum : other_base {
   }
 
 }; // struct baum
+
+struct dotnet : other_base {
+
+  date_t     static constexpr epoch              = date_t{1, 1, 1};
+
+  date_t     static constexpr date_min           = epoch;
+  date_t     static constexpr date_max           = max<date_t>;
+  rata_die_t static constexpr rata_die_min       = 0;
+  rata_die_t static constexpr rata_die_max       = 11967899;
+
+  date_t     static constexpr round_date_min     = epoch;
+  date_t     static constexpr round_date_max     = max<date_t>;
+  rata_die_t static constexpr round_rata_die_min = 0;
+  rata_die_t static constexpr round_rata_die_max = 11967899;
+
+  // https://github.com/dotnet/runtime/blob/master/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L102
+  rata_die_t static constexpr s_daysToMonth365[] = {
+    0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
+  rata_die_t static constexpr s_daysToMonth366[] = {
+    0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
+
+  //https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L1123
+  bool static constexpr
+  IsLeapYear(year_t year) noexcept {
+    return (year & 3) == 0 && ((year & 15) == 0 || (year % 25) != 0);
+  }
+
+  //https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L625
+  rata_die_t static constexpr
+  to_rata_die(date_t date) noexcept {
+    rata_die_t const* days = IsLeapYear(date.year) ? s_daysToMonth366 : s_daysToMonth365;
+    rata_die_t y = date.year - 1;
+    rata_die_t n = y * 365 + y / 4 - y / 100 + y / 400 + days[date.month - 1] + date.day - 1;
+    return n;
+  }
+
+  // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L64
+  rata_die_t static constexpr DaysPerYear = 365;
+  rata_die_t static constexpr DaysPer4Years = DaysPerYear * 4 + 1;       // 1461
+  rata_die_t static constexpr DaysPer100Years = DaysPer4Years * 25 - 1;  // 36524
+  rata_die_t static constexpr DaysPer400Years = DaysPer100Years * 4 + 1; // 146097
+
+  // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L938
+  date_t static constexpr
+  to_date(rata_die_t rata_die) noexcept {
+      rata_die_t n = rata_die;
+      rata_die_t y400 = n / DaysPer400Years;
+      n -= y400 * DaysPer400Years;
+      rata_die_t y100 = n / DaysPer100Years;
+      if (y100 == 4) y100 = 3;
+      n -= y100 * DaysPer100Years;
+      rata_die_t y4 = n / DaysPer4Years;
+      n -= y4 * DaysPer4Years;
+      rata_die_t y1 = n / DaysPerYear;
+      if (y1 == 4) y1 = 3;
+      year_t year = y400 * 400 + y100 * 100 + y4 * 4 + y1 + 1;
+      n -= y1 * DaysPerYear;
+      bool leapYear = y1 == 3 && (y4 != 24 || y100 == 3);
+      rata_die_t const* days = leapYear ? s_daysToMonth366 : s_daysToMonth365;
+      month_t m = (n >> 5) + 1;
+      while (n >= days[m]) m++;
+      month_t month = m;
+      day_t day = n - days[m - 1] + 1;
+      return date_t{year, month, day};
+  }
+
+}; // struct dotnet
 
 struct glibc : other_base {
 
@@ -412,8 +480,9 @@ to_date_test() {
 
   auto constexpr first = A::to_date(A::rata_die_min);
   static_assert(disable_static_asserts ||
-    A::rata_die_min == min<rata_die_t> || first == min<date_t> ||
-    A::to_date(A::rata_die_min - 1) != previous(first));
+  // dotnet needs special treatment: rata_die_t is signed but rata_die_min == 0
+    (A::rata_die_min == min<rata_die_t> || std::is_same_v<A, dotnet>) ||
+    first == min<date_t> || A::to_date(A::rata_die_min - 1) != previous(first));
 
   auto constexpr last = A::to_date(A::rata_die_max);
   static_assert(disable_static_asserts ||
@@ -539,6 +608,9 @@ main() {
 
   if (test_baum)
     calendar_tests<baum>("Baum tests");
+
+  if (test_dotnet)
+    calendar_tests<dotnet>("DotNet tests");
 
   if (test_glibc)
     calendar_tests<glibc>("glibc tests");
