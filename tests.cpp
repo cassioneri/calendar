@@ -30,14 +30,10 @@
 
 auto constexpr disable_static_asserts = false;
 
-namespace std_chrono {
-
-  using year_t     = std::int16_t; // as in std::chrono::year
-  using month_t    = std::uint8_t; // as in std::chrono::month
-  using day_t      = std::uint8_t; // as in std::chrono::day
-  using rata_die_t = std::int32_t; // as in std::chrono::days
-
-};
+using year_t     = std::int16_t; // as in std::chrono::year
+using month_t    = std::uint8_t; // as in std::chrono::month
+using day_t      = std::uint8_t; // as in std::chrono::day
+using rata_die_t = std::int32_t; // as in std::chrono::days
 
 //--------------------------------------------------------------------------------------------------
 // Other implementations
@@ -45,14 +41,11 @@ namespace std_chrono {
 
 namespace baum {
 
-  using namespace std_chrono;
-  using date_t = ::date_t<year_t>;
-
   // https://www.researchgate.net/publication/316558298_Date_Algorithms
 
   // Section 5.1
   rata_die_t constexpr
-  to_rata_die(date_t date) noexcept {
+  to_rata_die(date_t<year_t> date) noexcept {
     auto const j = date.month < 3;
     auto const z = date.year - j;                   // step 1 / alternative 2
     auto const f = (979 * date.month - 2918) / 32;  // step 2 / alternative 3
@@ -61,7 +54,7 @@ namespace baum {
   }
 
   // Section 6.2.1/3
-  date_t constexpr
+  date_t<year_t> constexpr
   to_date(rata_die_t rata_die) noexcept {
     auto const z   = std::uint32_t(rata_die) + 719103; // adjusted to unix epoch
     auto const h  = 100 * z + 25;
@@ -84,6 +77,7 @@ namespace baum {
   }
 
 } // namespace baum
+
 
 //--------------------------------------------------------------------------------------------------
 // Helpers
@@ -200,7 +194,11 @@ print_info() {
 void constexpr
 standard_compliance_test() noexcept {
 
-  using namespace std_chrono;
+  using year_t     = std::int16_t; // as in std::chrono::year
+  using month_t    = std::uint8_t; // as in std::chrono::month
+  using day_t      = std::uint8_t; // as in std::chrono::day
+  using rata_die_t = std::int32_t; // as in std::chrono::days
+
   using gregorian_t = ::gregorian_t<year_t, rata_die_t>;
 
   // https://eel.is/c++draft/time.clock.system#overview-1
