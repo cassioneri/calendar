@@ -17,13 +17,13 @@ boost:
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks/benchmarks.png)
 
 (See live [[3]](http://quick-bench.com/LybJ2bUF67numbQAryYTyRuJQVE),
-[[4]](http://quick-bench.com/RDy_9sfmJDhZH7Nh5asYQJSvEjc),
+[[4]](http://quick-bench.com/mnpZsWzZDCaMbA4PzE9SWj3cFM4),
 [[5]](http://quick-bench.com/mCJ8dbzevMX0ssfee4mfgx4IMbA) and
 [[6]](http://quick-bench.com/N49JDfWYLmAPYPdJyuiTHFiWrVo).)
 
 `is_leap_year`: Neri_mcomp is 3.3x faster than Hinnant. Neri_mod is 2x faster than Hinnant.
 
-`last_day_of_month`: Neri is 1x faster than Boost and 1x faster than Hinnant.
+`last_day_of_month`: Neri is 1.1x faster than Boost and 1.1x faster than Hinnant.
 
 `to_rata_die`: Neri is 2.3x faster than GLIBC, 2x faster than .NET, 1.7x fater than boost, 1.5x
 faster than Hinnant and 1.3x faster than Baum.
@@ -95,7 +95,7 @@ on commodity hardware.)
 [3] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmark*,
   http://quick-bench.com/LybJ2bUF67numbQAryYTyRuJQVE<br>
 [4] <span id="last_day_of_month"> Cassio Neri, *`last_day_of_month` benchmark*,
-  http://quick-bench.com/RDy_9sfmJDhZH7Nh5asYQJSvEjc<br>
+  http://quick-bench.com/mnpZsWzZDCaMbA4PzE9SWj3cFM4<br>
 [5] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmark*,
   http://quick-bench.com/mCJ8dbzevMX0ssfee4mfgx4IMbA<br>
 [6] <span id="to_date"> Cassio Neri, *`to_date` benchmark*,
