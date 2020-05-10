@@ -162,6 +162,22 @@ is_multiple_of_100(T n) noexcept {
   return n % 100 == 0;
 }
 
+std::pair<std::uint32_t, std::uint32_t> constexpr
+quotient_remainder_1461(std::uint32_t n) noexcept {
+    auto constexpr a = std::uint64_t(1) << 31;
+    auto constexpr b = std::uint32_t(a / 1461 + 1);
+    auto const     p = std::uint64_t(b) * n;
+    auto const     q = std::uint32_t(p / a);
+    auto const     r = std::uint32_t(p % a) / b;
+    return {q, r};
+}
+
+template <typename T>
+std::pair<T, T> constexpr
+quotient_remainder_1461(T n) noexcept {
+  return {n / 1461, n % 1461};
+}
+
 /**
  * @brief   Checks if a given year is leap or not.
  *
@@ -256,8 +272,8 @@ struct ugregorian_t {
     auto const n1 = 4 * n + 3;
     auto const c1 = n1 / 146097;
     auto const n2 = n1 % 146097 + c1 % 4;
-    auto const c2 = n2 / 1461;
-    auto const n3 = n2 % 1461 / 4;
+    auto const [c2, x] = quotient_remainder_1461(n2);
+    auto const n3 = x / 4;
     auto const y_ = 100 * c1 + c2;
     auto const m_ = (535 * n3 + 49483) / 16384;
     auto const d_ = n3 - (979 * m_ - 2922) / 32;
