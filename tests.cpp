@@ -402,24 +402,25 @@ standard_compliance_test() noexcept {
 
 void constexpr
 month_functions_test() {
-  auto constexpr f = [](std::uint32_t n) { return (535 * n + 49483) / 16384; };
-  auto constexpr g = [](std::uint8_t  m) { return (979 * m - 2922) / 32; };
-  #define GET_MONTH_TEST(m, b, e)          \
-    static_assert(disable_static_asserts || (f(b) == m && f(e) == m)); \
-    static_assert(disable_static_asserts || g(m) == b)
-  GET_MONTH_TEST( 3,   0,  30);
-  GET_MONTH_TEST( 4,  31,  60);
-  GET_MONTH_TEST( 5,  61,  91);
-  GET_MONTH_TEST( 6,  92, 121);
-  GET_MONTH_TEST( 7, 122, 152);
-  GET_MONTH_TEST( 8, 153, 183);
-  GET_MONTH_TEST( 9, 184, 213);
-  GET_MONTH_TEST(10, 214, 244);
-  GET_MONTH_TEST(11, 245, 274);
-  GET_MONTH_TEST(12, 275, 305);
-  GET_MONTH_TEST(13, 306, 336);
-  GET_MONTH_TEST(14, 337, 365);
-  #undef GET_MONTH_TEST
+  auto constexpr f = [](rata_die_t x) { return (979 * x - 2922) / 32; };
+  auto constexpr g = [](rata_die_t r) { return 2141 * r + 197657; };
+  #define MONTH_TEST(x)          \
+    static_assert(disable_static_asserts || g(f(x)) / 65536 == x); \
+    static_assert(disable_static_asserts || g(f(x) - 1) / 65536 == x - 1)
+  MONTH_TEST( 3);
+  MONTH_TEST( 4);
+  MONTH_TEST( 5);
+  MONTH_TEST( 6);
+  MONTH_TEST( 7);
+  MONTH_TEST( 8);
+  MONTH_TEST( 9);
+  MONTH_TEST(10);
+  MONTH_TEST(11);
+  MONTH_TEST(12);
+  MONTH_TEST(13);
+  MONTH_TEST(14);
+  MONTH_TEST(15);
+  #undef MONTH_TEST
 }
 
 //--------------------------------------------------------------------------------------------------

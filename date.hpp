@@ -162,6 +162,10 @@ is_multiple_of_100(T n) noexcept {
   return n % 100 == 0;
 }
 
+///TODO(CN): Update doc.
+/**
+ * @brief   Calculates the quotient and remainder of the division by 1461.
+ */
 std::pair<std::uint32_t, std::uint32_t> constexpr
 quotient_remainder_1461(std::uint32_t n) noexcept {
     auto constexpr a = std::uint64_t(1) << 31;
@@ -172,6 +176,10 @@ quotient_remainder_1461(std::uint32_t n) noexcept {
     return {q, r};
 }
 
+///TODO(CN): Update doc.
+/**
+ * @brief   Calculates the quotient and remainder of the division by 1461.
+ */
 template <typename T>
 std::pair<T, T> constexpr
 quotient_remainder_1461(T n) noexcept {
@@ -215,7 +223,6 @@ last_day_of_month(Y year, month_t month) noexcept {
  * @pre               std::is_unsigned_v<Y> && std::is_unsigned_v<R> &&  sizeof(R) >= sizeof(Y) &&
  *                    std::numeric_limits<R>::max() >= 146097
  */
-
 template <typename Y = std::uint32_t, typename R = Y>
 struct ugregorian_t {
 
@@ -269,18 +276,28 @@ struct ugregorian_t {
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-    auto const n1 = 4 * n + 3;
-    auto const c1 = n1 / 146097;
-    auto const n2 = n1 % 146097 + c1 % 4;
-    auto const [c2, x] = quotient_remainder_1461(n2);
-    auto const n3 = x / 4;
-    auto const y_ = 100 * c1 + c2;
-    auto const m_ = (535 * n3 + 49483) / 16384;
-    auto const d_ = n3 - (979 * m_ - 2922) / 32;
-    auto const j  = n3 > 305;
-    auto const y  = y_ + j;
-    auto const m  = j ? m_ - 12 : m_;
-    auto const d  = d_ + 1;
+
+    auto const s1      = 4 * n + 3;
+    auto const c1      = s1 / 146097;
+    auto const r1      = s1 % 146097;
+
+    auto const s2      = r1 | 3;
+    auto const [c2, x] = quotient_remainder_1461(s2);
+    auto const r2      = x / 4;
+
+    auto const s3      = 2141 * r2 + 197657;
+    auto const c3      = s3 / 65536;
+    auto const r3      = s3 % 65536 / 2141;
+
+    auto const y_      = 100 * c1 + c2;
+    auto const m_      = c3;
+    auto const d_      = r3;
+
+    auto const j       = r2 > 305;
+    auto const y       = y_ + j;
+    auto const m       = j ? c3 - 12 : m_;
+    auto const d       = d_ + 1;
+
     return { year_t(y), month_t(m), day_t(d) };
   }
 
