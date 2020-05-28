@@ -16,16 +16,16 @@ boost:
 
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks/benchmarks.png)
 
-(See live [[3]](http://quick-bench.com/LybJ2bUF67numbQAryYTyRuJQVE),
-[[4]](http://quick-bench.com/mnpZsWzZDCaMbA4PzE9SWj3cFM4),
-[[5]](http://quick-bench.com/mCJ8dbzevMX0ssfee4mfgx4IMbA) and
-[[6]](http://quick-bench.com/hRU6yF5beG3Zhs0e-RDBAb2aZKM).)
+(See live [[3]](http://quick-bench.com/kug8p_gx6wTrmgh4BkBSalIz3Zs),
+[[4]](http://quick-bench.com/dz8cCjlCinmQR7XRJPty3rK3x74),
+[[5]](http://quick-bench.com/Lw0iZnKj3ubLOlXUkz7_EzmH0CY) and
+[[6]](http://quick-bench.com/l20F3wXZiUusMzV8GamXJQGkQfA).)
 
 `is_leap_year`: Neri_mcomp is 3.3x faster than Hinnant. Neri_mod is 2x faster than Hinnant.
 
 `last_day_of_month`: Neri is 1.1x faster than Boost and 1.1x faster than Hinnant.
 
-`to_rata_die`: Neri is 2.3x faster than GLIBC, 2x faster than .NET, 1.7x fater than boost, 1.5x
+`to_rata_die`: Neri is 2.5x faster than GLIBC, 1.9x faster than .NET, 1.7x fater than boost, 1.6x
 faster than Hinnant and 1.3x faster than Baum.
 
 `to_date`: Neri is 5.6x faster than GLIBC, 2.6x faster than .NET, 2x faster than boost, 2x faster
@@ -89,14 +89,14 @@ on commodity hardware.)
 ## References
 
 [1] <span id="baum"> Peter Baum, *Date Algorithms*,
-  https://www.researchgate.net/publication/316558298_Date_Algorithms<br>
+  https://www.researchgate.net/publication/316558298_Date_Algorithms <br>
 [2] <span id="hinnant"> Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*,
-  https://howardhinnant.github.io/date_algorithms.html<br>
-[3] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmark*,
-  http://quick-bench.com/LybJ2bUF67numbQAryYTyRuJQVE<br>
-[4] <span id="last_day_of_month"> Cassio Neri, *`last_day_of_month` benchmark*,
-  http://quick-bench.com/mnpZsWzZDCaMbA4PzE9SWj3cFM4<br>
-[5] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmark*,
-  http://quick-bench.com/mCJ8dbzevMX0ssfee4mfgx4IMbA<br>
-[6] <span id="to_date"> Cassio Neri, *`to_date` benchmark*,
-  http://quick-bench.com/hRU6yF5beG3Zhs0e-RDBAb2aZKM<br>
+  https://howardhinnant.github.io/date_algorithms.html <br>
+[3] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmarks*,
+  http://quick-bench.com/kug8p_gx6wTrmgh4BkBSalIz3Zs <br>
+[4] <span id="last_day_of_month"> Cassio Neri, *`last_day_of_month` benchmarks*,
+  http://quick-bench.com/dz8cCjlCinmQR7XRJPty3rK3x74 <br>
+[5] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmarks*,
+  http://quick-bench.com/Lw0iZnKj3ubLOlXUkz7_EzmH0CY <br>
+[6] <span id="to_date"> Cassio Neri, *`to_date` benchmarsk*,
+  http://quick-bench.com/l20F3wXZiUusMzV8GamXJQGkQfA <br>
