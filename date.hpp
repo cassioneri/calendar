@@ -48,59 +48,68 @@ struct date_t {
  * @brief Date comparison (operator ==).
  *
  * @tparam  Y         Year storage type.
+ * @param   u         LHS date to be compared.
+ * @param   v         RHS date to be compared.
  */
 template <typename Y>
 bool constexpr
-operator ==(date_t<Y> const& x, date_t<Y> const& y) noexcept {
-  return x.year == y.year && x.month == y.month && x.day == y.day;
+operator ==(date_t<Y> const& u, date_t<Y> const& v) noexcept {
+  return u.year == v.year && u.month == v.month && u.day == v.day;
 }
 
 /**
  * @brief Date comparison (operator !=).
  *
  * @tparam  Y         Year storage type.
+ * @param   u         LHS date to be compared.
+ * @param   v         RHS date to be compared.
  */
 template <typename Y>
 bool constexpr
-operator !=(date_t<Y> const& x, date_t<Y> const& y) noexcept {
-  return !(x == y);
+operator !=(date_t<Y> const& u, date_t<Y> const& v) noexcept {
+  return !(u == v);
 }
 
 /**
  * @brief Lexicographical order for dates (operator <).
  *
  * @tparam  Y         Year storage type.
+ * @param   u         LHS date to be compared.
+ * @param   v         RHS date to be compared.
  */
 template <typename Y>
 bool constexpr
-operator <(date_t<Y> const& x, date_t<Y> const& y) noexcept {
-  if (x.year  < y.year ) return true;
-  if (x.year  > y.year ) return false;
-  if (x.month < y.month) return true;
-  if (x.month > y.month) return false;
-  return x.day < y.day;
+operator <(date_t<Y> const& u, date_t<Y> const& v) noexcept {
+  if (u.year  < v.year ) return true;
+  if (u.year  > v.year ) return false;
+  if (u.month < v.month) return true;
+  if (u.month > v.month) return false;
+  return u.day < v.day;
 }
 
 /**
  * @brief Lexicographical order for dates (operator <=).
  *
  * @tparam  Y         Year storage type.
+ * @param   u         LHS date to be compared.
+ * @param   v         RHS date to be compared.
  */
 template <typename Y>
 bool constexpr
-operator <=(date_t<Y> const& x, date_t<Y> const& y) noexcept {
-  return !(y < x);
+operator <=(date_t<Y> const& u, date_t<Y> const& v) noexcept {
+  return !(v < u);
 }
 
 /**
  * @brief Stream operator for dates (operator <<).
  *
  * @tparam  Y         Year storage type.
+ * @param   u         The date to be streamed out.
  */
 template <typename Y>
 std::ostream&
-operator <<(std::ostream& os, date_t<Y> const& d) {
-  return os << d.year << '-' << (int) d.month << '-' << (int) d.day;
+operator <<(std::ostream& os, date_t<Y> const& u) {
+  return os << u.year << '-' << std::uint32_t(u.month) << '-' << std::uint32_t(u.day);
 }
 
 /**
@@ -126,7 +135,7 @@ template <typename Y>
 auto constexpr min<date_t<Y>> = date_t<Y>{min<Y>,  1,  1};
 
 /**
- * @brief   Checks if a given number is multiple of 100 or not using the mcomp algorithm [1].
+ * @brief   Checks whether a given number is multiple of 100 or not using the mcomp algorithm [1].
  *
  * This a special implementation, supposedly faster than built-in operator %, for a subrange of
  * std::int32_t values containing [-32767, 32767].
@@ -187,32 +196,31 @@ quotient_remainder_1461(T n) noexcept {
 }
 
 /**
- * @brief   Checks if a given year is leap or not.
+ * @brief   Checks whether a given year is leap or not.
  *
  * @tparam  Y         Type of the given year.
- * @param   year      The given year.
+ * @param   y         The given year.
  *
- * @pre               -536870800 <= year && year <= 536870999
+ * @pre               -536870800 <= y && y <= 536870999
  */
 template <typename T>
 bool constexpr
-is_leap_year(T year) noexcept {
+is_leap_year(T y) noexcept {
   // http://stackoverflow.com/a/60646967/1137388
-  return (!is_multiple_of_100(year) || year % 16 == 0) & (year % 4 == 0);
+  return (!is_multiple_of_100(y) || y % 16 == 0) & (y % 4 == 0);
 }
 
 /**
  * @brief   Returns the last day of the month for a given year and month.
  *
  * @tparam  Y         Type of the given year.
- * @param   year      The given year.
- * @param   month     The given month.
+ * @param   y         The given year.
+ * @param   m         The given month.
  */
 template <typename Y>
 month_t constexpr
-last_day_of_month(Y year, month_t month) noexcept {
-  return month != 2 ? ((month ^ (month >> 3)) & 1) | 30 :
-    is_leap_year(year) ? 29 : 28;
+last_day_of_month(Y y, month_t m) noexcept {
+  return m != 2 ? ((m ^ (m >> 3)) & 1) | 30 : is_leap_year(y) ? 29 : 28;
 }
 
 /**
@@ -252,20 +260,23 @@ struct ugregorian_t {
   /**
    * @brief Returns the rata die corresponding to a given date.
    *
-   * @param x         The given date.
-   * @pre             date_min <= x && x <= date_max
+   * @param u         The given date.
+   * @pre             date_min <= u && u <= date_max
    */
   rata_die_t static constexpr
-  to_rata_die(date_t const& x) noexcept {
-    auto const y  = rata_die_t(x.year);
-    auto const m  = rata_die_t(x.month);
-    auto const d  = rata_die_t(x.day);
-    auto const j  = rata_die_t(m < 3);
-    auto const d_ = d - 1;
-    auto const m_ = j ? m + 12 : m;
-    auto const y_ = y - j;
-    auto const c  = y_ / 100;
-    return (1461 * y_ / 4 - c + c / 4) + (979 * m_ - 2922) / 32 + d_;
+  to_rata_die(date_t const& u) noexcept {
+    auto const y1 = rata_die_t(u.year);
+    auto const m1 = rata_die_t(u.month);
+    auto const d1 = rata_die_t(u.day);
+    auto const j  = rata_die_t(m1 < 3);
+    auto const y  = y1 - j;
+    auto const m  = j ? m1 + 12 : m1;
+    auto const d  = d1 - 1;
+    auto const c1 = y / 100;
+    auto const yn = 1461 * y / 4 - c1 + c1 / 4;
+    auto const mn = (979 * m - 2922) / 32;
+    auto const n1 = yn + mn + d;
+    return n1;
   }
 
   /**
@@ -276,29 +287,21 @@ struct ugregorian_t {
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-
-    auto const s1      = 4 * n + 3;
-    auto const c1      = s1 / 146097;
-    auto const r1      = s1 % 146097;
-
-    auto const s2      = r1 | 3;
-    auto const [c2, x] = quotient_remainder_1461(s2);
-    auto const r2      = x / 4;
-
-    auto const s3      = 2141 * r2 + 197657;
-    auto const c3      = s3 / 65536;
-    auto const r3      = s3 % 65536 / 2141;
-
-    auto const y_      = 100 * c1 + c2;
-    auto const m_      = c3;
-    auto const d_      = r3;
-
+    auto const p1      = 4 * n + 3;
+    auto const q1      = p1 / 146097;
+    auto const r1      = p1 % 146097;
+    auto const p2      = r1 | 3;
+    auto const [q2, r] = quotient_remainder_1461(p2);
+    auto const r2      = r / 4;
+    auto const p3      = 2141 * r2 + 197657;
+    auto const m       = p3 / 65536;
+    auto const d       = p3 % 65536 / 2141;
+    auto const y       = 100 * q1 + q2;
     auto const j       = r2 > 305;
-    auto const y       = y_ + j;
-    auto const m       = j ? c3 - 12 : m_;
-    auto const d       = d_ + 1;
-
-    return { year_t(y), month_t(m), day_t(d) };
+    auto const y1      = y + j;
+    auto const m1      = j ? m - 12 : m;
+    auto const d1      = d + 1;
+    return { year_t(y1), month_t(m1), day_t(d1) };
   }
 
  /**
@@ -310,9 +313,7 @@ struct ugregorian_t {
   * @brief  Maximum date allowed as input to to_rata_die.
   */
   date_t static constexpr date_max = []{
-
     auto constexpr y = max<rata_die_t> / 1461;
-
     if (max<year_t> <= y)
       return max<date_t>;
     return date_t{year_t(y + 1), month_t(2), day_t(28 + is_leap_year(y + 1))};
@@ -327,7 +328,6 @@ struct ugregorian_t {
    * @brief Maximum rata die allowed as input to to_date.
    */
   rata_die_t static constexpr rata_die_max = []{
-
     // Promoted algorithms are used to calculate rata_die_max and date_max. By promoting the year
     // storage type to rata_die_t, they mitigate the risk of having intermediate year results that
     // are not representable by year_t. This allows comparisons against max<year_t> to be safely
@@ -335,14 +335,12 @@ struct ugregorian_t {
     using pugregorian_t = ugregorian_t<rata_die_t, rata_die_t>;
     using pyear_t       = typename pugregorian_t::year_t;
     using pdate_t       = typename pugregorian_t::date_t;
-
-    auto constexpr n  = (max<rata_die_t> - 3) / 4;
-    auto constexpr x1 = pugregorian_t::to_date(n);
-    auto constexpr x2 = pdate_t{ pyear_t(max<date_t>.year), max<date_t>.month, max<date_t>.day};
-
-    if (x1 <= x2)
+    auto constexpr n = (max<rata_die_t> - 3) / 4;
+    auto constexpr u = pugregorian_t::to_date(n);
+    auto constexpr v = pdate_t{ pyear_t(max<date_t>.year), max<date_t>.month, max<date_t>.day};
+    if (u <= v)
       return n;
-    return pugregorian_t::to_rata_die(x2);
+    return pugregorian_t::to_rata_die(v);
   }();
 
   /**
@@ -386,10 +384,10 @@ auto constexpr unix_epoch = date_t<Y>{1970, 1, 1};
  *
  * @tparam  Y         Year storage type.
  * @tparam  R         Rata die storage type.
- * @tparam  epoch     Date used as epoch.
+ * @tparam  e         Date used as epoch.
  * @pre               std::is_signed_v<Y> && std::is_signed_v<R>
  */
-template <typename Y, typename R = Y, date_t<Y> epoch_ = unix_epoch<Y>>
+template <typename Y, typename R = Y, date_t<Y> e = unix_epoch<Y>>
 struct gregorian_t {
 
   static_assert(std::is_signed_v<Y> && std::is_signed_v<R>);
@@ -412,7 +410,7 @@ struct gregorian_t {
   /**
    * @brief Date used as epoch.
    */
-  date_t static constexpr epoch = epoch_;
+  date_t static constexpr epoch = e;
 
 private:
 
@@ -430,30 +428,21 @@ private:
   };
 
   offset_t static constexpr offset = []{
-
-    // We seek the quotient y1 and remainder y2 of the division of epoch.year by 400 as per
-    // Euclidean division, that is, epoch.year = 400 * y1 + y2, with 0 <= y2 < 400. Notice that
-    // operators / and % give these results for truncated division [1]. The results of Euclidean and
-    // truncated division match for non-negative operands but do not for negative ones and a
-    // correction is required.
-    // [1] https://eel.is/c++draft/expr.mul#4
-    auto constexpr y2 = epoch.year % 400 + (epoch.year >= 0 ? 0 : 400);
-    // The constexpr substraction below is performed on year_t, a signed integer type, and when it
-    // oveflows we get a compiler error. This is good.
-    auto constexpr z  = epoch.year - y2; // z = 400 * y1
-
-    // Let r(y, m, d) = ugregorian_t::to_rata_die({y, m, d}). Morally, quantity calculated below
-    // should be r = r(y2, epoch.month, epoch.day). However, recall that r is not defined for dates
-    // prior to 0000-Mar-01 and hence, r(0, m, d) is not defined for dates (0, m, d) in
-    // [0000-Jan-01, 0000-Feb-29]. Also, for the calculations that follow to work, the expected
-    // results for dates in this interval should be negative numbers. Using, f(y + 400, m, d) =
-    // f(y, m, d) + 146097, a well known property of rata die functions, allowings avoiding the
-    // ill-defined issue and ensures the obtained result is equivalent to the expected one
-    // (including negative values) modulus 2^w where w is the number of bits of rata_die_t.
-    auto constexpr r = ugregorian_t::to_rata_die({y2 + 400, epoch.month, epoch.day}) - 146097;
-
-    auto constexpr t = (ugregorian_t::rata_die_max / 2 - r) / 146097;
-    return offset_t{400 * t - z, 146097 * t + r};
+    auto constexpr q = epoch.year / 400;
+    auto constexpr r = epoch.year % 400;
+    // Recall that % returns the remainder of truncated division and thus, r is in [-399, 399].
+    // Hence, (r, epoch.month, epoch.day) might be outside the domain of ugregorian_t::to_rata_die.
+    // To mitigate this issue we take y = r + 400 which is in [1, 799]. Therefore, (y, epoch.month,
+    // epoch.day) is in the domain of ugregorian_t::to_rata_die.
+    auto constexpr u = udate_t{r + 400, epoch.month, epoch.day};
+    // Since adding 400 years to a date increases its rata die by 146097, we subtract this value to
+    // get the correct result. This number might be "negative" but this is not a problem because
+    // following calculations are under modular arithmetics.
+    auto constexpr n     = ugregorian_t::to_rata_die(u) - 146097;
+    auto constexpr t     = ugregorian_t::rata_die_max / 146097 / 2;
+    auto constexpr z2    = 400 * (q - t);
+    auto constexpr n2_e3 = 146097 * t + n;
+    return offset_t{z2, n2_e3};
   }();
 
   /**
@@ -479,21 +468,21 @@ private:
   /**
    * @brief Adjusts date from signed to unsigned.
    *
-   * @param x         The given date.
+   * @param u         The given date.
    */
   udate_t static constexpr
-  to_udate(date_t const& x) noexcept {
-    return { x.year + offset.year, x.month, x.day };
+  to_udate(date_t const& u) noexcept {
+    return { u.year - offset.year, u.month, u.day };
   }
 
   /**
    * @brief Adjusts date from unsigned to signed.
    *
-   * @param x         The given date.
+   * @param u         The given date.
    */
   date_t static constexpr
-  from_udate(udate_t const& x) noexcept {
-    return { year_t(x.year - offset.year), x.month, x.day };
+  from_udate(udate_t const& u) noexcept {
+    return { year_t(u.year + offset.year), u.month, u.day };
   }
 
 public:
@@ -501,12 +490,12 @@ public:
   /**
    * @brief Returns the rata die corresponding to a given date.
    *
-   * @param x         The given date.
-   * @pre             date_min <= x && x <= date_max
+   * @param u         The given date.
+   * @pre             date_min <= u && u <= date_max
    */
   rata_die_t static constexpr
-  to_rata_die(date_t const& x) noexcept {
-    return from_urata_die(ugregorian_t::to_rata_die(to_udate(x)));
+  to_rata_die(date_t const& u) noexcept {
+    return from_urata_die(ugregorian_t::to_rata_die(to_udate(u)));
   }
 
   /**
