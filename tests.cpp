@@ -68,19 +68,19 @@ struct baum : other_base {
 
   // Section 5.1
   rata_die_t static constexpr
-  to_rata_die(date_t date) noexcept {
-    auto const j = date.month < 3;
-    auto const z = date.year - j;                    // step 1 / alternative 2
-    auto const m = j ? date.month + 12 : date.month; // step 2 / alternative 3
-    auto const f = (979 * m - 2918) / 32;            //
-    return rata_die_t{date.day + f +                 // step 3 (adjusted to unix epoch)
+  to_rata_die(const date_t& u) noexcept {
+    auto const j = u.month < 3;
+    auto const z = u.year - j;                 // step 1 / alternative 2
+    auto const m = j ? u.month + 12 : u.month; // step 2 / alternative 3
+    auto const f = (979 * m - 2918) / 32;      //
+    return rata_die_t{u.day + f +              // step 3 (adjusted to unix epoch)
       365 * z + z / 4 - z / 100 + z / 400 - 719469};
   }
 
   // Section 6.2.1/3
   date_t static constexpr
-  to_date(rata_die_t rata_die) noexcept {
-    auto const z  = std::uint32_t(rata_die) + 719469; // adjusted to unix epoch
+  to_date(rata_die_t n) noexcept {
+    auto const z  = std::uint32_t(n) + 719469; // adjusted to unix epoch
     auto const h  = 100 * z - 25;
     auto const a  = h / 3652425;
     auto const b  = a - a / 4;
