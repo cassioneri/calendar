@@ -19,7 +19,7 @@ boost:
 (See live [[3]](http://quick-bench.com/kug8p_gx6wTrmgh4BkBSalIz3Zs),
 [[4]](http://quick-bench.com/dz8cCjlCinmQR7XRJPty3rK3x74),
 [[5]](http://quick-bench.com/Lw0iZnKj3ubLOlXUkz7_EzmH0CY) and
-[[6]](http://quick-bench.com/l20F3wXZiUusMzV8GamXJQGkQfA).)
+[[6]](http://quick-bench.com/s0Y67aXtkV-7krxXKZ9hOLJTen0).)
 
 `is_leap_year`: Neri_mcomp is 3.3x faster than Hinnant. Neri_mod is 2x faster than Hinnant.
 
@@ -28,8 +28,8 @@ boost:
 `to_rata_die`: Neri is 2.5x faster than GLIBC, 1.9x faster than .NET, 1.7x fater than boost, 1.6x
 faster than Hinnant and 1.3x faster than Baum.
 
-`to_date`: Neri is 5.6x faster than GLIBC, 2.6x faster than .NET, 2x faster than boost, 2x faster
-than Hinnant and 1.4x faster than Baum.
+`to_date`: Neri is 5.9x faster than GLIBC, 2.7x faster than .NET, 2.1x faster than boost, 2.1x
+faster than Hinnant and 1.5x faster than Baum.
 
 **Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They have been edited,
 mainly to get consistent function signatures across implementations. Storage types for years,
@@ -99,4 +99,4 @@ on commodity hardware.)
 [5] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmarks*,
   http://quick-bench.com/Lw0iZnKj3ubLOlXUkz7_EzmH0CY <br>
 [6] <span id="to_date"> Cassio Neri, *`to_date` benchmarsk*,
-  http://quick-bench.com/l20F3wXZiUusMzV8GamXJQGkQfA <br>
+  http://quick-bench.com/s0Y67aXtkV-7krxXKZ9hOLJTen0 <br>
