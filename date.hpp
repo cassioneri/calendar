@@ -176,8 +176,8 @@ is_multiple_of_100(T n) noexcept {
  * @brief   Calculates the quotient and remainder of the division by 1461.
  */
 std::pair<std::uint32_t, std::uint32_t> constexpr
-quotient_remainder_1461(std::uint32_t n) noexcept {
-    auto constexpr a = std::uint64_t(1) << 31;
+div_1461(std::uint32_t n) noexcept {
+    auto constexpr a = std::uint64_t(1) << 32;
     auto constexpr b = std::uint32_t(a / 1461 + 1);
     auto const     p = std::uint64_t(b) * n;
     auto const     q = std::uint32_t(p / a);
@@ -191,7 +191,7 @@ quotient_remainder_1461(std::uint32_t n) noexcept {
  */
 template <typename T>
 std::pair<T, T> constexpr
-quotient_remainder_1461(T n) noexcept {
+div_1461(T n) noexcept {
   return {n / 1461, n % 1461};
 }
 
@@ -291,7 +291,7 @@ struct ugregorian_t {
     auto const q1      = p1 / 146097;
     auto const r1      = p1 % 146097;
     auto const p2      = r1 | 3;
-    auto const [q2, r] = quotient_remainder_1461(p2);
+    auto const [q2, r] = div_1461(p2);
     auto const r2      = r / 4;
     auto const p3      = 2141 * r2 + 197657;
     auto const m       = p3 / 65536;
