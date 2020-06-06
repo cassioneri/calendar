@@ -33,10 +33,11 @@ using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t; // as in std::chrono::days
 
-auto constexpr disable_static_asserts = false;
+auto constexpr disable_static_asserts = true;
 auto constexpr test_baum              = true;
 auto constexpr test_dotnet            = true;
 auto constexpr test_glibc             = true;
+auto constexpr test_hatcher           = true;
 
 //--------------------------------------------------------------------------------------------------
 // Other implementations
@@ -310,6 +311,78 @@ struct glibc : other_base {
   }
 
 }; // struct glibc
+
+struct hatcher : other_base {
+
+  date_t     static constexpr epoch              = unix_epoch<year_t>;
+
+  date_t     static constexpr date_min           = date_t{1900, 3,  1};
+  date_t     static constexpr date_max           = date_t{2100, 2, 28};
+  rata_die_t static constexpr rata_die_min       = -25495;
+  rata_die_t static constexpr rata_die_max       = 47540;
+
+  date_t     static constexpr round_date_min     = date_t{1900, 3,  1};
+  date_t     static constexpr round_date_max     = date_t{2100, 2, 28};
+  rata_die_t static constexpr round_rata_die_min = -25495;
+  rata_die_t static constexpr round_rata_die_max = 47540;
+
+  // Algorithms by D. A. Hactcher as appeared in
+  // E. G. Richards, Mapping Time, The calendar and its history, Oxford University Press, 1998.
+
+  // Table 25.1, page 311.
+  auto static constexpr y = rata_die_t(4716);
+  auto static constexpr m = rata_die_t(3);
+  auto static constexpr n = rata_die_t(12);
+  auto static constexpr r = rata_die_t(4);
+  auto static constexpr p = rata_die_t(1461);
+  auto static constexpr q = rata_die_t(0);
+  auto static constexpr v = rata_die_t(3);
+  auto static constexpr u = rata_die_t(5);
+  auto static constexpr s = rata_die_t(153);
+  auto static constexpr t = rata_die_t(2);
+  auto static constexpr w = rata_die_t(2);
+
+  // Table 25.4, page 320.
+  auto static constexpr A = rata_die_t(184);
+  auto static constexpr B = rata_die_t(274277);
+  auto static constexpr G = rata_die_t(-38);
+  // Page 319
+  auto static constexpr K = 36524;
+
+  // Algorithm E, page 323.
+  rata_die_t static constexpr
+  to_rata_die(const date_t& x) noexcept {
+    auto const Y  = rata_die_t(x.year);
+    auto const M  = rata_die_t(x.month);
+    auto const D  = rata_die_t(x.day);
+    auto const Yp = Y + y - (n + m - 1 - M) / n;
+    auto const Mp = (M - m + n) % n;
+    auto const Dp = D - 1;
+    auto const c  = (p * Yp + q) / r;
+    auto const d  = (s * Mp + t) / u;
+    auto const g  = 3 * ((Yp + A) / 100) / 4 + G;
+    auto const j  = 1401 + g;
+    auto const J  = c + d + Dp - j - g;
+    return J - rata_die_t(2440575); // adjusted to unix epoch
+  }
+
+  // Algorithm F, page 324.
+  date_t static constexpr
+  to_date(rata_die_t x) noexcept {
+    auto const J  = x + rata_die_t(2440575); // adjusted to unix epoch
+    auto const g  = 3 * ((4 * J + B) / (4 * K + 1)) / 4 + G;
+    auto const j  = 1401 + g;
+    auto const Jp = J + j + g;
+    auto const Yp = (r * Jp + v) / p;
+    auto const Tp = (r * Jp + v) % p / r;
+    auto const Mp = (u * Tp + w) / s;
+    auto const Dp = (u * Tp + w) % s / u;
+    auto const D  = Dp + 1;
+    auto const M  = (Mp + m - 1) % n + 1;
+    auto const Y  = Yp - y + (n + m - 1 - M) / n;
+    return date_t{year_t(Y), month_t(M), day_t(D)};
+  }
+};
 
 //--------------------------------------------------------------------------------------------------
 // Helpers
@@ -642,9 +715,9 @@ void
 calendar_tests(char const* banner) {
   print_banner(banner);
   print_info<A>();
-  round_trip_test<A>();
   to_date_test<A>();
   to_rata_die_test<A>();
+  round_trip_test<A>();
 }
 
 int
@@ -662,7 +735,10 @@ main() {
   if (test_glibc)
     calendar_tests<glibc>("glibc tests");
 
-// 16 bits
+  if (test_hatcher)
+    calendar_tests<hatcher>("Hatcher tests");
+
+  // 16 bits
 
   calendar_tests<ugregorian_t<std::uint16_t, std::uint32_t>>
     ("unsigned : 16");

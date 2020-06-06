@@ -2,34 +2,36 @@
 
 ## TL;DR
 
-Contains low-level date algorithms that can be used to implement the following C++20's functions:
+This is a pracademic project on algorithms on the Gregorian calendar.
+
+Its practioner nature means that it contains low-level calendar algorithms that can be used to
+implement the following C++20's functions:
 
     std::chrono::year::is_leap()                                 // a.k.a. is_leap_year
     std::chrono::year_month_day_last::day()                      // a.k.a. last_day_of_month
     std::chrono::year_month_day::operator sys_days()             // a.k.a. to_rata_die
     std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
 
-This work is similar to those by Peter Baum [[1]](#baum) and Howard Hinnant [[2]](#hinnant).
-Many ideas implemented here were inspired by their work. Benchmark results suggest that
-implementations here perform considerably faster than theirs and also than those of GLIBC, .NET and
-boost:
+Our implementations are benchmarked against counterparts, including some of popular and widely used
+libraries (glibc, .net, boost and llvm). Results, as per charts below, that out implementations
+perform considerably faster.
 
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks/benchmarks.png)
 
-(See live [[3]](http://quick-bench.com/kug8p_gx6wTrmgh4BkBSalIz3Zs),
-[[4]](http://quick-bench.com/dz8cCjlCinmQR7XRJPty3rK3x74),
-[[5]](http://quick-bench.com/Lw0iZnKj3ubLOlXUkz7_EzmH0CY) and
-[[6]](http://quick-bench.com/s0Y67aXtkV-7krxXKZ9hOLJTen0).)
+(See live [is_leap_year](http://quick-bench.com/0HV3XYJeGuN9mgomWtMbixF28C0),
+[last_day_of_month](http://quick-bench.com/SLM-7N7CUCaTmEewgs2OZ6JBTjc),
+[to_rata_die](http://quick-bench.com/3aXHDw7lM7WfdptJ0Qi9y-lAI0c) and
+[to_date](http://quick-bench.com/Qg1Qq87_mgNJZbpwBZ55hz_hNGM).)
 
-`is_leap_year`: Neri_mcomp is 3.3x faster than Hinnant. Neri_mod is 2x faster than Hinnant.
+`is_leap_year`: Neri_mcomp is 3.3x faster than Ubiquitous. Neri_mod is 2x faster than Ubiquitous.
 
-`last_day_of_month`: Neri is 1.1x faster than Boost and 1.1x faster than Hinnant.
+`last_day_of_month`: Neri is 3.9x faster than Boost and 1.2x faster than LLVM.
 
-`to_rata_die`: Neri is 2.5x faster than GLIBC, 1.9x faster than .NET, 1.7x fater than boost, 1.6x
-faster than Hinnant and 1.3x faster than Baum.
+`to_rata_die`: Neri is 2.3x faster than GLIBC, 2.1x faster than Hatcher, 1.9x faster than .NET,
+1.7x fater than boost, 1.6x faster than LLVM and 1.3x faster than Baum.
 
-`to_date`: Neri is 5.9x faster than GLIBC, 2.7x faster than .NET, 2.1x faster than boost, 2.1x
-faster than Hinnant and 1.5x faster than Baum.
+`to_date`: Neri is 5.9x faster than GLIBC, 2.7x faster than .NET, 2.3x faster than Hatcher, 2.1x
+faster than boost, 2.1x faster than LLVM and 1.5x faster than Baum.
 
 **Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They have been edited,
 mainly to get consistent function signatures across implementations. Storage types for years,
@@ -85,18 +87,3 @@ corresponding function in `ugregorian_t`.
 2. `tests.cpp`  : Tests. (Including exhaustive full-range round-trips taking around 30s to complete
 on commodity hardware.)
 3. `search.cpp` : Helper program that was used to find some coefficients used by the algorithms.
-
-## References
-
-[1] <span id="baum"> Peter Baum, *Date Algorithms*,
-  https://www.researchgate.net/publication/316558298_Date_Algorithms <br>
-[2] <span id="hinnant"> Howard Hinnant, *chrono-Compatible Low-Level Date Algorithms*,
-  https://howardhinnant.github.io/date_algorithms.html <br>
-[3] <span id="is_leap_year"> Cassio Neri, *`is_leap_year` benchmarks*,
-  http://quick-bench.com/kug8p_gx6wTrmgh4BkBSalIz3Zs <br>
-[4] <span id="last_day_of_month"> Cassio Neri, *`last_day_of_month` benchmarks*,
-  http://quick-bench.com/dz8cCjlCinmQR7XRJPty3rK3x74 <br>
-[5] <span id="to_rata_die"> Cassio Neri, *`to_rata_die` benchmarks*,
-  http://quick-bench.com/Lw0iZnKj3ubLOlXUkz7_EzmH0CY <br>
-[6] <span id="to_date"> Cassio Neri, *`to_date` benchmarsk*,
-  http://quick-bench.com/s0Y67aXtkV-7krxXKZ9hOLJTen0 <br>

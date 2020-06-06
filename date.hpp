@@ -272,10 +272,10 @@ struct ugregorian_t {
     auto const y  = y1 - j;
     auto const m  = j ? m1 + 12 : m1;
     auto const d  = d1 - 1;
-    auto const c1 = y / 100;
-    auto const yn = 1461 * y / 4 - c1 + c1 / 4;
-    auto const mn = (979 * m - 2922) / 32;
-    auto const n1 = yn + mn + d;
+    auto const q1 = y / 100;
+    auto const y0 = 1461 * y / 4 - q1 + q1 / 4;
+    auto const m0 = (979 * m - 2922) / 32;
+    auto const n1 = y0 + m0 + d;
     return n1;
   }
 

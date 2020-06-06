@@ -1,6 +1,21 @@
 /********************************************************************
  *
- * is_leap_year : Copyright (C) 2020 Cassio Neri
+ * is_leap_year benchmarks
+ *
+ * Copyright (C) 2020 Cassio Neri
+ *
+ * This file is part of https://github.com/cassioneri/dates.
+ *
+ * This file is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software  Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This file is distributed in the hope that it will be useful, but WITHOUT ANY  WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this file. If not,
+ * see <https://www.gnu.org/licenses/>.
  *
  *******************************************************************/
 
@@ -42,15 +57,14 @@ namespace neri {
 
 } // namespace neri
 
-namespace hinnant {
+namespace ubiquitous {
 
-  // https://github.com/llvm/llvm-project/blob/8e34be2f2511dfff7a8e3018bbd4188a93e446ea/libcxx/include/chrono#L1777
   bool constexpr
-  is_leap_year(year_t __y) noexcept {
-    return __y % 4 == 0 && (__y % 100 != 0 || __y % 400 == 0);
+  is_leap_year(year_t y) noexcept {
+    return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
   }
 
-} // namespace hinnant
+} // namespace typical
 
 //-------------------------------------------------------------------
 // Benchmark data
@@ -69,15 +83,15 @@ auto const years = [](){
 // Benchmark
 //-------------------------------------------------------------------
 
-void Hinnant(benchmark::State& state) {
+void Ubiquitous(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& year : years) {
-      auto b = hinnant::is_leap_year(year);
+      auto b = ubiquitous::is_leap_year(year);
       benchmark::DoNotOptimize(b);
     }
   }
 }
-BENCHMARK(Hinnant);
+BENCHMARK(Ubiquitous);
 
 void Neri_mod(benchmark::State& state) {
   for (auto _ : state) {
