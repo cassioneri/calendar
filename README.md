@@ -2,10 +2,10 @@
 
 ## TL;DR
 
-This is a pracademic project on algorithms on the Gregorian calendar.
-
-Its practioner nature means that it contains low-level calendar algorithms that can be used to
-implement the following C++20's functions:
+This is a pracademic project on algorithms on the Gregorian calendar. Its academic nature will be
+shown in an paper (to appear) that revisits academic literature and brings new mathematical results.
+Its practioner nature means that it contains implementations that could be used in many pieces of
+software including the following C++20's functions:
 
     std::chrono::year::is_leap()                                 // a.k.a. is_leap_year
     std::chrono::year_month_day_last::day()                      // a.k.a. last_day_of_month
@@ -13,25 +13,24 @@ implement the following C++20's functions:
     std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
 
 Our implementations are benchmarked against counterparts, including some of popular and widely used
-libraries (glibc, .net, boost and llvm). Results, as per charts below, that out implementations
+libraries (glibc, .net, boost and llvm). Results, as per charts below, that our implementations
 perform considerably faster.
 
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks/benchmarks.png)
 
-(See live [is_leap_year](http://quick-bench.com/0HV3XYJeGuN9mgomWtMbixF28C0),
-[last_day_of_month](http://quick-bench.com/SLM-7N7CUCaTmEewgs2OZ6JBTjc),
-[to_rata_die](http://quick-bench.com/3aXHDw7lM7WfdptJ0Qi9y-lAI0c) and
-[to_date](http://quick-bench.com/Qg1Qq87_mgNJZbpwBZ55hz_hNGM).)
+[is_leap_year](http://quick-bench.com/0HV3XYJeGuN9mgomWtMbixF28C0): Neri_mcomp is 3.3x faster than
+Ubiquitous. Neri_mod is 2x faster than Ubiquitous.
 
-`is_leap_year`: Neri_mcomp is 3.3x faster than Ubiquitous. Neri_mod is 2x faster than Ubiquitous.
+[last_day_of_month](http://quick-bench.com/SLM-7N7CUCaTmEewgs2OZ6JBTjc): Neri is 3.9x faster than
+Boost and 1.2x faster than LLVM.
 
-`last_day_of_month`: Neri is 3.9x faster than Boost and 1.2x faster than LLVM.
+[to_rata_die](http://quick-bench.com/3aXHDw7lM7WfdptJ0Qi9y-lAI0c): Neri is 2.3x faster than GLIBC,
+2.1x faster than Hatcher, 1.9x faster than .NET, 1.7x fater than boost, 1.6x faster than LLVM and
+1.3x faster than Baum.
 
-`to_rata_die`: Neri is 2.3x faster than GLIBC, 2.1x faster than Hatcher, 1.9x faster than .NET,
-1.7x fater than boost, 1.6x faster than LLVM and 1.3x faster than Baum.
-
-`to_date`: Neri is 5.9x faster than GLIBC, 2.7x faster than .NET, 2.3x faster than Hatcher, 2.1x
-faster than boost, 2.1x faster than LLVM and 1.5x faster than Baum.
+[to_date](http://quick-bench.com/Qg1Qq87_mgNJZbpwBZ55hz_hNGM): Neri is 5.9x faster than GLIBC, 2.7x
+faster than .NET, 2.3x faster than Hatcher, 2.1x faster than boost, 2.1x faster than LLVM and 1.5x
+faster than Baum.
 
 **Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They have been edited,
 mainly to get consistent function signatures across implementations. Storage types for years,
