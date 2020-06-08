@@ -1,11 +1,11 @@
-# Date algorithms
+# Gregorian calendar algorithms
 
 ## TL;DR
 
-This is a pracademic project on algorithms on the Gregorian calendar. Its academic nature will be
-shown in an paper (to appear) that revisits academic literature and brings new mathematical results.
-Its practioner nature means that it contains implementations that could be used in many pieces of
-software including the following C++20's functions:
+This is a pracademic project on Gregorian calendar algorithms. Its academic side will be shown by
+a paper (to appear) that reviews literature and brings new mathematical insights. For practioners,
+the project provides working implementations that could be used in many pieces of software including
+the following C++20's functions:
 
     std::chrono::year::is_leap()                                 // a.k.a. is_leap_year
     std::chrono::year_month_day_last::day()                      // a.k.a. last_day_of_month
@@ -13,13 +13,14 @@ software including the following C++20's functions:
     std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
 
 Our implementations are benchmarked against counterparts, including some of popular and widely used
-libraries (glibc, .net, boost and llvm). Results, as per charts below, that our implementations
-perform considerably faster.
+libraries (glibc, .net, boost and llvm). Results, as per charts below, suggest that our
+implementations perform considerably faster than others.
 
 ![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks/benchmarks.png)
 
 [is_leap_year](http://quick-bench.com/0HV3XYJeGuN9mgomWtMbixF28C0): Neri_mcomp is 3.3x faster than
-Ubiquitous. Neri_mod is 2x faster than Ubiquitous.
+Ubiquitous. Neri_mod is 2x faster than Ubiquitous (the implementation that is virtually used
+everywhere.)
 
 [last_day_of_month](http://quick-bench.com/SLM-7N7CUCaTmEewgs2OZ6JBTjc): Neri is 3.9x faster than
 Boost and 1.2x faster than LLVM.
@@ -38,9 +39,9 @@ months, days and day counts might have been changed for closer compliance with C
 Some original implementations deal with time and for this benchmark we have used simplified versions
 that only deals with dates.
 
-Tests show correctness and compliance with the C++ Standard, that is, the algorithms are strictly
-increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in [-12687794,
-11248737] with 1970-Jan-01 being mapped into 0.
+Tests show correctness and compliance with the C++ Standard, that is, `to_rata_die` and `to_date`
+are strictly increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in
+[-12687794, 11248737] with 1970-Jan-01 being mapped into 0.
 
 Implementations are split into building blocks allowing configurable features. For those only
 interested in the case specified by the C++ Standard (previous paragraph), ready to copy-and-paste
