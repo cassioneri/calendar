@@ -36,6 +36,7 @@ using rata_die_t = std::int32_t; // as in std::chrono::days
 auto constexpr disable_static_asserts = false;
 auto constexpr test_baum              = true;
 auto constexpr test_dotnet            = true;
+auto constexpr test_reingold          = true;
 auto constexpr test_glibc             = true;
 auto constexpr test_hatcher           = true;
 
@@ -53,7 +54,7 @@ struct other_base {
 
 struct baum : other_base {
 
-  date_t     static constexpr epoch             = unix_epoch<year_t>;
+  date_t     static constexpr epoch              = unix_epoch<year_t>;
 
   date_t     static constexpr date_min           = date_t{0, 3, 1};
   date_t     static constexpr date_max           = max<date_t>;
@@ -94,7 +95,6 @@ struct baum : other_base {
     auto const m  = j ? m_ - 12 : m_;
     return { year_t(y), month_t(m), day_t(d) };
   }
-
 }; // struct baum
 
 struct dotnet : other_base {
@@ -187,8 +187,91 @@ struct dotnet : other_base {
       day_t day = n - days[m - 1] + 1;
       return date_t{year, month, day};
   }
-
 }; // struct dotnet
+
+struct reingold : other_base {
+
+  date_t     static constexpr epoch              = date_t{0, 12, 31};
+
+  date_t     static constexpr date_min           = date_t{0, 3, 1};
+  date_t     static constexpr date_max           = max<date_t>;
+  rata_die_t static constexpr rata_die_min       = -305;
+  rata_die_t static constexpr rata_die_max       = 11967900;
+
+  date_t     static constexpr round_date_min     = date_t{0, 3, 1};
+  date_t     static constexpr round_date_max     = max<date_t>;
+  rata_die_t static constexpr round_rata_die_min = -305;
+  rata_die_t static constexpr round_rata_die_max = 11967900;
+
+  // E. M. Reingold and N. Dershowitz, Calendrical Calculations, The Ultimate Edition, Cambridge
+  // University Press, 2018.
+
+  // Table 1.2, page 17.
+  rata_die_t static constexpr gregorian_epoch = 1;
+
+  // alt-fixed-from-gregorian, equation (2.28), page 65:
+  rata_die_t static constexpr
+  to_rata_die(date_t date) noexcept {
+
+    auto const year  = rata_die_t(date.year );
+    auto const month = rata_die_t(date.month);
+    auto const day   = rata_die_t(date.day  );
+
+    // In the book mp = (month - 3) mod 12, where mod denotes Euclidean remainder. When month < 3 we
+    // have month - 3 < 0 and % does not match mod. The alternative below provides the intended
+    // result even in this case and keeps the expected performance of the original formula.
+    auto const mp = (month + 9) % 12;
+    auto const yp = year - mp / 10;
+
+    // Equation (1.42), page 28, with b = <4, 25, 4>, i.e., b0 = 4, b1 = 25 and b2 = 4 gives
+    auto const a0 = (yp / 400);
+    auto const a1 = (yp / 100) %  4;
+    auto const a2 = (yp /   4) % 25;
+    auto const a3 = (yp /   1) %  4;
+    // On page 66, quantities above are denoted by n400, n100, n4 and n1.
+
+    return gregorian_epoch - 1 - 306 + 365 * yp + 97 * a0 + 24 * a1 + 1 * a2 + 0 * a3 +
+      (3 * mp + 2) / 5 + 30 * mp + day;
+  }
+
+  // gregorian-year-from-fixed, equation (2.21), page 61:
+  rata_die_t static constexpr
+  gregorian_year_from_fixed(rata_die_t date) noexcept {
+    auto const d0   = date - gregorian_epoch;
+    auto const n400 = d0 / 146097;
+    auto const d1   = d0 % 146097;
+    auto const n100 = d1 / 36524;
+    auto const d2   = d1 % 36524;
+    auto const n4   = d2 / 1461;
+    auto const d3   = d2 % 1461;
+    auto const n1   = d3 / 365;
+    auto const year = 400 * n400 + 100 * n100 + 4 * n4 + n1;
+    return (n100 == 4 | n1 == 4) ? year : year + 1;
+  }
+
+  // alt-fixed-from-gregorian, equation (2.28), page 65:
+  rata_die_t static constexpr
+  fixed_from_gregorian(date_t date) noexcept {
+    return to_rata_die(date);
+  }
+
+  rata_die_t static constexpr
+  mod_1_12(rata_die_t month) noexcept {
+    return month > 12 ? month - 12 : month;
+  }
+
+  // alt-gregorian-from-fixed, equation (2.29), page 66:
+  date_t static constexpr
+  to_date(rata_die_t date) noexcept {
+    auto const y          = gregorian_year_from_fixed(gregorian_epoch - 1 + date + 306);
+    auto const prior_days = date - fixed_from_gregorian(date_t{year_t(y - 1), 3, 1});
+    auto const month      = mod_1_12((5 * prior_days + 2) / 153 + 3);
+    auto const year       = y - (month + 9) / 12;
+    auto const day        = date - fixed_from_gregorian(date_t{year_t(year), month_t(month), 1})
+      + 1;
+    return { year_t(year), month_t(month), day_t(day) };
+  }
+}; // struct reingold
 
 struct glibc : other_base {
 
@@ -309,7 +392,6 @@ struct glibc : other_base {
     days -= ip[m];
     return date_t{year_t(y), month_t(m + 1), day_t(days + 1)};
   }
-
 }; // struct glibc
 
 struct hatcher : other_base {
@@ -731,6 +813,9 @@ main() {
 
   if (test_dotnet)
     calendar_tests<dotnet>("DotNet tests");
+
+   if (test_reingold)
+     calendar_tests<reingold>("Reingold tests");
 
   if (test_glibc)
     calendar_tests<glibc>("glibc tests");
