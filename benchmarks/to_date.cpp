@@ -347,6 +347,81 @@ namespace llvm {
 
 } // namespace llvm
 
+namespace reingold {
+
+  // E. M. Reingold and N. Dershowitz, Calendrical Calculations, The Ultimate Edition, Cambridge
+  // University Press, 2018.
+
+  // Table 1.2, page 17.
+  rata_die_t static constexpr gregorian_epoch = 1;
+
+  // alt-fixed-from-gregorian, equation (2.28), page 65:
+  rata_die_t static constexpr
+  to_rata_die(date_t date) noexcept {
+
+    auto const year  = rata_die_t(date.year );
+    auto const month = rata_die_t(date.month);
+    auto const day   = rata_die_t(date.day  );
+
+    // In the book mp = (month - 3) mod 12, where mod denotes Euclidean remainder. When month < 3 we
+    // have month - 3 < 0 and % does not match mod. The alternative below provides the intended
+    // result even in this case and keeps the expected performance of the original formula.
+    auto const mp = (month + 9) % 12;
+    auto const yp = year - mp / 10;
+
+    // Equation (1.42), page 28, with b = <4, 25, 4>, i.e., b0 = 4, b1 = 25 and b2 = 4 gives
+    auto const a0 = (yp / 400);
+    auto const a1 = (yp / 100) %  4;
+    auto const a2 = (yp /   4) % 25;
+    auto const a3 = (yp /   1) %  4;
+    // On page 66, quantities above are denoted by n400, n100, n4 and n1.
+
+    auto const n = gregorian_epoch - 1 - 306 + 365 * yp + 97 * a0 + 24 * a1 + 1 * a2 + 0 * a3 +
+      (3 * mp + 2) / 5 + 30 * mp + day;
+    return n - 719163; // adjusted to unix epoch
+  }
+
+  // gregorian-year-from-fixed, equation (2.21), page 61:
+  rata_die_t static constexpr
+  gregorian_year_from_fixed(rata_die_t date) noexcept {
+    auto const d0   = date - gregorian_epoch;
+    auto const n400 = d0 / 146097;
+    auto const d1   = d0 % 146097;
+    auto const n100 = d1 / 36524;
+    auto const d2   = d1 % 36524;
+    auto const n4   = d2 / 1461;
+    auto const d3   = d2 % 1461;
+    auto const n1   = d3 / 365;
+    auto const year = 400 * n400 + 100 * n100 + 4 * n4 + n1;
+    return (n100 == 4 | n1 == 4) ? year : year + 1;
+  }
+
+  // alt-fixed-from-gregorian, equation (2.28), page 65:
+  rata_die_t static constexpr
+  fixed_from_gregorian(date_t date) noexcept {
+    return to_rata_die(date) + 719163;
+  }
+
+  rata_die_t static constexpr
+  mod_1_12(rata_die_t month) noexcept {
+    return month > 12 ? month - 12 : month;
+  }
+
+  // alt-gregorian-from-fixed, equation (2.29), page 66:
+  date_t static constexpr
+  to_date(rata_die_t date) noexcept {
+    date = date + 719163; // adjusted to unix epoch
+    auto const y          = gregorian_year_from_fixed(gregorian_epoch - 1 + date + 306);
+    auto const prior_days = date - fixed_from_gregorian(date_t{year_t(y - 1), 3, 1});
+    auto const month      = mod_1_12((5 * prior_days + 2) / 153 + 3);
+    auto const year       = y - (month + 9) / 12;
+    auto const day        = date - fixed_from_gregorian(date_t{year_t(year), month_t(month), 1})
+      + 1;
+    return { year_t(year), month_t(month), day_t(day) };
+  }
+
+} // namespace reingold
+
 //-------------------------------------------------------------------
 // Benchmark data
 //-------------------------------------------------------------------
@@ -354,7 +429,7 @@ namespace llvm {
 auto const rata_dies = [](){
   std::uniform_int_distribution<rata_die_t> uniform_dist(-146097, 146096);
   std::mt19937 rng;
-  std::array<std::int32_t, 65536> rata_dies;
+  std::array<std::int32_t, 16384> rata_dies;
   for (auto& n : rata_dies)
     n = uniform_dist(rng);
   return rata_dies;
@@ -363,6 +438,16 @@ auto const rata_dies = [](){
 //-------------------------------------------------------------------
 // Benchmark
 //-------------------------------------------------------------------
+
+void Reingold(benchmark::State& state) {
+  for (auto _ : state) {
+    for (auto const n : rata_dies) {
+      auto u = reingold::to_date(n);
+      benchmark::DoNotOptimize(u);
+    }
+  }
+}
+BENCHMARK(Reingold);
 
 void GLIBC(benchmark::State& state) {
   for (auto _ : state) {
@@ -394,16 +479,6 @@ void Hatcher(benchmark::State& state) {
 }
 BENCHMARK(Hatcher);
 
-void LLVM(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = llvm::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
-  }
-}
-BENCHMARK(LLVM);
-
 void Boost(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const n : rata_dies) {
@@ -413,6 +488,16 @@ void Boost(benchmark::State& state) {
   }
 }
 BENCHMARK(Boost);
+
+void LLVM(benchmark::State& state) {
+  for (auto _ : state) {
+    for (auto const n : rata_dies) {
+      auto u = llvm::to_date(n);
+      benchmark::DoNotOptimize(u);
+    }
+  }
+}
+BENCHMARK(LLVM);
 
 void Baum(benchmark::State& state) {
   for (auto _ : state) {

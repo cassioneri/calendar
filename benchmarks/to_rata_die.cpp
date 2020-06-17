@@ -317,6 +317,42 @@ namespace llvm {
 
 } // namespace llvm
 
+namespace reingold {
+
+  // E. M. Reingold and N. Dershowitz, Calendrical Calculations, The Ultimate Edition, Cambridge
+  // University Press, 2018.
+
+  // Table 1.2, page 17.
+  rata_die_t static constexpr gregorian_epoch = 1;
+
+  // alt-fixed-from-gregorian, equation (2.28), page 65:
+  rata_die_t static constexpr
+  to_rata_die(date_t date) noexcept {
+
+    auto const year  = rata_die_t(date.year );
+    auto const month = rata_die_t(date.month);
+    auto const day   = rata_die_t(date.day  );
+
+    // In the book mp = (month - 3) mod 12, where mod denotes Euclidean remainder. When month < 3 we
+    // have month - 3 < 0 and % does not match mod. The alternative below provides the intended
+    // result even in this case and keeps the expected performance of the original formula.
+    auto const mp = (month + 9) % 12;
+    auto const yp = year - mp / 10;
+
+    // Equation (1.42), page 28, with b = <4, 25, 4>, i.e., b0 = 4, b1 = 25 and b2 = 4 gives
+    auto const a0 = (yp / 400);
+    auto const a1 = (yp / 100) %  4;
+    auto const a2 = (yp /   4) % 25;
+    auto const a3 = (yp /   1) %  4;
+    // On page 66, quantities above are denoted by n400, n100, n4 and n1.
+
+    auto const n = gregorian_epoch - 1 - 306 + 365 * yp + 97 * a0 + 24 * a1 + 1 * a2 + 0 * a3 +
+      (3 * mp + 2) / 5 + 30 * mp + day;
+    return n - 719163; // adjusted to unix epoch
+  }
+
+} // namespace reingold
+
 //-------------------------------------------------------------------
 // Benchmark data
 //-------------------------------------------------------------------
@@ -347,7 +383,7 @@ to_date(rata_die_t n) noexcept {
 auto const dates = [](){
   std::uniform_int_distribution<rata_die_t> uniform_dist(-146097, 146096);
   std::mt19937 rng;
-  std::array<date_t, 65536> dates;
+  std::array<date_t, 16384> dates;
   for (auto& u : dates)
     u = to_date(uniform_dist(rng));
   return dates;
@@ -356,6 +392,16 @@ auto const dates = [](){
 //-------------------------------------------------------------------
 // Benchmark
 //-------------------------------------------------------------------
+
+void Reingold(benchmark::State& state) {
+  for (auto _ : state) {
+    for (auto const& u : dates) {
+      auto n = reingold::to_rata_die(u);
+      benchmark::DoNotOptimize(n);
+    }
+  }
+}
+BENCHMARK(Reingold);
 
 void GLIBC(benchmark::State& state) {
   for (auto _ : state) {
