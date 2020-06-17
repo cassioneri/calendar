@@ -193,17 +193,17 @@ struct dotnet : other_base {
 
 struct reingold : other_base {
 
-  date_t     static constexpr epoch              = date_t{0, 12, 31};
+  date_t     static constexpr epoch              = unix_epoch<year_t>;
 
   date_t     static constexpr date_min           = date_t{0, 3, 1};
   date_t     static constexpr date_max           = max<date_t>;
-  rata_die_t static constexpr rata_die_min       = -305;
-  rata_die_t static constexpr rata_die_max       = 11967900;
+  rata_die_t static constexpr rata_die_min       = -719468;
+  rata_die_t static constexpr rata_die_max       = 11248737;
 
   date_t     static constexpr round_date_min     = date_t{0, 3, 1};
   date_t     static constexpr round_date_max     = max<date_t>;
-  rata_die_t static constexpr round_rata_die_min = -305;
-  rata_die_t static constexpr round_rata_die_max = 11967900;
+  rata_die_t static constexpr round_rata_die_min = -719468;
+  rata_die_t static constexpr round_rata_die_max = 11248737;
 
   // E. M. Reingold and N. Dershowitz, Calendrical Calculations, The Ultimate Edition, Cambridge
   // University Press, 2018.
@@ -232,8 +232,9 @@ struct reingold : other_base {
     auto const a3 = (yp /   1) %  4;
     // On page 66, quantities above are denoted by n400, n100, n4 and n1.
 
-    return gregorian_epoch - 1 - 306 + 365 * yp + 97 * a0 + 24 * a1 + 1 * a2 + 0 * a3 +
+    auto const n = gregorian_epoch - 1 - 306 + 365 * yp + 97 * a0 + 24 * a1 + 1 * a2 + 0 * a3 +
       (3 * mp + 2) / 5 + 30 * mp + day;
+    return n - 719163; // adjusted to unix epoch
   }
 
   // gregorian-year-from-fixed, equation (2.21), page 61:
@@ -254,7 +255,7 @@ struct reingold : other_base {
   // alt-fixed-from-gregorian, equation (2.28), page 65:
   rata_die_t static constexpr
   fixed_from_gregorian(date_t date) noexcept {
-    return to_rata_die(date);
+    return to_rata_die(date) + 719163;
   }
 
   rata_die_t static constexpr
@@ -265,6 +266,7 @@ struct reingold : other_base {
   // alt-gregorian-from-fixed, equation (2.29), page 66:
   date_t static constexpr
   to_date(rata_die_t date) noexcept {
+    date = date + 719163; // adjusted to unix epoch
     auto const y          = gregorian_year_from_fixed(gregorian_epoch - 1 + date + 306);
     auto const prior_days = date - fixed_from_gregorian(date_t{year_t(y - 1), 3, 1});
     auto const month      = mod_1_12((5 * prior_days + 2) / 153 + 3);
