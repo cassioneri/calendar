@@ -72,11 +72,11 @@ struct baum : other_base {
   rata_die_t static constexpr
   to_rata_die(const date_t& u) noexcept {
     auto const j = u.month < 3;
-    auto const z = u.year - j;                 // step 1 / alternative 2
-    auto const m = j ? u.month + 12 : u.month; // step 2 / alternative 3
-    auto const f = (979 * m - 2918) / 32;      //
-    return rata_die_t{u.day + f +              // step 3 (adjusted to unix epoch)
-      365 * z + z / 4 - z / 100 + z / 400 - 719469};
+    auto const z = u.year - j;                                      // step 1 / alternative 2
+    auto const m = j ? u.month + 12 : u.month;                      // step 2 / alternative 3
+    auto const f = (979 * m - 2918) / 32;                           //
+    auto const n = u.day + f + 365 * z + z / 4 - z / 100 + z / 400; // step 3
+    return rata_die_t(n - 719469);                                  // adjusted to unix epoch
   }
 
   // Section 6.2.1/3
