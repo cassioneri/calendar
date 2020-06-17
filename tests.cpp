@@ -33,7 +33,7 @@ using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t; // as in std::chrono::days
 
-auto constexpr disable_static_asserts = true;
+auto constexpr disable_static_asserts = false;
 auto constexpr test_baum              = true;
 auto constexpr test_dotnet            = true;
 auto constexpr test_glibc             = true;
@@ -321,7 +321,7 @@ struct hatcher : other_base {
   rata_die_t static constexpr rata_die_min       = -25495;
   rata_die_t static constexpr rata_die_max       = 47540;
 
-  date_t     static constexpr round_date_min     = date_t{1900, 3,  1};
+  date_t     static constexpr round_date_min     = date_t{1900, 3, 14};
   date_t     static constexpr round_date_max     = date_t{2100, 2, 28};
   rata_die_t static constexpr round_rata_die_min = -25495;
   rata_die_t static constexpr round_rata_die_max = 47540;
