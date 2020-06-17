@@ -95,6 +95,7 @@ struct baum : other_base {
     auto const m  = j ? m_ - 12 : m_;
     return { year_t(y), month_t(m), day_t(d) };
   }
+
 }; // struct baum
 
 struct dotnet : other_base {
@@ -125,17 +126,17 @@ struct dotnet : other_base {
   // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   // SOFTWARE.
 
-  date_t     static constexpr epoch              = date_t{1, 1, 1};
+  date_t     static constexpr epoch              = unix_epoch<year_t>;
 
-  date_t     static constexpr date_min           = epoch;
+  date_t     static constexpr date_min           = date_t{1, 1, 1};
   date_t     static constexpr date_max           = max<date_t>;
-  rata_die_t static constexpr rata_die_min       = 0;
-  rata_die_t static constexpr rata_die_max       = 11967899;
+  rata_die_t static constexpr rata_die_min       = -719162;
+  rata_die_t static constexpr rata_die_max       = 11248737;
 
-  date_t     static constexpr round_date_min     = epoch;
+  date_t     static constexpr round_date_min     = date_t{1, 1, 1};
   date_t     static constexpr round_date_max     = max<date_t>;
-  rata_die_t static constexpr round_rata_die_min = 0;
-  rata_die_t static constexpr round_rata_die_max = 11967899;
+  rata_die_t static constexpr round_rata_die_min = -719162;
+  rata_die_t static constexpr round_rata_die_max = 11248737;
 
   // https://github.com/dotnet/runtime/blob/master/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L102
   rata_die_t static constexpr s_daysToMonth365[] = {
@@ -151,11 +152,11 @@ struct dotnet : other_base {
 
   //https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L625
   rata_die_t static constexpr
-  to_rata_die(date_t date) noexcept {
+  to_rata_die(const date_t& date) noexcept {
     rata_die_t const* days = IsLeapYear(date.year) ? s_daysToMonth366 : s_daysToMonth365;
     rata_die_t y = date.year - 1;
     rata_die_t n = y * 365 + y / 4 - y / 100 + y / 400 + days[date.month - 1] + date.day - 1;
-    return n;
+    return n - 719162; // adjusted to unix epoch
   }
 
   // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L64
@@ -167,26 +168,27 @@ struct dotnet : other_base {
   // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L938
   date_t static constexpr
   to_date(rata_die_t rata_die) noexcept {
-      rata_die_t n = rata_die;
-      rata_die_t y400 = n / DaysPer400Years;
-      n -= y400 * DaysPer400Years;
-      rata_die_t y100 = n / DaysPer100Years;
-      if (y100 == 4) y100 = 3;
-      n -= y100 * DaysPer100Years;
-      rata_die_t y4 = n / DaysPer4Years;
-      n -= y4 * DaysPer4Years;
-      rata_die_t y1 = n / DaysPerYear;
-      if (y1 == 4) y1 = 3;
-      year_t year = y400 * 400 + y100 * 100 + y4 * 4 + y1 + 1;
-      n -= y1 * DaysPerYear;
-      bool leapYear = y1 == 3 && (y4 != 24 || y100 == 3);
-      rata_die_t const* days = leapYear ? s_daysToMonth366 : s_daysToMonth365;
-      month_t m = (n >> 5) + 1;
-      while (n >= days[m]) m++;
-      month_t month = m;
-      day_t day = n - days[m - 1] + 1;
-      return date_t{year, month, day};
+    rata_die_t n = rata_die + 719162; // adjusted to unix epoch
+    rata_die_t y400 = n / DaysPer400Years;
+    n -= y400 * DaysPer400Years;
+    rata_die_t y100 = n / DaysPer100Years;
+    if (y100 == 4) y100 = 3;
+    n -= y100 * DaysPer100Years;
+    rata_die_t y4 = n / DaysPer4Years;
+    n -= y4 * DaysPer4Years;
+    rata_die_t y1 = n / DaysPerYear;
+    if (y1 == 4) y1 = 3;
+    year_t year = y400 * 400 + y100 * 100 + y4 * 4 + y1 + 1;
+    n -= y1 * DaysPerYear;
+    bool leapYear = y1 == 3 && (y4 != 24 || y100 == 3);
+    rata_die_t const* days = leapYear ? s_daysToMonth366 : s_daysToMonth365;
+    month_t m = (n >> 5) + 1;
+    while (n >= days[m]) m++;
+    month_t month = m;
+    day_t day = n - days[m - 1] + 1;
+    return date_t{year, month, day};
   }
+
 }; // struct dotnet
 
 struct reingold : other_base {
@@ -271,6 +273,7 @@ struct reingold : other_base {
       + 1;
     return { year_t(year), month_t(month), day_t(day) };
   }
+
 }; // struct reingold
 
 struct glibc : other_base {
@@ -392,6 +395,7 @@ struct glibc : other_base {
     days -= ip[m];
     return date_t{year_t(y), month_t(m + 1), day_t(days + 1)};
   }
+
 }; // struct glibc
 
 struct hatcher : other_base {
@@ -464,7 +468,8 @@ struct hatcher : other_base {
     auto const Y  = Yp - y + (n + m - 1 - M) / n;
     return date_t{year_t(Y), month_t(M), day_t(D)};
   }
-};
+
+}; // struct hatcher
 
 //--------------------------------------------------------------------------------------------------
 // Helpers

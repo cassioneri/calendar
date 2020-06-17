@@ -46,7 +46,6 @@ namespace neri {
 
   // https://github.com/cassioneri/dates/blob/master/date.hpp
 
-
   std::pair<std::uint32_t, std::uint32_t> constexpr
   div_1461(std::uint32_t n) noexcept {
       auto constexpr a = std::uint64_t(1) << 32;
@@ -194,7 +193,8 @@ namespace dotnet {
 
   // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L938
   date_t static constexpr
-  to_date(rata_die_t n) noexcept {
+  to_date(rata_die_t rata_die) noexcept {
+    rata_die_t n = rata_die + 719162; // adjusted to unix epoch
     rata_die_t y400 = n / DaysPer400Years;
     n -= y400 * DaysPer400Years;
     rata_die_t y100 = n / DaysPer100Years;

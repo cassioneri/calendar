@@ -58,10 +58,10 @@ namespace neri {
     auto const y  = y1 - j;
     auto const m  = j ? m1 + 12 : m1;
     auto const d  = d1 - 1;
-    auto const c1 = y / 100;
-    auto const yn = 1461 * y / 4 - c1 + c1 / 4;
-    auto const mn = (979 * m - 2922) / 32;
-    auto const n1 = yn + mn + d;
+    auto const q1 = y / 100;
+    auto const y0 = 1461 * y / 4 - q1 + q1 / 4;
+    auto const m0 = (979 * m - 2922) / 32;
+    auto const n1 = y0 + m0 + d;
     auto const n3 = n1 - n2_e3;
     return n3;
   }
@@ -169,11 +169,11 @@ namespace dotnet {
 
   // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L625
   rata_die_t static constexpr
-  to_rata_die(const date_t& u) noexcept {
-    rata_die_t const* days = IsLeapYear(u.year) ? s_daysToMonth366 : s_daysToMonth365;
-    rata_die_t y = u.year - 1;
-    rata_die_t n = y * 365 + y / 4 - y / 100 + y / 400 + days[u.month - 1] + u.day - 1;
-    return n;
+  to_rata_die(const date_t& date) noexcept {
+    rata_die_t const* days = IsLeapYear(date.year) ? s_daysToMonth366 : s_daysToMonth365;
+    rata_die_t y = date.year - 1;
+    rata_die_t n = y * 365 + y / 4 - y / 100 + y / 400 + days[date.month - 1] + date.day - 1;
+    return n - 719162; // adjusted to unix epoch
   }
 
 } // namespace dotnet
