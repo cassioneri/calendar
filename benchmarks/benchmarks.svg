@@ -35,10 +35,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="547.61645"
+     inkscape:cx="515.87041"
      inkscape:cy="231.3735"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g27-3-3-0"
      inkscape:document-rotation="0"
      showgrid="false"
      inkscape:window-width="1920"
@@ -96,24 +96,24 @@
          id="g27-3-3-0">
         <rect
            inkscape:label="background"
-           y="63.684212"
-           x="10"
-           height="6.3157897"
-           width="120"
+           y="62"
+           x="20"
+           height="8"
+           width="110"
            id="rect30-5-5-9"
-           style="display:inline;fill:#ffffff;stroke-width:0.676277" />
+           style="display:inline;fill:#ffffff;stroke-width:0.728722" />
         <text
            inkscape:label="text"
            xml:space="preserve"
-           style="font-size:2.11667px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
-           x="66.321236"
-           y="67.483459"
+           style="font-size:2.82222222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583;"
+           x="70.094994"
+           y="15.144889"
            id="text22-6-6-3"><tspan
              sodipodi:role="line"
              id="tspan20-2-2-6"
-             x="66.321236"
-             y="67.483459"
-             style="stroke-width:0.264583">to_date</tspan></text>
+             x="70.094994"
+             y="15.144889"
+             style="stroke-width:0.264583;font-size:2.82222222px;">to_date</tspan></text>
       </g>
     </g>
     <g
@@ -131,7 +131,7 @@
            width="120"
            height="60"
            x="10"
-           y="10" />
+           y="10.000002" />
         <image
            sodipodi:absref="/home/cassio/code/calendar/benchmarks/to_rata_die.png"
            xlink:href="to_rata_die.png"
@@ -149,23 +149,23 @@
          inkscape:label="caption"
          style="display:inline">
         <rect
-           style="display:inline;fill:#ffffff;stroke-width:0.676277"
+           style="display:inline;fill:#ffffff;stroke-width:0.728722"
            id="rect30-5-5"
-           width="120"
-           height="6.3157897"
-           x="10"
-           y="63.684212"
+           width="110"
+           height="8"
+           x="20"
+           y="62"
            inkscape:label="background" />
         <text
            id="text22-6-6"
-           y="67.483459"
-           x="64.568642"
-           style="font-size:2.11667px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+           y="15.144887"
+           x="67.758202"
+           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
            xml:space="preserve"
            inkscape:label="text"><tspan
-             style="stroke-width:0.264583"
-             y="67.483459"
-             x="64.568642"
+             style="font-size:2.82222px;stroke-width:0.264583"
+             y="15.144887"
+             x="67.758202"
              id="tspan20-2-2"
              sodipodi:role="line">to_rata_die</tspan></text>
       </g>
@@ -204,24 +204,24 @@
          id="g27-3">
         <rect
            inkscape:label="background"
-           y="63.684212"
-           x="10"
-           height="6.3157897"
-           width="120"
+           y="62"
+           x="20"
+           height="8"
+           width="110"
            id="rect30-5"
-           style="display:inline;fill:#ffffff;stroke-width:0.676277" />
+           style="display:inline;fill:#ffffff;stroke-width:0.728722" />
         <text
            inkscape:label="text"
            xml:space="preserve"
-           style="font-size:2.11667px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
-           x="60.721596"
-           y="67.397736"
+           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+           x="62.628822"
+           y="15.158998"
            id="text22-6"><tspan
              sodipodi:role="line"
              id="tspan20-2"
-             x="60.721596"
-             y="67.397736"
-             style="stroke-width:0.264583">last_day_of_month</tspan></text>
+             x="62.628822"
+             y="15.158998"
+             style="font-size:2.82222px;stroke-width:0.264583">last_day_of_month</tspan></text>
       </g>
     </g>
     <g
@@ -255,23 +255,23 @@
          id="g27"
          inkscape:label="caption">
         <rect
-           style="display:inline;fill:#ffffff;stroke-width:0.761124"
+           style="display:inline;fill:#ffffff;stroke-width:0.728721"
            id="rect30"
-           width="120"
+           width="110"
            height="8"
-           x="10"
+           x="20"
            y="62"
            inkscape:label="background" />
         <text
            id="text22"
-           y="66.550331"
-           x="63.931519"
-           style="font-size:2.11667px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+           y="15.144887"
+           x="66.908714"
+           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
            xml:space="preserve"
            inkscape:label="text"><tspan
-             style="stroke-width:0.264583"
-             y="66.550331"
-             x="63.931519"
+             style="font-size:2.82222px;stroke-width:0.264583"
+             y="15.144887"
+             x="66.908714"
              id="tspan20"
              sodipodi:role="line">is_leap_year</tspan></text>
       </g>
