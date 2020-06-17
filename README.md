@@ -24,19 +24,18 @@ Ubiquitous (the implementation used virtually everywhere.) Neri_mod is 2x faster
 [last_day_of_month](http://quick-bench.com/SLM-7N7CUCaTmEewgs2OZ6JBTjc): Neri is 3.9x faster than
 Boost and 1.2x faster than LLVM.
 
-[to_rata_die](http://quick-bench.com/3aXHDw7lM7WfdptJ0Qi9y-lAI0c): Neri is 2.3x faster than glibc,
-2.1x faster than Hatcher, 1.9x faster than .NET, 1.7x fater than Boost, 1.6x faster than LLVM and
-1.3x faster than Baum.
+[to_rata_die](http://quick-bench.com/mE3H4OV2zFQCmh4rGwIMfju5sxQ): Neri is 3.1x faster than
+Reingold, 2.2x faster than glibc, 2.1x faster than Hatcher, 1.8x faster than .NET, 1.7x fater than
+Boost, 1.6x faster than LLVM and 1.3x faster than Baum.
 
-[to_date](http://quick-bench.com/Qg1Qq87_mgNJZbpwBZ55hz_hNGM): Neri is 5.9x faster than glibc, 2.7x
-faster than .NET, 2.3x faster than Hatcher, 2.1x faster than Boost, 2.1x faster than LLVM and 1.5x
-faster than Baum.
+[to_date](http://quick-bench.com/uWz8_ZgBxochr8v78f67wtnsaCo): Neri is 7x faster than Reingold, 6.1x
+faster than glibc, 3.5x faster than .NET, 2.9x faster than Hatcher, 2.6x faster than Boost, 2.2x
+faster than LLVM and 1.5x faster than Baum.
 
-**Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They have been edited,
-mainly to get consistent function signatures across implementations. Storage types for years,
-months, days and day counts might have been changed for closer compliance with C++20 requirements.
-Some original implementations deal with time and for this benchmark we have used simplified versions
-that only deals with dates.
+**Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They might have been
+slightly edited to get: (a) consistent function signatures; (b) storage types (for years, months,
+days and day counts) closer to C++20 requirements; (c) consistent epoch (unix time 1970-Jan-01).
+Some originals deal with date and time but the variants used here work on dates only.
 
 Tests show correctness and compliance with the C++ Standard, that is, `to_rata_die` and `to_date`
 are strictly increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in
