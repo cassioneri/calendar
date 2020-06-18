@@ -17,12 +17,30 @@
  *
  **************************************************************************************************/
 
+// Compile with:
+// g++ -O3 -std=c++2a tests.cpp -o tests -lgtest -lgtest_main
+
 #include "date.hpp"
 
 #include <cstdint>
 #include <iostream>
 
-// Compile with: g++ -O3 -std=c++2a tests.cpp -o tests
+#include <gtest/gtest.h>
+
+// Workarounds for recent changes of macro names.
+// https://github.com/google/googletest/commit/3a460a26b7a91abf87af7f31b93d29f930e25c82#diff-33849d1889edae69c83379ea2d79d472
+#if !defined(TYPED_TEST_SUITE)
+#define TYPED_TEST_SUITE TYPED_TEST_CASE
+#endif
+#if !defined(TYPED_TEST_SUITE_P)
+#define TYPED_TEST_SUITE_P TYPED_TEST_CASE_P
+#endif
+#if !defined(REGISTER_TYPED_TEST_SUITE_P)
+#define REGISTER_TYPED_TEST_SUITE_P REGISTER_TYPED_TEST_CASE_P
+#endif
+#if !defined(INSTANTIATE_TYPED_TEST_SUITE_P)
+#define INSTANTIATE_TYPED_TEST_SUITE_P INSTANTIATE_TYPED_TEST_CASE_P
+#endif
 
 //--------------------------------------------------------------------------------------------------
 // Config
@@ -33,12 +51,12 @@ using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t; // as in std::chrono::days
 
-auto constexpr disable_static_asserts = false;
-auto constexpr test_baum              = true;
-auto constexpr test_dotnet            = true;
-auto constexpr test_reingold          = true;
-auto constexpr test_glibc             = true;
-auto constexpr test_hatcher           = true;
+auto constexpr enable_static_asserts = true;
+auto constexpr test_baum             = true;
+auto constexpr test_dotnet           = true;
+auto constexpr test_reingold         = true;
+auto constexpr test_glibc            = true;
+auto constexpr test_hatcher          = true;
 
 //--------------------------------------------------------------------------------------------------
 // Other implementations
@@ -552,69 +570,52 @@ previous(date_t<T> date) noexcept {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Information
+// Standard compliance tests
 //--------------------------------------------------------------------------------------------------
 
-void
-print_banner(char const* banner) {
-  std::cout << "------------------------------------------\n";
-  std::cout << banner << '\n';
-  std::cout << "------------------------------------------\n";
-}
+TEST(standard_compliance_tests, epoch_and_limits) {
 
-template <typename Algo>
-void
-print_info() {
-
-  std::cout << "epoch              = " << Algo::epoch              << '\n';
-
-  std::cout << "date_min           = " << Algo::date_min           << '\n';
-  std::cout << "date_max           = " << Algo::date_max           << '\n';
-
-  std::cout << "rata_die_min       = " << Algo::rata_die_min       << '\n';
-  std::cout << "rata_die_max       = " << Algo::rata_die_max       << '\n';
-
-  std::cout << "round_date_min     = " << Algo::round_date_min     << '\n';
-  std::cout << "round_date_max     = " << Algo::round_date_max     << '\n';
-
-  std::cout << "round_rata_die_min = " << Algo::round_rata_die_min << '\n';
-  std::cout << "round_rata_die_max = " << Algo::round_rata_die_max << '\n';
-}
-
-//--------------------------------------------------------------------------------------------------
-// Static tests
-//--------------------------------------------------------------------------------------------------
-
-void constexpr
-standard_compliance_test() noexcept {
-
-  using year_t     = std::int16_t; // as in std::chrono::year
-  using month_t    = std::uint8_t; // as in std::chrono::month
-  using day_t      = std::uint8_t; // as in std::chrono::day
-  using rata_die_t = std::int32_t; // as in std::chrono::days
+  using year_t      = std::int16_t; // as in std::chrono::year
+  using month_t     = std::uint8_t; // as in std::chrono::month
+  using day_t       = std::uint8_t; // as in std::chrono::day
+  using rata_die_t  = std::int32_t; // as in std::chrono::days
 
   using gregorian_t = ::gregorian_t<year_t, rata_die_t>;
 
   // https://eel.is/c++draft/time.clock.system#overview-1
-  static_assert(disable_static_asserts ||
+
+  static_assert(!enable_static_asserts ||
     unix_epoch<year_t> == date_t<year_t>{1970, 1, 1});
-  static_assert(disable_static_asserts ||
+
+  static_assert(!enable_static_asserts ||
     gregorian_t::to_date(0) == unix_epoch<year_t>);
 
   // https://eel.is/c++draft/time.cal.ymd#members-20
-  static_assert(disable_static_asserts ||
+
+  static_assert(!enable_static_asserts ||
     gregorian_t::round_rata_die_min <= -12687428);
-  static_assert(disable_static_asserts ||
+
+  static_assert(!enable_static_asserts ||
     gregorian_t::round_rata_die_max >=  11248737);
 }
 
-void constexpr
-month_functions_test() {
+//--------------------------------------------------------------------------------------------------
+// Helper tests
+//--------------------------------------------------------------------------------------------------
+
+TEST(helper_tests, divisibility_by_100) {
+  for (std::int32_t n = -536870800; n <= 536870999; ++n)
+    ASSERT_EQ(n % 100 == 0, is_multiple_of_100(n)) << "Failed for n = " << n;
+}
+
+TEST(helper_tests, month) {
+
   auto constexpr f = [](rata_die_t x) { return (979 * x - 2922) / 32; };
   auto constexpr g = [](rata_die_t r) { return 2141 * r + 197657; };
+
   #define MONTH_TEST(x)          \
-    static_assert(disable_static_asserts || g(f(x)) / 65536 == x); \
-    static_assert(disable_static_asserts || g(f(x) - 1) / 65536 == x - 1)
+    static_assert(!enable_static_asserts || g(f(x)) / 65536 == x); \
+    static_assert(!enable_static_asserts || g(f(x) - 1) / 65536 == x - 1)
   MONTH_TEST( 3);
   MONTH_TEST( 4);
   MONTH_TEST( 5);
@@ -632,241 +633,240 @@ month_functions_test() {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Dynamic tests
+// Calendar tests
 //--------------------------------------------------------------------------------------------------
 
-void
-is_multiple_of_100_test() {
+template <typename A>
+struct calendar_tests : public ::testing::Test {
+}; // struct calendar_tests
 
-  std::cout << "test_is_multiple_of_100... ";
+using implementations = ::testing::Types<
 
-  for (std::int32_t n = -536870800; n <= 536870999; ++n)
-    if ((n % 100 == 0) != is_multiple_of_100(n)) {
-      std::cout << "failed for n = " << n << '\n';
-      return;
-    }
+  // Other implementations
 
-  std::cout << "OK\n";
+  baum,
+  dotnet,
+  glibc,
+  hatcher,
+  reingold,
+
+  // 16 bits
+
+  ugregorian_t<std::uint16_t, std::uint32_t>,
+  gregorian_t <std:: int16_t, std:: int32_t>,
+  gregorian_t <std:: int16_t, std:: int32_t, date_t<std::int16_t>{     0, 3, 1}>,
+  gregorian_t <std:: int16_t, std:: int32_t, date_t<std::int16_t>{     0, 1, 1}>,
+  gregorian_t <std:: int16_t, std:: int32_t, date_t<std::int16_t>{-    1, 1, 1}>,
+  gregorian_t <std:: int16_t, std:: int32_t, date_t<std::int16_t>{-  400, 1, 1}>,
+  gregorian_t <std:: int16_t, std:: int32_t, date_t<std::int16_t>{- 1970, 1, 1}>,
+  gregorian_t< std:: int16_t, std:: int32_t, date_t<std::int16_t>{-32768, 1, 1}>,
+
+  // 32 bits
+
+  ugregorian_t<std::uint32_t, std::uint32_t>,
+  gregorian_t <std:: int32_t, std:: int32_t>,
+  gregorian_t <std:: int32_t, std:: int32_t, date_t<std::int32_t>{  1912, 6, 23}>,
+  gregorian_t< std:: int32_t, std:: int32_t, date_t<std::int32_t>{- 1912, 6, 23}>
+>;
+
+TYPED_TEST_SUITE(calendar_tests, implementations);
+
+TYPED_TEST(calendar_tests, show_info) {
+
+  using A = TypeParam;
+
+  std::cout << "             epoch              = " << A::epoch              << '\n';
+
+  std::cout << "             date_min           = " << A::date_min           << '\n';
+  std::cout << "             date_max           = " << A::date_max           << '\n';
+
+  std::cout << "             rata_die_min       = " << A::rata_die_min       << '\n';
+  std::cout << "             rata_die_max       = " << A::rata_die_max       << '\n';
+
+  std::cout << "             round_date_min     = " << A::round_date_min     << '\n';
+  std::cout << "             round_date_max     = " << A::round_date_max     << '\n';
+
+  std::cout << "             round_rata_die_min = " << A::round_rata_die_min << '\n';
+  std::cout << "             round_rata_die_max = " << A::round_rata_die_max << '\n';
 }
 
-template <typename A>
-void
-round_trip_test() {
+/**
+ * Tests whether epoch is mapped to 0.
+ */
+TYPED_TEST(calendar_tests, epoch) {
 
-  std::cout << "round_trip_test... ";
+  using A          = TypeParam;
+  using date_t     = typename A::date_t;
+  using rata_die_t = typename A::rata_die_t;
 
-  // Compile-time checks.
+  static_assert(!enable_static_asserts ||
+    A::to_date(0) == A::epoch);
 
-  static_assert(disable_static_asserts ||
+  static_assert(!enable_static_asserts ||
+    A::to_rata_die(A::epoch) == 0);
+}
+
+/**
+ * Tests round trip limits.
+ */
+TYPED_TEST(calendar_tests, round_trip_limits) {
+
+  using A          = TypeParam;
+  using date_t     = typename A::date_t;
+  using rata_die_t = typename A::rata_die_t;
+
+  static_assert(!enable_static_asserts ||
     A::round_rata_die_min == A::to_rata_die(A::round_date_min));
-  static_assert(disable_static_asserts ||
+
+  static_assert(!enable_static_asserts ||
     A::round_rata_die_max == A::to_rata_die(A::round_date_max));
 
-  static_assert(disable_static_asserts ||
+  static_assert(!enable_static_asserts ||
     A::round_date_min == A::to_date(A::round_rata_die_min));
-  static_assert(disable_static_asserts ||
+
+  static_assert(!enable_static_asserts ||
     A::round_date_max == A::to_date(A::round_rata_die_max));
-
-  // Runtime checks.
-
-  for (auto n = A::round_rata_die_min; n <= A::round_rata_die_max; ++n)
-    if (n != A::to_rata_die(A::to_date(n))) {
-      std::cout << "failed for n = " << n << '\n';
-      return;
-    }
-
-  std::cout << "OK\n";
 }
 
-template <typename A>
-void
-to_date_test() {
+/**
+ * Tests round trip conversions.
+ */
+TYPED_TEST(calendar_tests, round_trip) {
 
-  std::cout << "to_date_test... ";
+  using A = TypeParam;
 
+  for (auto n = A::round_rata_die_min; n <= A::round_rata_die_max; ++n) {
+    auto date = A::to_date(n);
+    ASSERT_EQ(n, A::to_rata_die(date)) << "Failed for rata_die = " << n;
+    ASSERT_EQ(date, A::to_date(A::to_rata_die(date))) << "Failed for date = " << date;
+  }
+}
+
+/**
+ * Tests whether to_date limits are sharp.
+ */
+TYPED_TEST(calendar_tests, to_date_limits) {
+
+  using A          = TypeParam;
   using date_t     = typename A::date_t;
   using rata_die_t = typename A::rata_die_t;
 
   auto constexpr first = A::to_date(A::rata_die_min);
-  static_assert(disable_static_asserts ||
-  // dotnet needs special treatment: rata_die_t is signed but rata_die_min == 0
+
+  static_assert(!enable_static_asserts ||
+    // dotnet needs special treatment: rata_die_t is signed but rata_die_min == 0
     (A::rata_die_min == min<rata_die_t> || std::is_same_v<A, dotnet>) ||
     first == min<date_t> || A::to_date(A::rata_die_min - 1) != previous(first));
 
   auto constexpr last = A::to_date(A::rata_die_max);
-  static_assert(disable_static_asserts ||
+
+  static_assert(!enable_static_asserts ||
     A::rata_die_max == max<rata_die_t> || last == max<date_t> ||
     A::to_date(A::rata_die_max + 1) != next(last));
+}
 
-  date_t date;
+/**
+ * Tests whether to_date produce correct results going forward from 0 to rata_die_max.
+ */
+TYPED_TEST(calendar_tests, to_date_forward) {
 
-  // Move forward: from 0 to rata_die_max.
-  // Fails if rata_die_max is too large (shows correct value plus one).
-  date = A::epoch;
+  using A          = TypeParam;
+  using date_t     = typename A::date_t;
+  using rata_die_t = typename A::rata_die_t;
+
+  date_t date = A::epoch;
   for (rata_die_t rata_die = 0; rata_die < A::rata_die_max; ) {
 
     auto const tomorrow = A::to_date(++rata_die);
 
-    if (date == max<date_t>) {
-      std::cout << "(forward) failed for rata_die = " << rata_die << " (date == max<date_t>).\n";
-      return;
-    }
+    ASSERT_NE(date, max<date_t>) << "Failed for rata_die = " << rata_die <<
+      " (date == max<date_t>)";
 
-    if (tomorrow != advance(date)) {
-      std::cout << "(forward) failed for rata_die = " << rata_die << '\n';
-      return;
-    }
+    ASSERT_EQ(tomorrow, advance(date)) << "Failed for rata_die = " << rata_die;
   }
+}
 
-  // Move backward: from 0 to rata_die_min.
-  // Fails if rata_die_min is too small (shows the correct value minus one).
-  date = A::epoch;
+/**
+ * Tests whether to_date produce correct results going backward from 0 to rata_die_min.
+ */
+TYPED_TEST(calendar_tests, to_date_backward) {
+
+  using A          = TypeParam;
+  using date_t     = typename A::date_t;
+  using rata_die_t = typename A::rata_die_t;
+
+  date_t date = A::epoch;
   for (rata_die_t rata_die = 0; A::rata_die_min < rata_die; ) {
 
     auto const yesterday = A::to_date(--rata_die);
 
-    if (date == min<date_t>) {
-      std::cout << "(backward) failed for rata_die = " << rata_die << " (date == min<date_t>).\n";
-      return;
-    }
+    ASSERT_NE(date, min<date_t>) << "Failed for rata_die = " << rata_die <<
+      " (date == min<date_t>)";
 
-    if (yesterday != regress(date)) {
-      std::cout << "(backward) failed for rata_die = " << rata_die << '\n';
-      return;
-    }
+    ASSERT_EQ(yesterday, regress(date)) << "Failed for rata_die = " << rata_die;
   }
-
-  std::cout << "OK\n";
 }
 
-template <typename A>
-void
-to_rata_die_test() {
+/**
+ * Tests whether to_date limits are sharp.
+ */
+TYPED_TEST(calendar_tests, to_rata_die_limits) {
 
-  std::cout << "to_rata_die_test... ";
-
+  using A          = TypeParam;
   using date_t     = typename A::date_t;
   using rata_die_t = typename A::rata_die_t;
 
   auto constexpr first = A::to_rata_die(A::date_min);
-  static_assert(disable_static_asserts ||
+
+  static_assert(!enable_static_asserts ||
     A::date_min == min<date_t> || first == min<rata_die_t> ||
     A::to_rata_die(previous(A::date_min)) != first - 1);
 
   auto constexpr last = A::to_rata_die(A::date_max);
-  static_assert(disable_static_asserts ||
+
+  static_assert(!enable_static_asserts ||
     A::date_max == max<date_t> || last == max<rata_die_t> ||
     A::to_rata_die(next(A::date_max)) != last + 1);
+}
 
-  rata_die_t rata_die;
+/**
+ * Tests whether to_rata_die produce correct results going foward from epoch to date_max.
+ */
+TYPED_TEST(calendar_tests, to_rata_die_forward) {
 
-  // Move forward: from epoch to date_max.
-  // Fails if date_max is too large (shows correct value plus one day).
-  rata_die = 0;
-  for (auto date = A::epoch; date < A::date_max; ) {
+  using A          = TypeParam;
+  using date_t     = typename A::date_t;
+  using rata_die_t = typename A::rata_die_t;
+
+  rata_die_t rata_die = 0;
+  for (date_t date = A::epoch; date < A::date_max; ) {
 
     auto const tomorrow = A::to_rata_die(advance(date));
 
-    if (rata_die == max<rata_die_t>) {
-      std::cout << "(forward) failed for date = " << date << " (rata die == max<rata_die_t>).\n";
-      return;
-    }
+    ASSERT_NE(rata_die, max<rata_die_t>) << "Failed for date = " << date <<
+      " (rata die == max<rata_die_t>)";
 
-    if (tomorrow != ++rata_die) {
-      std::cout << "(forward) failed for date = " << date << '\n';
-      return;
-    }
+    ASSERT_EQ(tomorrow, ++rata_die) << "Failed for date = " << date;
   }
+}
 
-  // Move backward: from epoch to date_min.
-  // Fails if date_min is too small (shows the correct value minus one day).
-  rata_die = 0;
+/**
+ * Tests whether to_rata_die produce correct results backward from epoch to date_min.
+ */
+TYPED_TEST(calendar_tests, to_rata_die_backward) {
+
+  using A          = TypeParam;
+  using date_t     = typename A::date_t;
+  using rata_die_t = typename A::rata_die_t;
+
+  rata_die_t rata_die = 0;
   for (auto date = A::epoch; A::date_min < date; ) {
 
     auto const yesterday = A::to_rata_die(regress(date));
 
-    if (rata_die == min<rata_die_t>) {
-      std::cout << "(backward) failed for date = " << date << " (rata die == min<rata_die_t>).\n";
-      return;
-    }
+    ASSERT_NE(rata_die, min<rata_die_t>) << "Failed for date = " << date <<
+      " (rata die == min<rata_die_t>)";
 
-    if (yesterday != --rata_die) {
-      std::cout << "(backward) failed for date = " << date << '\n';
-      return;
-    }
+    ASSERT_EQ(yesterday, --rata_die) << "Failed for date = " << date;
   }
-
-  std::cout << "OK\n";
-}
-
-template <typename A>
-void
-calendar_tests(char const* banner) {
-  print_banner(banner);
-  print_info<A>();
-  to_date_test<A>();
-  to_rata_die_test<A>();
-  round_trip_test<A>();
-}
-
-int
-main() {
-
-  print_banner("Preliminary tests");
-  is_multiple_of_100_test();
-
-  if (test_baum)
-    calendar_tests<baum>("Baum tests");
-
-  if (test_dotnet)
-    calendar_tests<dotnet>("DotNet tests");
-
-  if (test_glibc)
-    calendar_tests<glibc>("glibc tests");
-
-  if (test_hatcher)
-    calendar_tests<hatcher>("Hatcher tests");
-
-  if (test_reingold)
-    calendar_tests<reingold>("Reingold tests");
-
-  // 16 bits
-
-  calendar_tests<ugregorian_t<std::uint16_t, std::uint32_t>>
-    ("unsigned : 16");
-
-  calendar_tests<gregorian_t<std::int16_t, std::int32_t>>
-    ("signed : 16 : default epoch");
-
-  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{0, 3, 1}>>
-    ("signed : 16 : 0000-Mar-01");
-
-  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{0, 1, 1}>>
-    ("signed : 16 : 0000-Jan-01");
-
-  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{-1, 1, 1}>>
-    ("signed : 16 : -0001-Jan-01");
-
-  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{-400, 1, 1}>>
-    ("signed : 16 : -0400-Jan-01");
-
-  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{-1970, 1, 1}>>
-    ("signed : 16 : -1970-Jan-01");
-
-  calendar_tests<gregorian_t<std::int16_t, std::int32_t, date_t<std::int16_t>{-32768, 1, 1}>>
-    ("signed : 16 : -32768-Jan-01");
-
-  // 32 bits
-
-  calendar_tests<ugregorian_t<std::uint32_t, std::uint32_t>>
-    ("unsigned : 32");
-
-  calendar_tests<gregorian_t<std::int32_t, std::int32_t>>
-    ("signed : 32 : default epoch");
-
-  calendar_tests<gregorian_t<std::int32_t, std::int32_t, date_t<std::int32_t>{1912, 6, 23}>>
-    ("signed : 32 : 1912-Jun-23");
-
-  calendar_tests<gregorian_t<std::int32_t, std::int32_t, date_t<std::int32_t>{-1912, 6, 23}>>
-    ("signed : 32 : -1912-Jun-23");
 }
