@@ -24,23 +24,7 @@
 
 #include <cstdint>
 #include <iostream>
-
 #include <gtest/gtest.h>
-
-// Workarounds for recent changes of macro names.
-// https://github.com/google/googletest/commit/3a460a26b7a91abf87af7f31b93d29f930e25c82#diff-33849d1889edae69c83379ea2d79d472
-#if !defined(TYPED_TEST_SUITE)
-#define TYPED_TEST_SUITE TYPED_TEST_CASE
-#endif
-#if !defined(TYPED_TEST_SUITE_P)
-#define TYPED_TEST_SUITE_P TYPED_TEST_CASE_P
-#endif
-#if !defined(REGISTER_TYPED_TEST_SUITE_P)
-#define REGISTER_TYPED_TEST_SUITE_P REGISTER_TYPED_TEST_CASE_P
-#endif
-#if !defined(INSTANTIATE_TYPED_TEST_SUITE_P)
-#define INSTANTIATE_TYPED_TEST_SUITE_P INSTANTIATE_TYPED_TEST_CASE_P
-#endif
 
 //--------------------------------------------------------------------------------------------------
 // Config
