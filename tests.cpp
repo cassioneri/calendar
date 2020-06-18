@@ -603,19 +603,44 @@ TEST(standard_compliance_tests, epoch_and_limits) {
 // Helper tests
 //--------------------------------------------------------------------------------------------------
 
-TEST(helper_tests, divisibility_by_100) {
+TEST(helper_tests, is_multiple_of_100) {
   for (std::int32_t n = -536870800; n <= 536870999; ++n)
     ASSERT_EQ(n % 100 == 0, is_multiple_of_100(n)) << "Failed for n = " << n;
 }
 
+TEST(helper_tests, div_1461) {
+  for (std::uint32_t n = 0; n < 36529; ++n) { // 36528 = 146096 / 4 + 3
+    auto [q, r] = div_1461(n);
+    ASSERT_EQ(q, n / 1461) << "Failed for n = " << n;
+    ASSERT_EQ(r, n % 1461) << "Failed for n = " << n;
+  }
+}
+
+TEST(helper_tests, month_count) {
+    auto constexpr m0_basic = [](month_t m) { return (153 * (m - 3) + 2) / 5; };
+    auto constexpr m0_fast  = [](month_t m) { return (979 * m - 2922) / 32; };
+    static_assert(m0_fast( 3) == m0_basic( 3));
+    static_assert(m0_fast( 4) == m0_basic( 4));
+    static_assert(m0_fast( 5) == m0_basic( 5));
+    static_assert(m0_fast( 6) == m0_basic( 6));
+    static_assert(m0_fast( 7) == m0_basic( 7));
+    static_assert(m0_fast( 8) == m0_basic( 8));
+    static_assert(m0_fast( 9) == m0_basic( 9));
+    static_assert(m0_fast(10) == m0_basic(10));
+    static_assert(m0_fast(11) == m0_basic(11));
+    static_assert(m0_fast(12) == m0_basic(12));
+    static_assert(m0_fast(13) == m0_basic(13));
+    static_assert(m0_fast(14) == m0_basic(14));
+}
+
 TEST(helper_tests, month) {
 
-  auto constexpr f = [](rata_die_t x) { return (979 * x - 2922) / 32; };
-  auto constexpr g = [](rata_die_t r) { return 2141 * r + 197657; };
+  auto constexpr m0 = [](rata_die_t x) { return (979 * x - 2922) / 32; };
+  auto constexpr m  = [](rata_die_t r) { return 2141 * r + 197657; };
 
-  #define MONTH_TEST(x)          \
-    static_assert(!enable_static_asserts || g(f(x)) / 65536 == x); \
-    static_assert(!enable_static_asserts || g(f(x) - 1) / 65536 == x - 1)
+  #define MONTH_TEST(x)                                                  \
+    static_assert(!enable_static_asserts || m(m0(x)) / 65536 == x);      \
+    static_assert(!enable_static_asserts || m(m0(x) - 1) / 65536 == x - 1)
   MONTH_TEST( 3);
   MONTH_TEST( 4);
   MONTH_TEST( 5);
