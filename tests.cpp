@@ -480,7 +480,7 @@ struct reingold : other_base {
 //--------------------------------------------------------------------------------------------------
 
 /**
- * Advance date by one day.
+ * Advances a date by one day.
  *
  * @param date        Date to be advanced.
  *
@@ -504,7 +504,7 @@ advance(date_t<T>& date) noexcept {
 }
 
 /**
- * Return next date.
+ * Returns the next date.
  *
  * @param date        Date to be advanced.
  *
@@ -517,7 +517,7 @@ next(date_t<T> date) noexcept {
 }
 
 /**
- * Regress date by one day.
+ * Regresses a date by one day.
  *
  * @param date        Date to be regressed.
  *
@@ -541,7 +541,7 @@ regress(date_t<T>& date) noexcept {
 }
 
 /**
- * Return previos date.
+ * Returns the previos date.
  *
  * @param date        Date to be regressed.
  *
@@ -557,6 +557,9 @@ previous(date_t<T> date) noexcept {
 // Standard compliance tests
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * Tests compliance with the C++ 2020 Standard.
+ */
 TEST(standard_compliance_tests, epoch_and_limits) {
 
   using year_t      = std::int16_t; // as in std::chrono::year
@@ -587,11 +590,17 @@ TEST(standard_compliance_tests, epoch_and_limits) {
 // Helper tests
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * Tests an alternative implementation of divisibility by 100.
+ */
 TEST(helper_tests, is_multiple_of_100) {
   for (std::int32_t n = -536870800; n <= 536870999; ++n)
     ASSERT_EQ(n % 100 == 0, is_multiple_of_100(n)) << "Failed for n = " << n;
 }
 
+/**
+ * Tests an alternative implementation of division and remainder by 1461.
+ */
 TEST(helper_tests, div_1461) {
   for (std::uint32_t n = 0; n < 36529; ++n) { // 36528 = 146096 / 4 + 3
     auto [q, r] = div_1461(n);
@@ -600,21 +609,24 @@ TEST(helper_tests, div_1461) {
   }
 }
 
+/**
+ * Tests a fast Euclidean affine function for month count.
+ */
 TEST(helper_tests, month_count) {
     auto constexpr m0_basic = [](month_t m) { return (153 * (m - 3) + 2) / 5; };
     auto constexpr m0_fast  = [](month_t m) { return (979 * m - 2922) / 32; };
-    static_assert(m0_fast( 3) == m0_basic( 3));
-    static_assert(m0_fast( 4) == m0_basic( 4));
-    static_assert(m0_fast( 5) == m0_basic( 5));
-    static_assert(m0_fast( 6) == m0_basic( 6));
-    static_assert(m0_fast( 7) == m0_basic( 7));
-    static_assert(m0_fast( 8) == m0_basic( 8));
-    static_assert(m0_fast( 9) == m0_basic( 9));
-    static_assert(m0_fast(10) == m0_basic(10));
-    static_assert(m0_fast(11) == m0_basic(11));
-    static_assert(m0_fast(12) == m0_basic(12));
-    static_assert(m0_fast(13) == m0_basic(13));
-    static_assert(m0_fast(14) == m0_basic(14));
+    ASSERT_EQ(m0_fast( 3), m0_basic( 3));
+    ASSERT_EQ(m0_fast( 4), m0_basic( 4));
+    ASSERT_EQ(m0_fast( 5), m0_basic( 5));
+    ASSERT_EQ(m0_fast( 6), m0_basic( 6));
+    ASSERT_EQ(m0_fast( 7), m0_basic( 7));
+    ASSERT_EQ(m0_fast( 8), m0_basic( 8));
+    ASSERT_EQ(m0_fast( 9), m0_basic( 9));
+    ASSERT_EQ(m0_fast(10), m0_basic(10));
+    ASSERT_EQ(m0_fast(11), m0_basic(11));
+    ASSERT_EQ(m0_fast(12), m0_basic(12));
+    ASSERT_EQ(m0_fast(13), m0_basic(13));
+    ASSERT_EQ(m0_fast(14), m0_basic(14));
 }
 
 TEST(helper_tests, month) {
