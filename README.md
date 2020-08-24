@@ -18,19 +18,20 @@ implementations perform considerably faster than others.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
-[is_leap_year](http://quick-bench.com/0HV3XYJeGuN9mgomWtMbixF28C0): Neri_mcomp is 3.3x faster than
-Ubiquitous (the implementation used virtually everywhere.) Neri_mod is 2x faster than Ubiquitous.
+[is_leap_year](https://quick-bench.com/q/xRcTxzWT5-GKQ-j0GCH4hfaufUg): Neri_mcomp is 3.1x faster 
+than Ubiquitous (the implementation used virtually everywhere.) Neri_mod is 1.9x faster than 
+Ubiquitous.
 
-[last_day_of_month](http://quick-bench.com/SLM-7N7CUCaTmEewgs2OZ6JBTjc): Neri is 3.9x faster than
-Boost and 1.2x faster than LLVM.
+[last_day_of_month](https://quick-bench.com/q/tQELbu-usMTN9C73WDPbqbYSo2Q): Neri is 3x faster than
+Boost and 1.1x faster than LLVM.
 
-[to_rata_die](http://quick-bench.com/mE3H4OV2zFQCmh4rGwIMfju5sxQ): Neri is 3.1x faster than
-Reingold, 2.2x faster than glibc, 2.1x faster than Hatcher, 1.8x faster than .NET, 1.7x fater than
-Boost, 1.6x faster than LLVM and 1.3x faster than Baum.
+[to_rata_die](https://quick-bench.com/q/U6pBJfCLLkxdioxD4uB9fakBPfY): Neri is 3.3x faster than
+Reingold, 2x faster than glibc, 2.4x faster than Hatcher, 1.8x faster than .NET, 1.7x fater than
+Boost, 1.7x faster than LLVM and 1.6x faster than Baum.
 
-[to_date](http://quick-bench.com/uWz8_ZgBxochr8v78f67wtnsaCo): Neri is 7x faster than Reingold, 6.1x
-faster than glibc, 3.5x faster than .NET, 2.9x faster than Hatcher, 2.6x faster than Boost, 2.2x
-faster than LLVM and 1.5x faster than Baum.
+[to_date](https://quick-bench.com/q/-X095A7navkZkrIiEwhFQoH4qjM): Neri is 6.7x faster than 
+Reingold, 6.2x faster than glibc, 3.5x faster than .NET, 2.8x faster than Hatcher, 2.6x faster than 
+Boost, 2.2x faster than LLVM and 1.5x faster than Baum.
 
 **Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They might have been
 slightly edited to get: (a) consistent function signatures; (b) storage types (for years, months,

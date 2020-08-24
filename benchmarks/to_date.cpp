@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * is_leap_year benchmarks
+ * to_date benchmarks
  *
  * Copyright (C) 2020 Cassio Neri
  *

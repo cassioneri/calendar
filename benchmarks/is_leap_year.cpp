@@ -75,7 +75,7 @@ namespace ubiquitous {
 auto const years = [](){
   std::uniform_int_distribution<year_t> uniform_dist(-400, 399);
   std::mt19937 rng;
-  std::array<year_t, 65536> years;
+  std::array<year_t, 16384> years;
   for (auto& year : years)
     year = uniform_dist(rng);
   return years;

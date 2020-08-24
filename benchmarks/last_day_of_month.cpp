@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * is_leap_year benchmarks
+ * las_day_of_month benchmarks
  *
  * Copyright (C) 2020 Cassio Neri
  *
@@ -150,7 +150,7 @@ namespace llvm {
 auto const years = [](){
   std::uniform_int_distribution<year_t> uniform_dist(-400, 399);
   std::mt19937 rng;
-  std::array<year_t, 65536> years;
+  std::array<year_t, 16384> years;
   for (auto& year : years)
     year = uniform_dist(rng);
   return years;
@@ -159,7 +159,7 @@ auto const years = [](){
 auto const months = [](){
   std::uniform_int_distribution<month_t> uniform_dist(1, 12);
   std::mt19937 rng;
-  std::array<month_t, 65536> months;
+  std::array<month_t, 16384> months;
   for (auto& month : months)
     month = uniform_dist(rng);
   return months;
@@ -171,7 +171,7 @@ auto const months = [](){
 
 void Boost(benchmark::State& state) {
   for (auto _ : state) {
-    for (std::int32_t i = 0; i < 65536; ++i) {
+    for (std::int32_t i = 0; i < 16384; ++i) {
       auto day = boost::last_day_of_month(years[i], months[i]);
       benchmark::DoNotOptimize(day);
     }
@@ -181,7 +181,7 @@ BENCHMARK(Boost);
 
 void LLVM(benchmark::State& state) {
   for (auto _ : state) {
-    for (std::int32_t i = 0; i < 65536; ++i) {
+    for (std::int32_t i = 0; i < 16384; ++i) {
       auto day = llvm::last_day_of_month(years[i], months[i]);
       benchmark::DoNotOptimize(day);
     }
@@ -191,7 +191,7 @@ BENCHMARK(LLVM);
 
 void Neri(benchmark::State& state) {
   for (auto _ : state) {
-    for (std::int32_t i = 0; i < 65536; ++i) {
+    for (std::int32_t i = 0; i < 16384; ++i) {
       auto day = neri::last_day_of_month(years[i], months[i]);
       benchmark::DoNotOptimize(day);
     }
