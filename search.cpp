@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2020 Cassio Neri
  *
- * This file is part of https://github.com/cassioneri/dates.
+ * This file is part of https://github.com/cassioneri/calendar.
  *
  * This file is free software: you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software  Foundation, either version 3 of the
@@ -30,11 +30,11 @@
  *
  * search X1 X2 [Xn]...
  *
- * Tell if (X1, X2, ..., Xn) is the code of a line of not and, if so, then if also outputs the
+ * Tell if (X1, X2, ..., Xn) is the code of a line or not and, if so, then if also outputs the
  * equation line. For instance, for the Gregorian months from March to February (regardless of leap
  * year) we have
  *
- * $ search 31 30 31 30 31 31 30 31 30 31 31 30
+ * $ ./search 31 30 31 30 31 31 30 31 30 31 31 30
  * The line is y = (153 * x + 2) / 5.
  *
  * This means that (153 * x + 2) / 5 is the sum of all elememts of the vector {31, 30, 31, 30, 31,

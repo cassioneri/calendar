@@ -1,40 +1,42 @@
-/********************************************************************
+/*******************************************************************************
  *
- * to_rata_die benchmarks
+ * is_leap_year benchmarks
  *
  * Copyright (C) 2020 Cassio Neri
  *
- * This file is part of https://github.com/cassioneri/dates.
+ * This file is part of https://github.com/cassioneri/calendar.
  *
- * This file is free software: you can redistribute it and/or modify it under the terms of the GNU
- * General Public License as published by the Free Software  Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * This file is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
  *
- * This file is distributed in the hope that it will be useful, but WITHOUT ANY  WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
+ * This file is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with this file. If not,
+ * You should have received a copy of the GNU General Public License along with
+ * this file. If not,
  * see <https://www.gnu.org/licenses/>.
  *
- *******************************************************************/
+ ******************************************************************************/
 
 #include <cstdint>
 #include <random>
 #include <type_traits>
 
-//-------------------------------------------------------------------
+/------------------------------------------------------------------------------
 // Config
-//-------------------------------------------------------------------
+/------------------------------------------------------------------------------
 
 using year_t     = std::int16_t; // as in std::chrono::year
 using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t; // as in std::chrono::days
 
-//-------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Implementations
-//-------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 struct date_t {
   year_t  year;
@@ -44,7 +46,7 @@ struct date_t {
 
 namespace neri {
 
-  // https://github.com/cassioneri/dates/blob/master/date.hpp
+  // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
   rata_die_t constexpr
   to_rata_die(date_t const& u) noexcept {
@@ -353,9 +355,9 @@ namespace reingold {
 
 } // namespace reingold
 
-//-------------------------------------------------------------------
+/------------------------------------------------------------------------------
 // Benchmark data
-//-------------------------------------------------------------------
+/------------------------------------------------------------------------------
 
 date_t constexpr
 to_date(rata_die_t n) noexcept {
@@ -389,9 +391,9 @@ auto const dates = [](){
   return dates;
 }();
 
-//-------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Benchmark
-//-------------------------------------------------------------------
+/------------------------------------------------------------------------------
 
 void Reingold(benchmark::State& state) {
   for (auto _ : state) {

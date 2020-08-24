@@ -16,7 +16,7 @@ Our implementations are benchmarked against counterparts, including some of popu
 libraries (glibc, .NET, Boost and LLVM). Results, as per charts below, suggest that our
 implementations perform considerably faster than others.
 
-![Benchmarks](https://github.com/cassioneri/dates/blob/master/benchmarks/benchmarks.png)
+![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
 [is_leap_year](http://quick-bench.com/0HV3XYJeGuN9mgomWtMbixF28C0): Neri_mcomp is 3.3x faster than
 Ubiquitous (the implementation used virtually everywhere.) Neri_mod is 2x faster than Ubiquitous.
@@ -81,7 +81,7 @@ corresponding function in `ugregorian_t`.
 
 ## Contents
 
-1. `date.hpp`   : Implementations.
-2. `tests.cpp`  : Tests. (Including exhaustive full-range round-trips taking around 30s to complete
+1. `calendar.hpp`: Implementations.
+2. `tests.cpp`   : Tests. (Including exhaustive full-range round-trips taking around 30s to complete
 on commodity hardware.)
-3. `search.cpp` : Helper program that was used to find some coefficients used by the algorithms.
+3. `search.cpp`  : Helper program that was used to find some coefficients used by the algorithms.

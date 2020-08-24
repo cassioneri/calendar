@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2020 Cassio Neri
  *
- * This file is part of https://github.com/cassioneri/dates.
+ * This file is part of https://github.com/cassioneri/calendar.
  *
  * This file is free software: you can redistribute it and/or modify it under the terms of the GNU
  * General Public License as published by the Free Software  Foundation, either version 3 of the
@@ -20,7 +20,7 @@
 // Compile with:
 // g++ -O3 -std=c++2a tests.cpp -o tests -lgtest -lgtest_main
 
-#include "date.hpp"
+#include "calendar.hpp"
 
 #include <cstdint>
 #include <iostream>
