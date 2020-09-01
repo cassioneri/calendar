@@ -22,19 +22,19 @@
 #include <iostream>
 
 /**
- * @file Search.cpp
+ * @file troesch.cpp
  *
  * Coefficients search algorithm by Troesch [1].
  *
  * Usage:
  *
- * search X1 X2 [Xn]...
+ * troesch X1 X2 [Xn]...
  *
  * Tell if (X1, X2, ..., Xn) is the code of a line or not and, if so, then if also outputs the
  * equation line. For instance, for the Gregorian months from March to February (regardless of leap
  * year) we have
  *
- * $ ./search 31 30 31 30 31 31 30 31 30 31 31 30
+ * $ ./troesch 31 30 31 30 31 31 30 31 30 31 31 30
  * The line is y = (153 * x + 2) / 5.
  *
  * This means that (153 * x + 2) / 5 is the sum of all elememts of the vector {31, 30, 31, 30, 31,
@@ -43,7 +43,7 @@
  * [1] Albert Troesch, Droites discrètes et calendriers, Mathématiques et sciences humaines, tome
  *     141 (1998), p. 11-41.
  *
- * Compile with: g++ -O3 -std=c++2a search.cpp -o search
+ * Compile with: g++ -O3 -std=c++2a troesch.cpp -o troesch
  */
 
 /**
