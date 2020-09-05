@@ -17,6 +17,12 @@
  *
  **************************************************************************************************/
 
+/**
+ * @file calendar.hpp
+ * 
+ * @brief Calendar algorithms.
+ */
+
 #include <algorithm>
 #include <cstdint>
 #include <limits>

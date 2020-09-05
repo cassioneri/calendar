@@ -17,14 +17,22 @@
  *
  **************************************************************************************************/
 
-// Compile with:
-// g++ -O3 -std=c++2a tests.cpp -o tests -lgtest -lgtest_main
+/**
+ * @file tests.cpp
+ * 
+ * @brief Tests of calendar algorithms. (Requires googletest [1].)
+ *
+ * [1] https://github.com/google/googletest
+ * 
+ * Compile with: g++ -O3 -std=c++2a tests.cpp -o tests -lgtest -lgtest_main
+ */
 
 #include "calendar.hpp"
 
+#include <gtest/gtest.h>
+
 #include <cstdint>
 #include <iostream>
-#include <gtest/gtest.h>
 
 //--------------------------------------------------------------------------------------------------
 // Config

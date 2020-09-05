@@ -17,14 +17,10 @@
  *
  **************************************************************************************************/
 
-#include <algorithm>
-#include <array>
-#include <iostream>
-
 /**
  * @file troesch.cpp
  *
- * Coefficients search algorithm by Troesch [1].
+ * @brief Coefficients search algorithm by Troesch [1].
  *
  * Usage:
  *
@@ -45,6 +41,11 @@
  *
  * Compile with: g++ -O3 -std=c++2a troesch.cpp -o troesch
  */
+
+#include <algorithm>
+#include <iostream>
+#include <iterator>
+#include <vector>
 
 /**
  * @brief Code container.

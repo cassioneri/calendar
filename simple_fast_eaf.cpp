@@ -17,11 +17,6 @@
  *
  **************************************************************************************************/
 
-#include "fast_eaf.hpp"
-
-#include <cstdint>
-#include <iostream>
-
 /**
  * @file simple_fast_eaf.cpp
  * 
@@ -29,6 +24,11 @@
  *
  * Compile with: g++ -O3 -std=c++2a simple_fast_eaf.cpp -o simple_fast_eaf
  */
+
+#include "fast_eaf.hpp"
+
+#include <cstdint>
+#include <iostream>
 
 /**
  * @brief Finds coefficients and upper bound of simple fast EAF.
