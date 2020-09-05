@@ -25,8 +25,8 @@ Ubiquitous.
 [last_day_of_month](https://quick-bench.com/q/tQELbu-usMTN9C73WDPbqbYSo2Q): Neri is 3x faster than
 Boost and 1.1x faster than LLVM.
 
-[to_rata_die](https://quick-bench.com/q/U6pBJfCLLkxdioxD4uB9fakBPfY): Neri is 3.3x faster than
-Reingold, 2x faster than glibc, 2.4x faster than Hatcher, 1.8x faster than .NET, 1.7x fater than
+[to_rata_die](https://quick-bench.com/q/FnmQdcdN39otA7rUAC3hgRSn-Pg): Neri is 3.3x faster than
+Reingold, 2.1x faster than glibc, 2.4x faster than Hatcher, 1.8x faster than .NET, 1.7x faster than
 Boost, 1.7x faster than LLVM and 1.6x faster than Baum.
 
 [to_date](https://quick-bench.com/q/-X095A7navkZkrIiEwhFQoH4qjM): Neri is 6.7x faster than 

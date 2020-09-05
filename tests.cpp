@@ -610,28 +610,28 @@ TEST(helper_tests, div_1461) {
 }
 
 /**
- * Tests a fast Euclidean affine function for month count.
+ * Tests fast EAF for month count.
  */
 TEST(helper_tests, month_count) {
-    auto constexpr m0_basic = [](month_t m) { return (153 * (m - 3) + 2) / 5; };
-    auto constexpr m0_fast  = [](month_t m) { return (979 * m - 2922) / 32; };
-    ASSERT_EQ(m0_fast( 3), m0_basic( 3));
-    ASSERT_EQ(m0_fast( 4), m0_basic( 4));
-    ASSERT_EQ(m0_fast( 5), m0_basic( 5));
-    ASSERT_EQ(m0_fast( 6), m0_basic( 6));
-    ASSERT_EQ(m0_fast( 7), m0_basic( 7));
-    ASSERT_EQ(m0_fast( 8), m0_basic( 8));
-    ASSERT_EQ(m0_fast( 9), m0_basic( 9));
-    ASSERT_EQ(m0_fast(10), m0_basic(10));
-    ASSERT_EQ(m0_fast(11), m0_basic(11));
-    ASSERT_EQ(m0_fast(12), m0_basic(12));
-    ASSERT_EQ(m0_fast(13), m0_basic(13));
-    ASSERT_EQ(m0_fast(14), m0_basic(14));
+    auto constexpr m0      = [](month_t m) { return (153 * (m - 3) + 2) / 5; };
+    auto constexpr m0_fast = [](month_t m) { return (979 * m - 2919) / 32; };
+    ASSERT_EQ(m0_fast( 3), m0( 3));
+    ASSERT_EQ(m0_fast( 4), m0( 4));
+    ASSERT_EQ(m0_fast( 5), m0( 5));
+    ASSERT_EQ(m0_fast( 6), m0( 6));
+    ASSERT_EQ(m0_fast( 7), m0( 7));
+    ASSERT_EQ(m0_fast( 8), m0( 8));
+    ASSERT_EQ(m0_fast( 9), m0( 9));
+    ASSERT_EQ(m0_fast(10), m0(10));
+    ASSERT_EQ(m0_fast(11), m0(11));
+    ASSERT_EQ(m0_fast(12), m0(12));
+    ASSERT_EQ(m0_fast(13), m0(13));
+    ASSERT_EQ(m0_fast(14), m0(14));
 }
 
 TEST(helper_tests, month) {
 
-  auto constexpr m0 = [](rata_die_t x) { return (979 * x - 2922) / 32; };
+  auto constexpr m0 = [](rata_die_t x) { return (979 * x - 2919) / 32; };
   auto constexpr m  = [](rata_die_t r) { return 2141 * r + 197657; };
 
   #define MONTH_TEST(x)                                                  \

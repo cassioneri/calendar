@@ -8,44 +8,44 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
-   version="1.1"
-   id="svg8"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
-   sodipodi:docname="benchmarks.svg"
-   inkscape:export-filename="/home/cassio/code/calendar/benchmarks/benchmarks.png"
+   inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96">
+   inkscape:export-filename="/home/cassio/producao/programas/c++/calendar/benchmarks/benchmarks.png"
+   sodipodi:docname="benchmarks.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 210 297"
+   height="297mm"
+   width="210mm">
   <defs
      id="defs2">
     <rect
-       id="rect16"
-       height="9.6841519"
-       width="93.633566"
+       x="24.302838"
        y="66.802782"
-       x="24.302838" />
+       width="93.633566"
+       height="9.6841519"
+       id="rect16" />
   </defs>
   <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="515.87041"
-     inkscape:cy="231.3735"
-     inkscape:document-units="mm"
-     inkscape:current-layer="g27-3-3-0"
-     inkscape:document-rotation="0"
-     showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1007"
-     inkscape:window-x="0"
+     inkscape:window-maximized="1"
      inkscape:window-y="0"
-     inkscape:window-maximized="1" />
+     inkscape:window-x="0"
+     inkscape:window-height="985"
+     inkscape:window-width="1680"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="g27-3-3-0"
+     inkscape:document-units="mm"
+     inkscape:cy="231.3735"
+     inkscape:cx="515.87041"
+     inkscape:zoom="1.4"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -59,27 +59,27 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
      id="layer1"
-     inkscape:groupmode="layer">
+     inkscape:label="Layer 1">
     <g
-       style="display:inline"
-       transform="translate(110,50)"
+       inkscape:label="to_date"
        id="g36-3-3-9"
-       inkscape:label="to_date">
+       transform="translate(110,50)"
+       style="display:inline">
       <g
-         inkscape:label="picture"
-         id="g12-6-6-1">
+         id="g12-6-6-1"
+         inkscape:label="picture">
         <rect
-           y="10"
-           x="10"
-           height="60"
-           width="120"
-           id="rect10-7-7-2"
+           inkscape:label="background"
            style="fill:#ffffff;stroke-width:1.3838"
-           inkscape:label="background" />
+           id="rect10-7-7-2"
+           width="120"
+           height="60"
+           x="10"
+           y="10" />
         <image
-           sodipodi:absref="/home/cassio/code/calendar/benchmarks/to_date.png"
+           sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/to_date.png"
            xlink:href="to_date.png"
            inkscape:label="chart"
            style="display:inline"
@@ -91,49 +91,49 @@
            y="10" />
       </g>
       <g
-         style="display:inline"
+         id="g27-3-3-0"
          inkscape:label="caption"
-         id="g27-3-3-0">
+         style="display:inline">
         <rect
-           inkscape:label="background"
-           y="62"
-           x="20"
-           height="8"
-           width="110"
+           style="display:inline;fill:#ffffff;stroke-width:0.728722"
            id="rect30-5-5-9"
-           style="display:inline;fill:#ffffff;stroke-width:0.728722" />
+           width="110"
+           height="8"
+           x="20"
+           y="62"
+           inkscape:label="background" />
         <text
-           inkscape:label="text"
-           xml:space="preserve"
-           style="font-size:2.82222222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583;"
-           x="70.094994"
+           id="text22-6-6-3"
            y="15.144889"
-           id="text22-6-6-3"><tspan
-             sodipodi:role="line"
-             id="tspan20-2-2-6"
-             x="70.094994"
+           x="70.094994"
+           style="font-size:2.82222222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583;"
+           xml:space="preserve"
+           inkscape:label="text"><tspan
+             style="stroke-width:0.264583;font-size:2.82222222px;"
              y="15.144889"
-             style="stroke-width:0.264583;font-size:2.82222222px;">to_date</tspan></text>
+             x="70.094994"
+             id="tspan20-2-2-6"
+             sodipodi:role="line">to_date</tspan></text>
       </g>
     </g>
     <g
-       inkscape:label="to_rata_die"
-       id="g36-3-3"
+       style="display:inline"
        transform="translate(-10,50)"
-       style="display:inline">
+       id="g36-3-3"
+       inkscape:label="to_rata_die">
       <g
-         id="g12-6-6"
-         inkscape:label="picture">
+         inkscape:label="picture"
+         id="g12-6-6">
         <rect
-           inkscape:label="background"
-           style="fill:#ffffff;stroke-width:1.3838"
-           id="rect10-7-7"
-           width="120"
-           height="60"
+           y="10.000002"
            x="10"
-           y="10.000002" />
+           height="60"
+           width="120"
+           id="rect10-7-7"
+           style="fill:#ffffff;stroke-width:1.3838"
+           inkscape:label="background" />
         <image
-           sodipodi:absref="/home/cassio/code/calendar/benchmarks/to_rata_die.png"
+           sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/to_rata_die.png"
            xlink:href="to_rata_die.png"
            y="10"
            x="10"
@@ -145,49 +145,49 @@
            inkscape:label="chart" />
       </g>
       <g
-         id="g27-3-3"
+         style="display:inline"
          inkscape:label="caption"
-         style="display:inline">
+         id="g27-3-3">
         <rect
-           style="display:inline;fill:#ffffff;stroke-width:0.728722"
-           id="rect30-5-5"
-           width="110"
-           height="8"
-           x="20"
+           inkscape:label="background"
            y="62"
-           inkscape:label="background" />
+           x="20"
+           height="8"
+           width="110"
+           id="rect30-5-5"
+           style="display:inline;fill:#ffffff;stroke-width:0.728722" />
         <text
-           id="text22-6-6"
-           y="15.144887"
-           x="67.758202"
-           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+           inkscape:label="text"
            xml:space="preserve"
-           inkscape:label="text"><tspan
-             style="font-size:2.82222px;stroke-width:0.264583"
-             y="15.144887"
-             x="67.758202"
+           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+           x="67.758202"
+           y="15.144887"
+           id="text22-6-6"><tspan
+             sodipodi:role="line"
              id="tspan20-2-2"
-             sodipodi:role="line">to_rata_die</tspan></text>
+             x="67.758202"
+             y="15.144887"
+             style="font-size:2.82222px;stroke-width:0.264583">to_rata_die</tspan></text>
       </g>
     </g>
     <g
-       style="display:inline"
-       transform="translate(110,-10)"
+       inkscape:label="last_day_of_month"
        id="g36-3"
-       inkscape:label="last_day_of_month">
+       transform="translate(110,-10)"
+       style="display:inline">
       <g
-         inkscape:label="picture"
-         id="g12-6">
+         id="g12-6"
+         inkscape:label="picture">
         <rect
-           y="10"
-           x="10"
-           height="60"
-           width="120"
-           id="rect10-7"
+           inkscape:label="background"
            style="fill:#ffffff;stroke-width:1.3838"
-           inkscape:label="background" />
+           id="rect10-7"
+           width="120"
+           height="60"
+           x="10"
+           y="10" />
         <image
-           sodipodi:absref="/home/cassio/code/calendar/benchmarks/last_day_of_month.png"
+           sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/last_day_of_month.png"
            xlink:href="last_day_of_month.png"
            y="10"
            x="10"
@@ -199,48 +199,48 @@
            inkscape:label="chart" />
       </g>
       <g
-         style="display:inline"
+         id="g27-3"
          inkscape:label="caption"
-         id="g27-3">
+         style="display:inline">
         <rect
-           inkscape:label="background"
-           y="62"
-           x="20"
-           height="8"
-           width="110"
+           style="display:inline;fill:#ffffff;stroke-width:0.728722"
            id="rect30-5"
-           style="display:inline;fill:#ffffff;stroke-width:0.728722" />
+           width="110"
+           height="8"
+           x="20"
+           y="62"
+           inkscape:label="background" />
         <text
-           inkscape:label="text"
-           xml:space="preserve"
-           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
-           x="62.628822"
+           id="text22-6"
            y="15.158998"
-           id="text22-6"><tspan
-             sodipodi:role="line"
-             id="tspan20-2"
-             x="62.628822"
+           x="62.628822"
+           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+           xml:space="preserve"
+           inkscape:label="text"><tspan
+             style="font-size:2.82222px;stroke-width:0.264583"
              y="15.158998"
-             style="font-size:2.82222px;stroke-width:0.264583">last_day_of_month</tspan></text>
+             x="62.628822"
+             id="tspan20-2"
+             sodipodi:role="line">last_day_of_month</tspan></text>
       </g>
     </g>
     <g
-       transform="translate(-10,-10)"
+       id="g36"
        inkscape:label="is_leap_year"
-       id="g36">
+       transform="translate(-10,-10)">
       <g
-         id="g12"
-         inkscape:label="picture">
+         inkscape:label="picture"
+         id="g12">
         <rect
-           inkscape:label="background"
-           style="fill:#ffffff;stroke-width:1.3838"
-           id="rect10"
-           width="120"
-           height="60"
+           y="10"
            x="10"
-           y="10" />
+           height="60"
+           width="120"
+           id="rect10"
+           style="fill:#ffffff;stroke-width:1.3838"
+           inkscape:label="background" />
         <image
-           sodipodi:absref="/home/cassio/code/calendar/benchmarks/is_leap_year.png"
+           sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/is_leap_year.png"
            xlink:href="is_leap_year.png"
            y="10"
            x="10"
@@ -252,28 +252,28 @@
            inkscape:label="chart" />
       </g>
       <g
-         id="g27"
-         inkscape:label="caption">
+         inkscape:label="caption"
+         id="g27">
         <rect
-           style="display:inline;fill:#ffffff;stroke-width:0.728721"
-           id="rect30"
-           width="110"
-           height="8"
-           x="20"
+           inkscape:label="background"
            y="62"
-           inkscape:label="background" />
+           x="20"
+           height="8"
+           width="110"
+           id="rect30"
+           style="display:inline;fill:#ffffff;stroke-width:0.728721" />
         <text
-           id="text22"
-           y="15.144887"
-           x="66.908714"
-           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+           inkscape:label="text"
            xml:space="preserve"
-           inkscape:label="text"><tspan
-             style="font-size:2.82222px;stroke-width:0.264583"
-             y="15.144887"
-             x="66.908714"
+           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+           x="66.908714"
+           y="15.144887"
+           id="text22"><tspan
+             sodipodi:role="line"
              id="tspan20"
-             sodipodi:role="line">is_leap_year</tspan></text>
+             x="66.908714"
+             y="15.144887"
+             style="font-size:2.82222px;stroke-width:0.264583">is_leap_year</tspan></text>
       </g>
     </g>
   </g>

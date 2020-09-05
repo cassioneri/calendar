@@ -62,7 +62,7 @@ namespace neri {
     auto const d  = d1 - 1;
     auto const q1 = y / 100;
     auto const y0 = 1461 * y / 4 - q1 + q1 / 4;
-    auto const m0 = (979 * m - 2922) / 32;
+    auto const m0 = (979 * m - 2919) / 32;
     auto const n1 = y0 + m0 + d;
     auto const n3 = n1 - n2_e3;
     return n3;
