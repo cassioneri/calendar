@@ -66,8 +66,8 @@ namespace neri {
     auto const n2      = n + n2_e3;
     auto const p1      = 4 * n2 + 3;
     auto const q1      = p1 / 146097;
-    auto const r1      = p1 % 146097;
-    auto const p2      = r1 | 3;
+    auto const r1      = p1 % 146097 / 4;
+    auto const p2      = 4 * r1 + 3;
     auto const [q2, r] = div_1461(p2);
     auto const r2      = r / 4;
     auto const p3      = 2141 * r2 + 197657;
