@@ -47,9 +47,9 @@ struct fast_eaf_t {
 
 std::ostream& operator <<(std::ostream& os, fast_eaf_t const& eaf) {
   return os <<
-    "alpha       = " << eaf.fast.alpha  << "\n"
-    "beta        = " << eaf.fast.beta   << "\n"
-    "delta       = " << eaf.fast.delta  << "\n"
+    "alpha'      = " << eaf.fast.alpha  << "\n"
+    "beta'       = " << eaf.fast.beta   << "\n"
+    "delta'      = " << eaf.fast.delta  << "\n"
     "k           = " << eaf.k           << "\n"
     "upper bound = " << eaf.upper_bound << "\n"
     ;

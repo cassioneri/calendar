@@ -74,7 +74,7 @@ get_fast_eaf(std::int32_t k, eaf_t const& eaf) noexcept {
     }
   }();
   
-  auto first_to_break = [&](std::int64_t r) {
+  auto Nr = [&](std::int64_t r) {
     if (round_up) {
       auto const num = two_k - (f(r) + beta_prime);
       if (num <= 0) return r;
@@ -89,9 +89,9 @@ get_fast_eaf(std::int32_t k, eaf_t const& eaf) noexcept {
     }
   };
 
-  auto N = first_to_break(0);
+  auto N = Nr(0);
   for (std::int64_t r = 1; r < eaf.delta; ++r)
-    N = std::min(N, first_to_break(r));
+    N = std::min(N, Nr(r));
     
     return { { alpha_prime, beta_prime, two_k }, k, N };
 }
