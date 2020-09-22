@@ -177,30 +177,6 @@ is_multiple_of_100(T n) noexcept {
   return n % 100 == 0;
 }
 
-///TODO(CN): Update doc.
-/**
- * @brief   Calculates the quotient and remainder of the division by 1461.
- */
-std::pair<std::uint32_t, std::uint32_t> constexpr
-div_1461(std::uint32_t n) noexcept {
-    auto constexpr a = std::uint64_t(1) << 32;
-    auto constexpr b = std::uint32_t(a / 1461 + 1);
-    auto const     p = std::uint64_t(b) * n;
-    auto const     q = std::uint32_t(p / a);
-    auto const     r = std::uint32_t(p % a) / b;
-    return {q, r};
-}
-
-///TODO(CN): Update doc.
-/**
- * @brief   Calculates the quotient and remainder of the division by 1461.
- */
-template <typename T>
-std::pair<T, T> constexpr
-div_1461(T n) noexcept {
-  return {n / 1461, n % 1461};
-}
-
 /**
  * @brief   Checks whether a given year is leap or not.
  *
@@ -293,20 +269,21 @@ struct ugregorian_t {
    */
   date_t static constexpr
   to_date(rata_die_t n) noexcept {
-    auto const p1      = 4 * n + 3;
-    auto const q1      = p1 / 146097;
-    auto const r1      = p1 % 146097 / 4;
-    auto const p2      = 4 * r1 + 3;
-    auto const [q2, r] = div_1461(p2);
-    auto const r2      = r / 4;
-    auto const p3      = 2141 * r2 + 197657;
-    auto const m       = p3 / 65536;
-    auto const d       = p3 % 65536 / 2141;
-    auto const y       = 100 * q1 + q2;
-    auto const j       = r2 > 305;
-    auto const y1      = y + j;
-    auto const m1      = j ? m - 12 : m;
-    auto const d1      = d + 1;
+    auto const p1 = 4 * n + 3;
+    auto const q1 = p1 / 146097;
+    auto const r1 = p1 % 146097 / 4;
+    auto const p2 = 4 * r1 + 3;
+    auto const x2 = 2939745 * std::uint64_t(p2);
+    auto const q2 = rata_die_t(x2 >> 32);
+    auto const r2 = rata_die_t(std::uint32_t(x2) / 2939745 / 4);
+    auto const p3 = 2141 * r2 + 197913;
+    auto const m  = p3 / 65536;
+    auto const d  = p3 % 65536 / 2141;
+    auto const y  = 100 * q1 + q2;
+    auto const j  = r2 > 305;
+    auto const y1 = y + j;
+    auto const m1 = j ? m - 12 : m;
+    auto const d1 = d + 1;
     return { year_t(y1), month_t(m1), day_t(d1) };
   }
 

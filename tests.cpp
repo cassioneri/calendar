@@ -595,70 +595,94 @@ TEST(standard_compliance_tests, epoch_and_limits) {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Helper tests
+// Fast alternative tests
 //--------------------------------------------------------------------------------------------------
 
+auto constexpr p16         = std::uint32_t(1) << 16;
+auto constexpr p32         = std::uint64_t(1) << 32;
+auto constexpr month_count = [](auto n) { return (153 * n - 457) / 5; };
+auto constexpr month       = [](auto n) { return (5 * n + 461) / 153; };
+
 /**
- * Tests an alternative implementation of divisibility by 100.
+ * Tests fast month count. (Rounding up.)
  */
-TEST(helper_tests, is_multiple_of_100) {
-  for (std::int32_t n = -536870800; n <= 536870999; ++n)
-    ASSERT_EQ(n % 100 == 0, is_multiple_of_100(n)) << "Failed for n = " << n;
+TEST(fast, month_count_rounding_up) {
+  
+  auto constexpr month_count_fast = [](auto n) { return (980 * n - 2928) / 32; };
+  
+  auto constexpr N = std::uint32_t(12);
+  for (std::uint32_t n = 3; n < N; ++n)
+    ASSERT_EQ(month_count(n), month_count_fast(n)) << "Failed for n = " << n;
+  ASSERT_NE  (month_count(N), month_count_fast(N)) << "Upper bound is not sharp.";
 }
 
 /**
- * Tests an alternative implementation of division and remainder by 1461.
+ * Tests fast month count. (Rounding down.)
  */
-TEST(helper_tests, div_1461) {
-  for (std::uint32_t n = 0; n < 36529; ++n) { // 36528 = 146096 / 4 + 3
-    auto [q, r] = div_1461(n);
+TEST(fast, month_count_rounding_down) {
+  
+  auto constexpr month_count_fast = [](auto n) { return (979 * n - 2919) / 32; };
+  
+  auto constexpr N = std::uint32_t(34);
+  for (std::uint32_t n = 3; n < N; ++n)
+    ASSERT_EQ(month_count(n), month_count_fast(n)) << "Failed for n = " << n;
+  ASSERT_NE  (month_count(N), month_count_fast(N)) << "Upper bound is not sharp.";
+}
+
+/**
+ * Tests fast month. (Rounding up.)
+ */
+TEST(fast, month_rounding_up) {
+ 
+  auto constexpr month_fast = [](auto n) { return (2142 * n + 197428) / p16; };
+  auto constexpr day_fast   = [](auto n) { return (2142 * n + 197428) % p16 / 2142; };
+
+  auto constexpr N   = std::uint32_t(1560);
+  for (std::uint32_t n = 0; n < N; ++n) {
+    ASSERT_EQ(month(n), month_fast(n)) << "Failed for n = " << n;
+    ASSERT_EQ(n - month_count(month(n)), day_fast(n)) << "Failed for n = " << n;
+  }
+  ASSERT_NE  (month(N), month_fast(N)) << "Upper bound is not sharp.";
+}
+
+/**
+ * Tests fast residual for month. (Rounding down.)
+ */
+TEST(fast, month_rounding_down) {
+  
+  auto constexpr month_fast = [](auto n) { return (2141 * n + 197913) / p16; };
+  auto constexpr day_fast   = [](auto n) { return (2141 * n + 197913) % p16 / 2142; };
+
+  auto constexpr N   = std::uint32_t(734);
+  for (std::uint32_t n = 0; n < N; ++n) {
+    ASSERT_EQ(month(n), month_fast(n)) << "Failed for n = " << n;
+    ASSERT_EQ(n - month_count(month(n)), day_fast(n)) << "Failed for n = " << n;
+  }
+  ASSERT_NE  (month(N), month_fast(N)) << "Upper bound is not sharp.";
+}
+
+/**
+ * Tests fast division by 1461.
+ */
+TEST(fast, division_by_1461) {
+  auto constexpr N = std::uint32_t(28825529);
+  for (std::uint32_t n = 0; n < N; ++n) {
+    auto const x = 2939745 * std::uint64_t(n);
+    auto const q = x / p32;
+    auto const r = x % p32 / 2939745;
     ASSERT_EQ(q, n / 1461) << "Failed for n = " << n;
     ASSERT_EQ(r, n % 1461) << "Failed for n = " << n;
   }
+  ASSERT_NE(N / 1461, 2939745 * N / p32) << "Upper bound is not sharp.";
+  ASSERT_NE(N % 1461, 2939745 * N % p32) << "Upper bound is not sharp.";
 }
 
 /**
- * Tests fast EAF for month count.
+ * Tests fast is divisibility by 100.
  */
-TEST(helper_tests, month_count) {
-    auto constexpr m0      = [](month_t m) { return (153 * (m - 3) + 2) / 5; };
-    auto constexpr m0_fast = [](month_t m) { return (979 * m - 2919) / 32; };
-    ASSERT_EQ(m0_fast( 3), m0( 3));
-    ASSERT_EQ(m0_fast( 4), m0( 4));
-    ASSERT_EQ(m0_fast( 5), m0( 5));
-    ASSERT_EQ(m0_fast( 6), m0( 6));
-    ASSERT_EQ(m0_fast( 7), m0( 7));
-    ASSERT_EQ(m0_fast( 8), m0( 8));
-    ASSERT_EQ(m0_fast( 9), m0( 9));
-    ASSERT_EQ(m0_fast(10), m0(10));
-    ASSERT_EQ(m0_fast(11), m0(11));
-    ASSERT_EQ(m0_fast(12), m0(12));
-    ASSERT_EQ(m0_fast(13), m0(13));
-    ASSERT_EQ(m0_fast(14), m0(14));
-}
-
-TEST(helper_tests, month) {
-
-  auto constexpr m0 = [](rata_die_t x) { return (979 * x - 2919) / 32; };
-  auto constexpr m  = [](rata_die_t r) { return 2141 * r + 197657; };
-
-  #define MONTH_TEST(x)                                                  \
-    static_assert(!enable_static_asserts || m(m0(x)) / 65536 == x);      \
-    static_assert(!enable_static_asserts || m(m0(x) - 1) / 65536 == x - 1)
-  MONTH_TEST( 3);
-  MONTH_TEST( 4);
-  MONTH_TEST( 5);
-  MONTH_TEST( 6);
-  MONTH_TEST( 7);
-  MONTH_TEST( 8);
-  MONTH_TEST( 9);
-  MONTH_TEST(10);
-  MONTH_TEST(11);
-  MONTH_TEST(12);
-  MONTH_TEST(13);
-  MONTH_TEST(14);
-  MONTH_TEST(15);
-  #undef MONTH_TEST
+TEST(fast, is_multiple_of_100) {
+  for (std::int32_t n = -536870800; n <= 536870999; ++n)
+    ASSERT_EQ(n % 100 == 0, is_multiple_of_100(n)) << "Failed for n = " << n;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -29,8 +29,8 @@ Boost and 1.1x faster than LLVM.
 Reingold, 2.1x faster than glibc, 2.4x faster than Hatcher, 1.8x faster than .NET, 1.7x faster than
 Boost, 1.7x faster than LLVM and 1.6x faster than Baum.
 
-[to_date](https://quick-bench.com/q/3JxAUlfgXygelQiZYiPP4ulkKbU): Neri is 6.8x faster than 
-Reingold, 6.2x faster than glibc, 3.5x faster than .NET, 2.9x faster than Hatcher, 2.6x faster than 
+[to_date](https://quick-bench.com/q/ck-o5KEYmEg6AAZeh4HJi8JXEgU): Neri is 6.8x faster than 
+Reingold, 6.2x faster than glibc, 3.5x faster than .NET, 2.8x faster than Hatcher, 2.6x faster than 
 Boost, 2.2x faster than LLVM and 1.5x faster than Baum.
 
 **Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They might have been
