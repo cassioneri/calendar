@@ -2,7 +2,7 @@
  *
  * is_leap_year benchmarks
  *
- * Copyright (C) 2020 Cassio Neri
+ * Copyright (C) 2020 Cassio Neri and Lorenz Schneider
  *
  * This file is part of https://github.com/cassioneri/calendar.
  *
@@ -16,8 +16,7 @@
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * this file. If not,
- * see <https://www.gnu.org/licenses/>.
+ * this file. If not, see <https://www.gnu.org/licenses/>.
  *
  ******************************************************************************/
 
@@ -34,7 +33,7 @@ using year_t = std::int16_t; // as in std::chrono::year
 // Implementations
 //------------------------------------------------------------------------------
 
-namespace neri {
+namespace neri_schneider {
 
   // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
@@ -57,7 +56,7 @@ namespace neri {
     return (!is_multiple_of_100(year) || year % 16 == 0) & (year % 4 == 0);
   }
 
-} // namespace neri
+} // namespace neri_schneider
 
 namespace ubiquitous {
 
@@ -95,22 +94,22 @@ void Ubiquitous(benchmark::State& state) {
 }
 BENCHMARK(Ubiquitous);
 
-void Neri_mod(benchmark::State& state) {
+void NeriSchhneider_mod(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& year : years) {
-      auto b = neri::is_leap_year_mod(year);
+      auto b = neri_schneider::is_leap_year_mod(year);
       benchmark::DoNotOptimize(b);
     }
   }
 }
-BENCHMARK(Neri_mod);
+BENCHMARK(NeriSchhneider_mod);
 
-void Neri_mcomp(benchmark::State& state) {
+void NeriSchneider_mcomp(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& year : years) {
-      auto b = neri::is_leap_year_mcomp(year);
+      auto b = neri_schneider::is_leap_year_mcomp(year);
       benchmark::DoNotOptimize(b);
     }
   }
 }
-BENCHMARK(Neri_mcomp);
+BENCHMARK(NeriSchneider_mcomp);

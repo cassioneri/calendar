@@ -2,7 +2,7 @@
  *
  * to_rata_die benchmarks
  *
- * Copyright (C) 2020 Cassio Neri
+ * Copyright (C) 2020 Cassio Neri and Lorenz Schneider
  *
  * This file is part of https://github.com/cassioneri/calendar.
  *
@@ -16,8 +16,7 @@
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * this file. If not,
- * see <https://www.gnu.org/licenses/>.
+ * this file. If not, see <https://www.gnu.org/licenses/>.
  *
  ******************************************************************************/
 
@@ -44,31 +43,37 @@ struct date_t {
   day_t   day;
 };
 
-namespace neri {
+namespace neri_schneider {
 
   // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
   rata_die_t constexpr
-  to_rata_die(date_t const& u) noexcept {
+  to_rata_die(date_t const& u2) noexcept {
+    
     using rata_die_t     = std::make_unsigned_t<::rata_die_t>;
     auto constexpr z2    = rata_die_t(-1468000);
     auto constexpr n2_e3 = rata_die_t(536895458);
-    auto const y1 = rata_die_t(u.year) - z2;
-    auto const m1 = rata_die_t(u.month);
-    auto const d1 = rata_die_t(u.day);
-    auto const j  = rata_die_t(m1 < 3);
-    auto const y  = y1 - j;
-    auto const m  = j ? m1 + 12 : m1;
-    auto const d  = d1 - 1;
-    auto const q1 = y / 100;
-    auto const y0 = 1461 * y / 4 - q1 + q1 / 4;
-    auto const m0 = (979 * m - 2919) / 32;
-    auto const n1 = y0 + m0 + d;
-    auto const n3 = n1 - n2_e3;
+    
+    auto const     y1    = rata_die_t(u2.year) - z2;
+    auto const     m1    = rata_die_t(u2.month);
+    auto const     d1    = rata_die_t(u2.day);
+    
+    auto const     j     = rata_die_t(m1 < 3);
+    auto const     y     = y1 - j;
+    auto const     m     = j ? m1 + 12 : m1;
+    auto const     d     = d1 - 1;
+    
+    auto const     q1    = y / 100;
+    auto const     yc    = 1461 * y / 4 - q1 + q1 / 4;
+    auto const     mc    = (979 * m - 2922) / 32;
+    auto const     dc    = d;
+    
+    auto const     n3    = yc + mc + dc - n2_e3;
+    
     return n3;
   }
 
-} // namespace neri
+} // namespace neri_schneider
 
 namespace baum {
 
@@ -319,7 +324,7 @@ namespace llvm {
 
 } // namespace llvm
 
-namespace reingold {
+namespace reingold_dershowitz {
 
   // E. M. Reingold and N. Dershowitz, Calendrical Calculations, The Ultimate Edition, Cambridge
   // University Press, 2018.
@@ -353,32 +358,45 @@ namespace reingold {
     return n - 719163; // adjusted to unix epoch
   }
 
-} // namespace reingold
+} // namespace reingold_dershowitz
 
 //------------------------------------------------------------------------------
 // Benchmark data
 //------------------------------------------------------------------------------
 
 date_t constexpr
-to_date(rata_die_t n) noexcept {
+to_date(rata_die_t n3) noexcept {
+
   using rata_die_t     = std::make_unsigned_t<::rata_die_t>;
   auto constexpr z2    = rata_die_t(-1468000);
   auto constexpr n2_e3 = rata_die_t(536895458);
-  auto const n2      = n + n2_e3;
-  auto const p1      = 4 * n2 + 3;
-  auto const q1      = p1 / 146097;
-  auto const r1      = p1 % 146097;
-  auto const p2      = r1 | 3;
-  auto const q2      = p2 / 1461;
-  auto const r2      = p2 % 1461 / 4;
-  auto const p3      = 2141 * r2 + 197657;
-  auto const m       = p3 / 65536;
-  auto const d       = p3 % 65536 / 2141;
-  auto const y       = 100 * q1 + q2;
-  auto const j       = r2 > 305;
-  auto const y1      = y + j;
-  auto const m1      = j ? m - 12 : m;
-  auto const d1      = d + 1;
+
+  auto const     n0    = n3 + n2_e3;
+  
+  auto const     p1    = 4 * n0 + 3;
+  auto const     q1    = p1 / 146097;
+  auto const     r1    = p1 % 146097 / 4;
+  
+  auto constexpr p32   = std::uint64_t(1) << 32;
+  auto const     p2    = 4 * r1 + 3;
+  auto const     x2    = std::uint64_t(2939745) * p2;
+  auto const     q2    = rata_die_t(x2 / p32);
+  auto const     r2    = rata_die_t(x2 % p32 / 2939745 / 4);
+  
+  auto constexpr p16   = std::uint32_t(1) << 16;
+  auto const     p3    = 2141 * r2 + 197657;
+  auto const     q3    = p3 / p16;
+  auto const     r3    = p3 % p16 / 2141;
+  
+  auto const     y     = 100 * q1 + q2;
+  auto const     m     = q3;
+  auto const     d     = r3;
+  
+  auto const     j     = r2 > 305;
+  auto const     y1    = y + j;
+  auto const     m1    = j ? m - 12 : m;
+  auto const     d1    = d + 1;
+  
   return { year_t(y1 + z2), month_t(m1), day_t(d1) };
 }
 
@@ -395,15 +413,15 @@ auto const dates = [](){
 // Benchmark
 //------------------------------------------------------------------------------
 
-void Reingold(benchmark::State& state) {
+void ReingoldDershowitz(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& u : dates) {
-      auto n = reingold::to_rata_die(u);
+      auto n = reingold_dershowitz::to_rata_die(u);
       benchmark::DoNotOptimize(n);
     }
   }
 }
-BENCHMARK(Reingold);
+BENCHMARK(ReingoldDershowitz);
 
 void GLIBC(benchmark::State& state) {
   for (auto _ : state) {
@@ -465,12 +483,12 @@ void Baum(benchmark::State& state) {
 }
 BENCHMARK(Baum);
 
-void Neri(benchmark::State& state) {
+void NeriSchneider(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& u : dates) {
-      auto n = neri::to_rata_die(u);
+      auto n = neri_schneider::to_rata_die(u);
       benchmark::DoNotOptimize(n);
     }
   }
 }
-BENCHMARK(Neri);
+BENCHMARK(NeriSchneider);

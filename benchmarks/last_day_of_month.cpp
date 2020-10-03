@@ -2,7 +2,7 @@
  *
  * las_day_of_month benchmarks
  *
- * Copyright (C) 2020 Cassio Neri
+ * Copyright (C) 2020 Cassio Neri and Lorenz Schneider
  *
  * This file is part of https://github.com/cassioneri/calendar.
  *
@@ -16,8 +16,7 @@
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * this file. If not,
- * see <https://www.gnu.org/licenses/>.
+ * this file. If not, see <https://www.gnu.org/licenses/>.
  *
  ******************************************************************************/
 
@@ -36,7 +35,7 @@ using day_t   = std::uint8_t; // as in std::chrono::day
 // Implementations
 //------------------------------------------------------------------------------
 
-namespace neri {
+namespace neri_schneider {
 
   // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
@@ -60,7 +59,7 @@ namespace neri {
       is_leap_year(year) ? 29 : 28;
   }
 
-} // namespace neri
+} // namespace neri_schneider
 
 namespace boost {
 
@@ -189,12 +188,12 @@ void LLVM(benchmark::State& state) {
 }
 BENCHMARK(LLVM);
 
-void Neri(benchmark::State& state) {
+void NeriSchhneider(benchmark::State& state) {
   for (auto _ : state) {
     for (std::int32_t i = 0; i < 16384; ++i) {
-      auto day = neri::last_day_of_month(years[i], months[i]);
+      auto day = neri_schneider::last_day_of_month(years[i], months[i]);
       benchmark::DoNotOptimize(day);
     }
   }
 }
-BENCHMARK(Neri);
+BENCHMARK(NeriSchhneider);

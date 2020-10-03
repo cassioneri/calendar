@@ -2,7 +2,7 @@
  *
  * to_date benchmarks
  *
- * Copyright (C) 2020 Cassio Neri
+ * Copyright (C) 2020 Cassio Neri and Lorenz Schneider
  *
  * This file is part of https://github.com/cassioneri/calendar.
  *
@@ -16,8 +16,7 @@
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * this file. If not,
- * see <https://www.gnu.org/licenses/>.
+ * this file. If not, see <https://www.gnu.org/licenses/>.
  *
  ******************************************************************************/
 
@@ -44,37 +43,47 @@ struct date_t {
   day_t   day;
 };
 
-namespace neri {
+namespace neri_schneider {
 
   // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
   date_t constexpr
-  to_date(rata_die_t n) noexcept {
+  to_date(rata_die_t n3) noexcept {
   
     using rata_die_t     = std::make_unsigned_t<::rata_die_t>;
     auto constexpr z2    = rata_die_t(-1468000);
     auto constexpr n2_e3 = rata_die_t(536895458);
 
-    auto const n2 = n + n2_e3;
-    auto const p1 = 4 * n2 + 3;
-    auto const q1 = p1 / 146097;
-    auto const r1 = p1 % 146097 / 4;
-    auto const p2 = 4 * r1 + 3;
-    auto const x2 = 2939745 * std::uint64_t(p2);
-    auto const q2 = rata_die_t(x2 >> 32);
-    auto const r2 = rata_die_t(std::uint32_t(x2) / 2939745 / 4);
-    auto const p3 = 2141 * r2 + 197657;
-    auto const m  = p3 / 65536;
-    auto const d  = p3 % 65536 / 2141;
-    auto const y  = 100 * q1 + q2;
-    auto const j  = r2 > 305;
-    auto const y1 = y + j;
-    auto const m1 = j ? m - 12 : m;
-    auto const d1 = d + 1;
+    auto const     n0    = n3 + n2_e3;
+    
+    auto const     p1    = 4 * n0 + 3;
+    auto const     q1    = p1 / 146097;
+    auto const     r1    = p1 % 146097 / 4;
+    
+    auto constexpr p32   = std::uint64_t(1) << 32;
+    auto const     p2    = 4 * r1 + 3;
+    auto const     x2    = std::uint64_t(2939745) * p2;
+    auto const     q2    = rata_die_t(x2 / p32);
+    auto const     r2    = rata_die_t(x2 % p32 / 2939745 / 4);
+    
+    auto constexpr p16   = std::uint32_t(1) << 16;
+    auto const     p3    = 2141 * r2 + 197657;
+    auto const     q3    = p3 / p16;
+    auto const     r3    = p3 % p16 / 2141;
+    
+    auto const     y     = 100 * q1 + q2;
+    auto const     m     = q3;
+    auto const     d     = r3;
+    
+    auto const     j     = r2 > 305;
+    auto const     y1    = y + j;
+    auto const     m1    = j ? m - 12 : m;
+    auto const     d1    = d + 1;
+    
     return { year_t(y1 + z2), month_t(m1), day_t(d1) };
   }
 
-} // namespace neri
+} // namespace neri_schneider
 
 namespace baum {
 
@@ -342,7 +351,7 @@ namespace llvm {
 
 } // namespace llvm
 
-namespace reingold {
+namespace reingold_dershowitz {
 
   // E. M. Reingold and N. Dershowitz, Calendrical Calculations, The Ultimate Edition, Cambridge
   // University Press, 2018.
@@ -415,7 +424,7 @@ namespace reingold {
     return { year_t(year), month_t(month), day_t(day) };
   }
 
-} // namespace reingold
+} // namespace reingold_dershowitz
 
 //------------------------------------------------------------------------------
 // Benchmark data
@@ -434,15 +443,15 @@ auto const rata_dies = [](){
 // Benchmark
 //------------------------------------------------------------------------------
 
-void Reingold(benchmark::State& state) {
+void ReingoldDershowitz(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const n : rata_dies) {
-      auto u = reingold::to_date(n);
+      auto u = reingold_dershowitz::to_date(n);
       benchmark::DoNotOptimize(u);
     }
   }
 }
-BENCHMARK(Reingold);
+BENCHMARK(ReingoldDershowitz);
 
 void GLIBC(benchmark::State& state) {
   for (auto _ : state) {
@@ -504,12 +513,12 @@ void Baum(benchmark::State& state) {
 }
 BENCHMARK(Baum);
 
-void Neri(benchmark::State& state) {
+void NeriSchneider(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const n : rata_dies) {
-      auto u = neri::to_date(n);
+      auto u = neri_schneider::to_date(n);
       benchmark::DoNotOptimize(u);
     }
   }
 }
-BENCHMARK(Neri);
+BENCHMARK(NeriSchneider);

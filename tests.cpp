@@ -1,6 +1,6 @@
 /***************************************************************************************************
  *
- * Copyright (C) 2020 Cassio Neri
+ * Copyright (C) 2020 Cassio Neri and Lorenz Schneider
  *
  * This file is part of https://github.com/cassioneri/calendar.
  *

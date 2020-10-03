@@ -1,6 +1,6 @@
 /***************************************************************************************************
  *
- * Copyright (C) 2020 Cassio Neri
+ * Copyright (C) 2020 Cassio Neri and Lorenz Schneider
  *
  * This file is part of https://github.com/cassioneri/calendar.
  *
@@ -242,48 +242,64 @@ struct ugregorian_t {
   /**
    * @brief Returns the rata die corresponding to a given date.
    *
-   * @param u         The given date.
+   * @param u1        The given date.
    * @pre             date_min <= u && u <= date_max
    */
   rata_die_t static constexpr
-  to_rata_die(date_t const& u) noexcept {
-    auto const y1 = rata_die_t(u.year);
-    auto const m1 = rata_die_t(u.month);
-    auto const d1 = rata_die_t(u.day);
+  to_rata_die(date_t const& u1) noexcept {
+    
+    auto const y1 = rata_die_t(u1.year);
+    auto const m1 = rata_die_t(u1.month);
+    auto const d1 = rata_die_t(u1.day);
+    
     auto const j  = rata_die_t(m1 < 3);
     auto const y  = y1 - j;
     auto const m  = j ? m1 + 12 : m1;
     auto const d  = d1 - 1;
+    
     auto const q1 = y / 100;
-    auto const y0 = 1461 * y / 4 - q1 + q1 / 4;
-    auto const m0 = (979 * m - 2919) / 32;
-    auto const n1 = y0 + m0 + d;
-    return n1;
+    auto const yc = 1461 * y / 4 - q1 + q1 / 4;
+    auto const mc = (979 * m - 2922) / 32;
+    auto const dc = d;
+    
+    auto const n0 = yc + mc + dc;
+    
+    return n0;
   }
 
   /**
    * @brief Returns the date corresponding to a given rata die.
    *
-   * @param n         The given rata_die.
+   * @param n0        The given rata_die.
    * @pre             rata_die_min <= n && n <= rata_die_max
    */
   date_t static constexpr
-  to_date(rata_die_t n) noexcept {
-    auto const p1 = 4 * n + 3;
-    auto const q1 = p1 / 146097;
-    auto const r1 = p1 % 146097 / 4;
-    auto const p2 = 4 * r1 + 3;
-    auto const x2 = 2939745 * std::uint64_t(p2);
-    auto const q2 = rata_die_t(x2 >> 32);
-    auto const r2 = rata_die_t(std::uint32_t(x2) / 2939745 / 4);
-    auto const p3 = 2141 * r2 + 197913;
-    auto const m  = p3 / 65536;
-    auto const d  = p3 % 65536 / 2141;
-    auto const y  = 100 * q1 + q2;
-    auto const j  = r2 > 305;
-    auto const y1 = y + j;
-    auto const m1 = j ? m - 12 : m;
-    auto const d1 = d + 1;
+  to_date(rata_die_t n0) noexcept {
+    
+    auto const     p1  = 4 * n0 + 3;
+    auto const     q1  = p1 / 146097;
+    auto const     n1  = p1 % 146097 / 4;
+    
+    auto constexpr p32 = std::uint64_t(1) << 32;
+    auto const     p2  = 4 * n1 + 3;
+    auto const     x2  = std::uint64_t(2939745) * p2;
+    auto const     q2  = rata_die_t(x2 / p32);
+    auto const     n2  = rata_die_t(x2 % p32 / 2939745 / 4);
+    
+    auto constexpr p16 = std::uint32_t(1) << 16;
+    auto const     p3  = 2141 * n2 + 197913;
+    auto const     q3  = p3 / p16;
+    auto const     n3  = p3 % p16 / 2141;
+    
+    auto const     y   = 100 * q1 + q2;
+    auto const     m   = q3;
+    auto const     d   = n3;
+    
+    auto const     j   = n2 > 305;
+    auto const     y1  = y + j;
+    auto const     m1  = j ? m - 12 : m;
+    auto const     d1  = d + 1;
+
     return { year_t(y1), month_t(m1), day_t(d1) };
   }
 
@@ -296,9 +312,11 @@ struct ugregorian_t {
   * @brief  Maximum date allowed as input to to_rata_die.
   */
   date_t static constexpr date_max = []{
+    
     auto constexpr y = max<rata_die_t> / 1461;
     if (max<year_t> <= y)
       return max<date_t>;
+    
     return date_t{year_t(y + 1), month_t(2), day_t(28 + is_leap_year(y + 1))};
   }();
 
@@ -425,6 +443,7 @@ private:
     auto constexpr t     = ugregorian_t::rata_die_max / 146097 / 2;
     auto constexpr z2    = 400 * (q - t);
     auto constexpr n2_e3 = 146097 * t + n;
+
     return offset_t{z2, n2_e3};
   }();
 
@@ -473,23 +492,23 @@ public:
   /**
    * @brief Returns the rata die corresponding to a given date.
    *
-   * @param u         The given date.
+   * @param u2        The given date.
    * @pre             date_min <= u && u <= date_max
    */
   rata_die_t static constexpr
-  to_rata_die(date_t const& u) noexcept {
-    return from_urata_die(ugregorian_t::to_rata_die(to_udate(u)));
+  to_rata_die(date_t const& u2) noexcept {
+    return from_urata_die(ugregorian_t::to_rata_die(to_udate(u2)));
   }
 
   /**
    * @brief Returns the date corresponding to a given rata die.
    *
-   * @param n         The given rata die.
+   * @param n3        The given rata die.
    * @pre             rata_die_min <= n && n <= rata_die_max
    */
   date_t static constexpr
-  to_date(rata_die_t n) noexcept {
-    return from_udate(ugregorian_t::to_date(to_urata_die(n)));
+  to_date(rata_die_t n3) noexcept {
+    return from_udate(ugregorian_t::to_date(to_urata_die(n3)));
   }
 
  /**

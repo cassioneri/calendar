@@ -18,20 +18,20 @@ implementations perform considerably faster than others.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
-[is_leap_year](https://quick-bench.com/q/xRcTxzWT5-GKQ-j0GCH4hfaufUg): Neri_mcomp is 3.1x faster 
-than Ubiquitous (the implementation used virtually everywhere.) Neri_mod is 1.9x faster than 
-Ubiquitous.
+[is_leap_year](https://quick-bench.com/q/LkglLY6ZjuM9DWup8zg7Ux7iDms): NeriSchneider_mcomp is 3.1x 
+faster than Ubiquitous (the implementation used virtually everywhere.) NeriSchneider_mod is 1.8x 
+faster than Ubiquitous.
 
-[last_day_of_month](https://quick-bench.com/q/tQELbu-usMTN9C73WDPbqbYSo2Q): Neri is 3x faster than
-Boost and 1.1x faster than LLVM.
+[last_day_of_month](https://quick-bench.com/q/JmktYBOCtTRcCTmEe4rih--zHMU): NeriSchneider is 3.2x 
+faster than Boost and 1.2x faster than LLVM.
 
-[to_rata_die](https://quick-bench.com/q/FnmQdcdN39otA7rUAC3hgRSn-Pg): Neri is 3.3x faster than
-Reingold, 2.1x faster than glibc, 2.4x faster than Hatcher, 1.8x faster than .NET, 1.7x faster than
-Boost, 1.7x faster than LLVM and 1.6x faster than Baum.
+[to_rata_die](https://quick-bench.com/q/iNYWoZ5tpAG7ABKwC12HYt73gj4): NeriSchneider is 3.3x faster 
+than ReingoldDershowitz, 2x faster than glibc, 2.4x faster than Hatcher, 1.7x faster than .NET, 
+1.7x faster than Boost, 1.7x faster than LLVM and 1.6x faster than Baum.
 
-[to_date](https://quick-bench.com/q/ck-o5KEYmEg6AAZeh4HJi8JXEgU): Neri is 6.8x faster than 
-Reingold, 6.2x faster than glibc, 3.5x faster than .NET, 2.8x faster than Hatcher, 2.6x faster than 
-Boost, 2.2x faster than LLVM and 1.5x faster than Baum.
+[to_date](https://quick-bench.com/q/1CtsPG2PezOfmHplhm_DgTSo5-g): NeriSchneider is 6.7x faster than 
+ReingoldDershowitz, 6.2x faster than glibc, 3.4x faster than .NET, 2.8x faster than Hatcher, 2.6x 
+faster than Boost, 2.2x faster than LLVM and 1.5x faster than Baum.
 
 **Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They might have been
 slightly edited to get: (a) consistent function signatures; (b) storage types (for years, months,
@@ -82,7 +82,7 @@ corresponding function in `ugregorian_t`.
 
 ## Contents
 
-1. `calendar.hpp`: Implementations.
-2. `tests.cpp`   : Tests. (Including exhaustive full-range round-trips taking around 30s to complete
-on commodity hardware.)
-3. `search.cpp`  : Helper program that was used to find some coefficients used by the algorithms.
+1. `calendar.hpp` : Implementations.
+2. `tests.cpp`    : Tests.
+3. `fast_eaf.cpp` : Fast EAF algorithms.
+4. `troesch.cpp`  : Coefficients search algorithm by Albert Troesch.
