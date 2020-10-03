@@ -24,18 +24,18 @@
 #include <random>
 #include <type_traits>
 
-//------------------------------------------------------------------------------
+//----------------------------
 // Config
-//------------------------------------------------------------------------------
+//----------------------------
 
 using year_t     = std::int16_t; // as in std::chrono::year
 using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t; // as in std::chrono::days
 
-//------------------------------------------------------------------------------
+//----------------------------
 // Implementations
-//------------------------------------------------------------------------------
+//----------------------------
 
 struct date_t {
   year_t  year;
@@ -220,6 +220,26 @@ namespace dotnet {
   }
 
 } // namespace dotnet
+
+namespace fliegel_flandern {
+
+  date_t static constexpr
+  to_date(rata_die_t n) noexcept {
+    auto const JD = n + 2440588; // adjusted to unix epoch
+    auto       L  = JD + 68569;
+    auto const N  = 4 * L / 146097;
+               L  = L - (146097 * N + 3) / 4;
+    auto       I  = 4000 * (L + 1) / 1461001;
+               L  = L - 1461 * I / 4 + 31;
+    auto       J  = 80 * L / 2447;
+    auto const K  = L - 2447 * J / 80;
+               L  = J / 11;
+               J  = J + 2 - 12 * L;
+               I  = 100 * (N - 49) + I + L;
+    return { year_t(I), month_t(J), day_t(K) };
+  }
+  
+} // namespace fliegel_flandern
 
 namespace glibc {
 
@@ -426,9 +446,9 @@ namespace reingold_dershowitz {
 
 } // namespace reingold_dershowitz
 
-//------------------------------------------------------------------------------
+//----------------------------
 // Benchmark data
-//------------------------------------------------------------------------------
+//----------------------------
 
 auto const rata_dies = [](){
   std::uniform_int_distribution<rata_die_t> uniform_dist(-146097, 146096);
@@ -439,9 +459,9 @@ auto const rata_dies = [](){
   return rata_dies;
 }();
 
-//------------------------------------------------------------------------------
+//----------------------------
 // Benchmark
-//------------------------------------------------------------------------------
+//----------------------------
 
 void ReingoldDershowitz(benchmark::State& state) {
   for (auto _ : state) {
@@ -482,6 +502,16 @@ void Hatcher(benchmark::State& state) {
   }
 }
 BENCHMARK(Hatcher);
+
+void FliegelFlandern(benchmark::State& state) {
+  for (auto _ : state) {
+    for (auto const n : rata_dies) {
+      auto u = fliegel_flandern::to_date(n);
+      benchmark::DoNotOptimize(u);
+    }
+  }
+}
+BENCHMARK(FliegelFlandern);
 
 void Boost(benchmark::State& state) {
   for (auto _ : state) {

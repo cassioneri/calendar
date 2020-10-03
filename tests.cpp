@@ -201,6 +201,53 @@ struct dotnet : other_base {
 
 }; // struct dotnet
 
+struct fliegel_flandern : other_base {
+  
+  date_t     static constexpr epoch              = unix_epoch<year_t>;
+
+  date_t     static constexpr date_min           = date_t{-4800, 3, 1};
+  date_t     static constexpr date_max           = max<date_t>;
+  rata_die_t static constexpr rata_die_min       = -2509157;
+  rata_die_t static constexpr rata_die_max       = 11248737;
+
+  date_t     static constexpr round_date_min     = date_t{-4800, 3, 1};
+  date_t     static constexpr round_date_max     = max<date_t>;
+  rata_die_t static constexpr round_rata_die_min = -2472632;
+  rata_die_t static constexpr round_rata_die_max = 11248737;
+
+  // Henry F. Fliegel and Thomas C. Van Flandern, A Machine Algorithm for Processing Calendar Dates
+  // Communications of the ACM, Vol. 11, No. 10 (1968), p657.
+
+  rata_die_t static constexpr
+  to_rata_die(const date_t& u) noexcept {
+    auto const I  = rata_die_t(u.year);
+    auto const J  = rata_die_t(u.month);
+    auto const K  = rata_die_t(u.day);
+    auto const JD = K - 32075 + 1461 * (I + 4800 + (J - 14) / 12) / 4
+      + 367 * (J - 2 - (J - 14) / 12 * 12) / 12 - 3
+      * ((I + 4900 + (J - 14) / 12) / 100) / 4;
+    return JD - 2440588; // adjusted to unix epoch
+  }
+
+  date_t static constexpr
+  to_date(rata_die_t n) noexcept {
+    auto const JD = n + 2440588; // adjusted to unix epoch
+    auto       L  = JD + 68569;
+    auto const N  = 4 * L / 146097;
+               L  = L - (146097 * N + 3) / 4;
+    auto       I  = 4000 * (L + 1) / 1461001;
+               L  = L - 1461 * I / 4 + 31;
+    auto       J  = 80 * L / 2447;
+    auto const K  = L - 2447 * J / 80;
+               L  = J / 11;
+               J  = J + 2 - 12 * L;
+               I  = 100 * (N - 49) + I + L;
+    return { year_t(I), month_t(J), day_t(K) };
+  }
+  
+}; // struct fliegel_flandern
+
+
 struct glibc : other_base {
 
   // Code of this stuct is subject to the following terms.
@@ -699,6 +746,7 @@ using implementations = ::testing::Types<
 
   baum,
   dotnet,
+  fliegel_flandern,
   glibc,
   hatcher,
   reingold,

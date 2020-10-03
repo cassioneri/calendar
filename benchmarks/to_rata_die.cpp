@@ -24,18 +24,18 @@
 #include <random>
 #include <type_traits>
 
-//------------------------------------------------------------------------------
+//----------------------------
 // Config
-//------------------------------------------------------------------------------
+//----------------------------
 
 using year_t     = std::int16_t; // as in std::chrono::year
 using month_t    = std::uint8_t; // as in std::chrono::month
 using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t; // as in std::chrono::days
 
-//------------------------------------------------------------------------------
+//----------------------------
 // Implementations
-//------------------------------------------------------------------------------
+//----------------------------
 
 struct date_t {
   year_t  year;
@@ -184,6 +184,21 @@ namespace dotnet {
   }
 
 } // namespace dotnet
+
+namespace fliegel_flandern {
+  
+  rata_die_t static constexpr
+  to_rata_die(const date_t& u) noexcept {
+    auto const I  = rata_die_t(u.year);
+    auto const J  = rata_die_t(u.month);
+    auto const K  = rata_die_t(u.day);
+    auto const JD = K - 32075 + 1461 * (I + 4800 + (J - 14) / 12) / 4
+      + 367 * (J - 2 - (J - 14) / 12 * 12) / 12 - 3
+      * ((I + 4900 + (J - 14) / 12) / 100) / 4;
+    return JD - 2440588; // adjusted to unix epoch
+  }
+
+} // namespace fliegel_flandern
 
 namespace glibc {
 
@@ -360,9 +375,9 @@ namespace reingold_dershowitz {
 
 } // namespace reingold_dershowitz
 
-//------------------------------------------------------------------------------
+//----------------------------
 // Benchmark data
-//------------------------------------------------------------------------------
+//----------------------------
 
 date_t constexpr
 to_date(rata_die_t n3) noexcept {
@@ -409,9 +424,9 @@ auto const dates = [](){
   return dates;
 }();
 
-//------------------------------------------------------------------------------
+//----------------------------
 // Benchmark
-//------------------------------------------------------------------------------
+//----------------------------
 
 void ReingoldDershowitz(benchmark::State& state) {
   for (auto _ : state) {
@@ -433,6 +448,16 @@ void GLIBC(benchmark::State& state) {
 }
 BENCHMARK(GLIBC);
 
+void DotNet(benchmark::State& state) {
+  for (auto _ : state) {
+    for (auto const& u : dates) {
+      auto n = dotnet::to_rata_die(u);
+      benchmark::DoNotOptimize(n);
+    }
+  }
+}
+BENCHMARK(DotNet);
+
 void Hatcher(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& u : dates) {
@@ -443,15 +468,15 @@ void Hatcher(benchmark::State& state) {
 }
 BENCHMARK(Hatcher);
 
-void DotNet(benchmark::State& state) {
+void FliegelFlandern(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& u : dates) {
-      auto n = dotnet::to_rata_die(u);
+      auto n = fliegel_flandern::to_rata_die(u);
       benchmark::DoNotOptimize(n);
     }
   }
 }
-BENCHMARK(DotNet);
+BENCHMARK(FliegelFlandern);
 
 void Boost(benchmark::State& state) {
   for (auto _ : state) {
