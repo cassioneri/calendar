@@ -12,7 +12,7 @@
    inkscape:export-xdpi="96"
    inkscape:export-filename="/home/cassio/producao/programas/c++/calendar/benchmarks/benchmarks.png"
    sodipodi:docname="benchmarks.svg"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    id="svg8"
    version="1.1"
    viewBox="0 0 210 297"
@@ -31,15 +31,15 @@
      inkscape:window-maximized="1"
      inkscape:window-y="0"
      inkscape:window-x="0"
-     inkscape:window-height="985"
-     inkscape:window-width="1680"
+     inkscape:window-height="1007"
+     inkscape:window-width="1920"
      showgrid="false"
      inkscape:document-rotation="0"
      inkscape:current-layer="g27-3-3-0"
      inkscape:document-units="mm"
-     inkscape:cy="231.3735"
-     inkscape:cx="515.87041"
-     inkscape:zoom="1.4"
+     inkscape:cy="261.28498"
+     inkscape:cx="443.02336"
+     inkscape:zoom="0.98994949"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1.0"
@@ -69,7 +69,9 @@
        style="display:inline">
       <g
          id="g12-6-6-1"
-         inkscape:label="picture">
+         inkscape:label="picture"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96">
         <rect
            inkscape:label="background"
            style="fill:#ffffff;stroke-width:1.3838"
@@ -79,16 +81,16 @@
            x="10"
            y="10" />
         <image
-           sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/to_date.png"
+           sodipodi:absref="/home/cassio/code/calendar/benchmarks/to_date.png"
            xlink:href="to_date.png"
-           inkscape:label="chart"
-           style="display:inline"
-           id="image92-5-5-7"
-           preserveAspectRatio="none"
-           height="60"
-           width="120"
+           y="10"
            x="10"
-           y="10" />
+           width="120"
+           height="60"
+           preserveAspectRatio="none"
+           id="image92-5-5-7"
+           style="display:inline"
+           inkscape:label="chart" />
       </g>
       <g
          id="g27-3-3-0"
@@ -101,15 +103,19 @@
            height="8"
            x="20"
            y="62"
-           inkscape:label="background" />
+           inkscape:label="background"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96" />
         <text
            id="text22-6-6-3"
            y="15.144889"
            x="70.094994"
-           style="font-size:2.82222222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583;"
+           style="font-size:2.82222px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
            xml:space="preserve"
-           inkscape:label="text"><tspan
-             style="stroke-width:0.264583;font-size:2.82222222px;"
+           inkscape:label="text"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96"><tspan
+             style="font-size:2.82222px;stroke-width:0.264583"
              y="15.144889"
              x="70.094994"
              id="tspan20-2-2-6"
@@ -120,7 +126,9 @@
        style="display:inline"
        transform="translate(-10,50)"
        id="g36-3-3"
-       inkscape:label="to_rata_die">
+       inkscape:label="to_rata_die"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
       <g
          inkscape:label="picture"
          id="g12-6-6">
@@ -133,16 +141,16 @@
            style="fill:#ffffff;stroke-width:1.3838"
            inkscape:label="background" />
         <image
-           sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/to_rata_die.png"
+           sodipodi:absref="/home/cassio/code/calendar/benchmarks/to_rata_die.png"
            xlink:href="to_rata_die.png"
-           y="10"
-           x="10"
-           width="120"
-           height="60"
-           preserveAspectRatio="none"
-           id="image92-5-5"
+           inkscape:label="chart"
            style="display:inline"
-           inkscape:label="chart" />
+           id="image92-5-5"
+           preserveAspectRatio="none"
+           height="60"
+           width="120"
+           x="10"
+           y="10" />
       </g>
       <g
          style="display:inline"
@@ -174,7 +182,9 @@
        inkscape:label="last_day_of_month"
        id="g36-3"
        transform="translate(110,-10)"
-       style="display:inline">
+       style="display:inline"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
       <g
          id="g12-6"
          inkscape:label="picture">
@@ -187,16 +197,16 @@
            x="10"
            y="10" />
         <image
-           sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/last_day_of_month.png"
+           sodipodi:absref="/home/cassio/code/calendar/benchmarks/last_day_of_month.png"
            xlink:href="last_day_of_month.png"
-           y="10"
-           x="10"
-           width="120"
-           height="60"
-           preserveAspectRatio="none"
-           id="image92-5"
+           inkscape:label="chart"
            style="display:inline"
-           inkscape:label="chart" />
+           id="image92-5"
+           preserveAspectRatio="none"
+           height="60"
+           width="120"
+           x="10"
+           y="10" />
       </g>
       <g
          id="g27-3"
@@ -227,7 +237,9 @@
     <g
        id="g36"
        inkscape:label="is_leap_year"
-       transform="translate(-10,-10)">
+       transform="translate(-10,-10)"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
       <g
          inkscape:label="picture"
          id="g12">
@@ -240,16 +252,16 @@
            style="fill:#ffffff;stroke-width:1.3838"
            inkscape:label="background" />
         <image
-           sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/is_leap_year.png"
+           sodipodi:absref="/home/cassio/code/calendar/benchmarks/is_leap_year.png"
            xlink:href="is_leap_year.png"
-           y="10"
-           x="10"
-           width="120"
-           height="60"
-           preserveAspectRatio="none"
-           id="image92"
+           inkscape:label="chart"
            style="display:inline"
-           inkscape:label="chart" />
+           id="image92"
+           preserveAspectRatio="none"
+           height="60"
+           width="120"
+           x="10"
+           y="10" />
       </g>
       <g
          inkscape:label="caption"

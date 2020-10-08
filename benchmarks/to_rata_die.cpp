@@ -20,6 +20,7 @@
  *
  ******************************************************************************/
 
+#include <benchmark/benchmark.h>
 #include <cstdint>
 #include <random>
 #include <type_traits>
@@ -49,27 +50,27 @@ namespace neri_schneider {
 
   rata_die_t constexpr
   to_rata_die(date_t const& u2) noexcept {
-    
+
     using rata_die_t     = std::make_unsigned_t<::rata_die_t>;
     auto constexpr z2    = rata_die_t(-1468000);
     auto constexpr n2_e3 = rata_die_t(536895458);
-    
+
     auto const     y1    = rata_die_t(u2.year) - z2;
     auto const     m1    = rata_die_t(u2.month);
     auto const     d1    = rata_die_t(u2.day);
-    
+
     auto const     j     = rata_die_t(m1 < 3);
     auto const     y     = y1 - j;
     auto const     m     = j ? m1 + 12 : m1;
     auto const     d     = d1 - 1;
-    
+
     auto const     q1    = y / 100;
     auto const     yc    = 1461 * y / 4 - q1 + q1 / 4;
     auto const     mc    = (979 * m - 2922) / 32;
     auto const     dc    = d;
-    
+
     auto const     n3    = yc + mc + dc - n2_e3;
-    
+
     return n3;
   }
 
@@ -186,7 +187,7 @@ namespace dotnet {
 } // namespace dotnet
 
 namespace fliegel_flandern {
-  
+
   rata_die_t static constexpr
   to_rata_die(const date_t& u) noexcept {
     auto const I  = rata_die_t(u.year);
@@ -387,31 +388,31 @@ to_date(rata_die_t n3) noexcept {
   auto constexpr n2_e3 = rata_die_t(536895458);
 
   auto const     n0    = n3 + n2_e3;
-  
+
   auto const     p1    = 4 * n0 + 3;
   auto const     q1    = p1 / 146097;
   auto const     r1    = p1 % 146097 / 4;
-  
+
   auto constexpr p32   = std::uint64_t(1) << 32;
   auto const     p2    = 4 * r1 + 3;
   auto const     x2    = std::uint64_t(2939745) * p2;
   auto const     q2    = rata_die_t(x2 / p32);
   auto const     r2    = rata_die_t(x2 % p32 / 2939745 / 4);
-  
+
   auto constexpr p16   = std::uint32_t(1) << 16;
   auto const     p3    = 2141 * r2 + 197657;
   auto const     q3    = p3 / p16;
   auto const     r3    = p3 % p16 / 2141;
-  
+
   auto const     y     = 100 * q1 + q2;
   auto const     m     = q3;
   auto const     d     = r3;
-  
+
   auto const     j     = r2 > 305;
   auto const     y1    = y + j;
   auto const     m1    = j ? m - 12 : m;
   auto const     d1    = d + 1;
-  
+
   return { year_t(y1 + z2), month_t(m1), day_t(d1) };
 }
 

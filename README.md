@@ -18,21 +18,21 @@ implementations perform considerably faster than others.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
-[is_leap_year](https://quick-bench.com/q/59NUOm9iL-A5rCCV-X4b7_z6IMw): NeriSchneider_mcomp is 3.2x
+[is_leap_year](https://quick-bench.com/q/CnSnzJTarIKBvtqlnbNHqKU5h_o): NeriSchneider_mcomp is 3.1x
 faster than Ubiquitous (the implementation used virtually everywhere.) NeriSchneider_mod is 1.9x
 faster than Ubiquitous.
 
-[last_day_of_month](https://quick-bench.com/q/f-aLzIcjpy90C9_CgJ2kBrbsXiQ): NeriSchneider is 3.1x 
+[last_day_of_month](https://quick-bench.com/q/-nzPvHw621sPVaDdHTlLoHoV8Lc): NeriSchneider is 3.2x
 faster than Boost and 1.1x faster than LLVM.
 
-[to_rata_die](https://quick-bench.com/q/AWsTXPff7zsrbn7LhWTheIhJu4o): NeriSchneider is 3.2x faster 
-than ReingoldDershowitz, 2x faster than glibc, 1.8x faster than .NET, 2.3x faster than Hatcher, 2.2x
-faster than FliegelFlandern, 1.9x faster than Boost, 1.7x faster than LLVM and 1.5x faster than 
+[to_rata_die](https://quick-bench.com/q/zAtSlIlm8MiDqKK573pMxulH-b4): NeriSchneider is 3.2x faster
+than ReingoldDershowitz, 2x faster than glibc, 1.8x faster than .NET, 2.3x faster than Hatcher, 2.4x
+faster than FliegelFlandern, 1.7x faster than Boost, 1.7x faster than LLVM and 1.5x faster than
 Baum.
 
-[to_date](https://quick-bench.com/q/2jUpC6Rnn0Ux54hjSxJ9_1tGHoE): NeriSchneider is 6.8x faster than 
-ReingoldDershowitz, 6.2x faster than glibc, 3.4x faster than .NET, 2.9x faster than Hatcher, 2.8x
-faster than FliegelFlandern, 2.6x faster than Boost, 2.2x faster than LLVM and 1.5x faster than 
+[to_date](https://quick-bench.com/q/LT0085FvE-39Xm-yj2-XwzWsPrI): NeriSchneider is 6.8x faster than
+ReingoldDershowitz, 6.2x faster than glibc, 3.4x faster than .NET, 3.7x faster than Hatcher, 2.8x
+faster than FliegelFlandern, 2.6x faster than Boost, 2.2x faster than LLVM and 1.5x faster than
 Baum.
 
 **Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They might have been
