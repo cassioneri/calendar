@@ -19,6 +19,16 @@ than others.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
+[to_date](https://quick-bench.com/q/A1iZvi5Zl8aEmn05bhZ6a0zuxRU): NeriSchneider is 6.7x faster than
+ReingoldDershowitz, 6.2x faster than glibc, 3.5x faster than .NET, 2.8x faster than Hatcher, 2.7x
+faster than FliegelFlandern, 2.6x faster than Boost, 2.2x faster than libc++ and 1.5x faster than
+Baum.
+
+[to_rata_die](https://quick-bench.com/q/uwkg8IoTCpX7dK8sAHiglfoZXiU): NeriSchneider is 3.2x faster
+than ReingoldDershowitz, 2x faster than glibc, 1.8x faster than .NET, 2.3x faster than Hatcher, 2.2x
+faster than FliegelFlandern, 1.7x faster than Boost, 1.7x faster than libc++ and 1.5x faster than
+Baum.
+
 [is_leap_year](https://quick-bench.com/q/RvIyns6SRK_toLH31jELkLFZqwM): NeriSchneider_mcomp is 3.1x
 faster than Ubiquitous (the implementation used virtually everywhere.) NeriSchneider_mod is 1.9x
 faster than Ubiquitous.
@@ -26,20 +36,11 @@ faster than Ubiquitous.
 [last_day_of_month](https://quick-bench.com/q/3JTVUY8rBBMxPgfdzkh30DwUaXI): NeriSchneider is 3.1x
 faster than Boost and 1.1x faster than libc++.
 
-[to_rata_die](https://quick-bench.com/q/uwkg8IoTCpX7dK8sAHiglfoZXiU): NeriSchneider is 3.2x faster
-than ReingoldDershowitz, 2x faster than glibc, 1.8x faster than .NET, 2.3x faster than Hatcher, 2.2x
-faster than FliegelFlandern, 1.7x faster than Boost, 1.7x faster than libc++ and 1.5x faster than
-Baum.
-
-[to_date](https://quick-bench.com/q/A1iZvi5Zl8aEmn05bhZ6a0zuxRU): NeriSchneider is 6.7x faster than
-ReingoldDershowitz, 6.1x faster than glibc, 3.4x faster than .NET, 2.8x faster than Hatcher, 3.4x
-faster than FliegelFlandern, 2.6x faster than Boost, 2.2x faster than libc++ and 1.5x faster than
-Baum.
-
-**Disclaimer**: Benchmarks above compare implementations as of 2020-May-02. They might have been
-slightly edited to get: (a) consistent function signatures; (b) storage types (for years, months,
-days and day counts) closer to C++20 requirements; (c) consistent epoch (unix time 1970-Jan-01).
-Some originals deal with date and time but the variants used here work on dates only.
+**Disclaimer**: Benchmarks above show a single run and YMMV. They compare implementations as of
+2020-May-02 which might have been slightly edited to get: (a) consistent function signatures; (b)
+cpnsistent storage types (for years, months, days and day counts) closer to C++20 requirements; (c)
+consistent epoch (unix time 1970-Jan-01). Some originals deal with date and time but the variants
+used here work on dates only.
 
 Tests show correctness and compliance with the C++ Standard, that is, `to_rata_die` and `to_date`
 are strictly increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in
