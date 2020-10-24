@@ -163,7 +163,7 @@ namespace dotnet {
   // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   // SOFTWARE.
 
-  // https://github.com/dotnet/runtime/blob/master/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L102
+  // // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L102
   rata_die_t static constexpr s_daysToMonth365[] = {
     0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
   rata_die_t static constexpr s_daysToMonth366[] = {
@@ -223,25 +223,25 @@ namespace glibc {
   // License along with the GNU C Library; if not, see
   // <https://www.gnu.org/licenses/>.
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l138
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l138
   rata_die_t static constexpr
   shr(rata_die_t a, int b) noexcept {
     rata_die_t one = 1;
     return (-one >> 1 == -1 ? a >> b : a / (one << b) - (a % (one << b) < 0));
   }
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l157
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l157
   #define EPOCH_YEAR 1970
   #define TM_YEAR_BASE 1900
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l161
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l161
   bool static constexpr
   leapyear (rata_die_t year) noexcept {
     return ((year & 3) == 0 && (year % 100 != 0 ||
       ((year / 100) & 3) == (- (TM_YEAR_BASE / 100) & 3)));
   }
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l173
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l173
   unsigned short int static constexpr __mon_yday[2][13] =
     {
       /* Normal years.  */
@@ -250,7 +250,7 @@ namespace glibc {
       { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
     };
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l194
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l194
   rata_die_t static constexpr
   ydhms_diff (rata_die_t year1, rata_die_t yday1, rata_die_t year0) noexcept {
     rata_die_t a4 = shr (year1, 2) + shr (TM_YEAR_BASE, 2) - ! (year1 & 3);
@@ -265,7 +265,7 @@ namespace glibc {
     return days;
   }
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l312
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l312
   rata_die_t static constexpr
   to_rata_die(const date_t& date) noexcept {
     rata_die_t mday     = date.day;

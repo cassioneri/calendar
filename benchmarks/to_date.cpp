@@ -184,7 +184,7 @@ namespace dotnet {
   // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   // SOFTWARE.
 
-  // https://github.com/dotnet/runtime/blob/master/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L102
+  // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L102
   rata_die_t static constexpr s_daysToMonth365[] = {
     0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
   rata_die_t static constexpr s_daysToMonth366[] = {
@@ -264,7 +264,7 @@ namespace glibc {
   // License along with the GNU C Library; if not, see
   // <https://www.gnu.org/licenses/>.
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;h=63c82fc6a96848b1f1e34164e7ce696035635fc6;hb=HEAD#l173
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l173
   unsigned short int static constexpr __mon_yday[2][13] =
     {
       /* Normal years.  */
@@ -273,11 +273,11 @@ namespace glibc {
       { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
     };
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/time.h;h=015bc1c7f3b5d3db689f68de2a0c6ebbbc94f138#l179
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/time.h;hb=d614a7539657941a9201c236b2f15afac18e1213#l179
   #define __isleap(year)	\
     ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/offtime.c;h=1415b1b4013834f39e4b0c11f0479dd866aab617#l24
+  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/offtime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l24
   date_t static constexpr
   to_date(rata_die_t days) noexcept {
 
