@@ -348,7 +348,7 @@ namespace hatcher {
 
 } // namespace hatcher
 
-namespace llvm {
+namespace libcxx {
 
   // Code in this namespace is subject to the following terms.
 
@@ -370,7 +370,7 @@ namespace llvm {
     return date_t{year_t(__yr + (__mth <= 2)), month_t(__mth), day_t(__dy)};
   }
 
-} // namespace llvm
+} // namespace libcxx
 
 namespace reingold_dershowitz {
 
@@ -474,7 +474,7 @@ void ReingoldDershowitz(benchmark::State& state) {
 }
 BENCHMARK(ReingoldDershowitz);
 
-void GLIBC(benchmark::State& state) {
+void GLibC(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const n : rata_dies) {
       auto u = glibc::to_date(n);
@@ -482,7 +482,7 @@ void GLIBC(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(GLIBC);
+BENCHMARK(GLibC);
 
 void DotNet(benchmark::State& state) {
   for (auto _ : state) {
@@ -524,15 +524,15 @@ void Boost(benchmark::State& state) {
 }
 BENCHMARK(Boost);
 
-void LLVM(benchmark::State& state) {
+void LibCxx(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const n : rata_dies) {
-      auto u = llvm::to_date(n);
+      auto u = libcxx::to_date(n);
       benchmark::DoNotOptimize(u);
     }
   }
 }
-BENCHMARK(LLVM);
+BENCHMARK(LibCxx);
 
 void Baum(benchmark::State& state) {
   for (auto _ : state) {

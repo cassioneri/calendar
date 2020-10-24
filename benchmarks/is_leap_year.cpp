@@ -67,7 +67,7 @@ namespace ubiquitous {
     return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
   }
 
-} // namespace typical
+} // namespace ubiquitous
 
 //----------------------------
 // Benchmark data
@@ -96,7 +96,7 @@ void Ubiquitous(benchmark::State& state) {
 }
 BENCHMARK(Ubiquitous);
 
-void NeriSchhneider_mod(benchmark::State& state) {
+void NeriSchneider_mod(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& year : years) {
       auto b = neri_schneider::is_leap_year_mod(year);
@@ -104,7 +104,7 @@ void NeriSchhneider_mod(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(NeriSchhneider_mod);
+BENCHMARK(NeriSchneider_mod);
 
 void NeriSchneider_mcomp(benchmark::State& state) {
   for (auto _ : state) {

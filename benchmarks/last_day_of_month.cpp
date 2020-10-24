@@ -121,7 +121,7 @@ namespace boost {
 
 } // namespace boost
 
-namespace llvm {
+namespace libcxx {
 
   // Code in this namespace is subject to the following terms.
 
@@ -142,7 +142,7 @@ namespace llvm {
         __d[static_cast<unsigned>(month - 1)] : day_t{29};
   }
 
-} // namespace llvm
+} // namespace libcxx
 
 //----------------------------
 // Benchmark data
@@ -180,17 +180,17 @@ void Boost(benchmark::State& state) {
 }
 BENCHMARK(Boost);
 
-void LLVM(benchmark::State& state) {
+void LibCxx(benchmark::State& state) {
   for (auto _ : state) {
     for (std::int32_t i = 0; i < 16384; ++i) {
-      auto day = llvm::last_day_of_month(years[i], months[i]);
+      auto day = libcxx::last_day_of_month(years[i], months[i]);
       benchmark::DoNotOptimize(day);
     }
   }
 }
-BENCHMARK(LLVM);
+BENCHMARK(LibCxx);
 
-void NeriSchhneider(benchmark::State& state) {
+void NeriSchneider(benchmark::State& state) {
   for (auto _ : state) {
     for (std::int32_t i = 0; i < 16384; ++i) {
       auto day = neri_schneider::last_day_of_month(years[i], months[i]);
@@ -198,4 +198,4 @@ void NeriSchhneider(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(NeriSchhneider);
+BENCHMARK(NeriSchneider);

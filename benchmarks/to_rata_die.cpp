@@ -318,7 +318,7 @@ namespace hatcher {
 
 } // namespace hatcher
 
-namespace llvm {
+namespace libcxx {
 
   // Code in this namespace is subject to the following terms.
 
@@ -338,7 +338,7 @@ namespace llvm {
     return rata_die_t{__era * 146097 + static_cast<int>(__doe) - 719468};
   }
 
-} // namespace llvm
+} // namespace libcxx
 
 namespace reingold_dershowitz {
 
@@ -439,7 +439,7 @@ void ReingoldDershowitz(benchmark::State& state) {
 }
 BENCHMARK(ReingoldDershowitz);
 
-void GLIBC(benchmark::State& state) {
+void GLibC(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& u : dates) {
       auto n = glibc::to_rata_die(u);
@@ -447,7 +447,7 @@ void GLIBC(benchmark::State& state) {
     }
   }
 }
-BENCHMARK(GLIBC);
+BENCHMARK(GLibC);
 
 void DotNet(benchmark::State& state) {
   for (auto _ : state) {
@@ -489,15 +489,15 @@ void Boost(benchmark::State& state) {
 }
 BENCHMARK(Boost);
 
-void LLVM(benchmark::State& state) {
+void LibCxx(benchmark::State& state) {
   for (auto _ : state) {
     for (auto const& u : dates) {
-      auto n = llvm::to_rata_die(u);
+      auto n = libcxx::to_rata_die(u);
       benchmark::DoNotOptimize(n);
     }
   }
 }
-BENCHMARK(LLVM);
+BENCHMARK(LibCxx);
 
 void Baum(benchmark::State& state) {
   for (auto _ : state) {
