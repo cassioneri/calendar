@@ -15,16 +15,16 @@
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
    id="svg8"
    version="1.1"
-   viewBox="0 0 210 297"
-   height="297mm"
-   width="210mm">
+   viewBox="0 0 240 120"
+   height="120mm"
+   width="240mm">
   <defs
      id="defs2">
     <rect
-       x="24.302838"
-       y="66.802782"
-       width="93.633566"
-       height="9.6841519"
+       x="24.302837"
+       y="66.80278"
+       width="93.633568"
+       height="9.6841516"
        id="rect16" />
   </defs>
   <sodipodi:namedview
@@ -54,7 +54,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -85,14 +85,14 @@
         <image
            sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/to_date.png"
            xlink:href="to_date.png"
-           inkscape:label="chart"
-           style="display:inline"
-           id="image92-5-5-7"
-           preserveAspectRatio="none"
-           height="60"
-           width="120"
+           y="10"
            x="10"
-           y="10" />
+           width="120"
+           height="60"
+           preserveAspectRatio="none"
+           id="image92-5-5-7"
+           style="display:inline"
+           inkscape:label="chart" />
       </g>
       <g
          id="g27-3-3-0"
@@ -145,14 +145,14 @@
         <image
            sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/to_rata_die.png"
            xlink:href="to_rata_die.png"
-           y="10"
-           x="10"
-           width="120"
-           height="60"
-           preserveAspectRatio="none"
-           id="image92-5-5"
+           inkscape:label="chart"
            style="display:inline"
-           inkscape:label="chart" />
+           id="image92-5-5"
+           preserveAspectRatio="none"
+           height="60"
+           width="120"
+           x="10"
+           y="10" />
       </g>
       <g
          style="display:inline"
@@ -201,14 +201,14 @@
         <image
            sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/last_day_of_month.png"
            xlink:href="last_day_of_month.png"
-           y="10"
-           x="10"
-           width="120"
-           height="60"
-           preserveAspectRatio="none"
-           id="image92-5"
+           inkscape:label="chart"
            style="display:inline"
-           inkscape:label="chart" />
+           id="image92-5"
+           preserveAspectRatio="none"
+           height="60"
+           width="120"
+           x="10"
+           y="10" />
       </g>
       <g
          id="g27-3"
@@ -256,14 +256,14 @@
         <image
            sodipodi:absref="/home/cassio/producao/programas/c++/calendar/benchmarks/is_leap_year.png"
            xlink:href="is_leap_year.png"
-           y="10"
-           x="10"
-           width="120"
-           height="60"
-           preserveAspectRatio="none"
-           id="image92"
+           inkscape:label="chart"
            style="display:inline"
-           inkscape:label="chart" />
+           id="image92"
+           preserveAspectRatio="none"
+           height="60"
+           width="120"
+           x="10"
+           y="10" />
       </g>
       <g
          inkscape:label="caption"
