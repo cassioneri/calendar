@@ -684,7 +684,7 @@ TEST(fast, month_rounding_up) {
   auto constexpr month_fast = [](auto n) { return (2142 * n + 197428) / p16; };
   auto constexpr day_fast   = [](auto n) { return (2142 * n + 197428) % p16 / 2142; };
 
-  auto constexpr N   = std::uint32_t(1560);
+  auto constexpr N = std::uint32_t(1560);
   for (std::uint32_t n = 0; n < N; ++n) {
     ASSERT_EQ(month(n), month_fast(n)) << "Failed for n = " << n;
     ASSERT_EQ(n - month_count(month(n)), day_fast(n)) << "Failed for n = " << n;
@@ -700,7 +700,7 @@ TEST(fast, month_rounding_down) {
   auto constexpr month_fast = [](auto n) { return (2141 * n + 197913) / p16; };
   auto constexpr day_fast   = [](auto n) { return (2141 * n + 197913) % p16 / 2142; };
 
-  auto constexpr N   = std::uint32_t(734);
+  auto constexpr N = std::uint32_t(734);
   for (std::uint32_t n = 0; n < N; ++n) {
     ASSERT_EQ(month(n), month_fast(n)) << "Failed for n = " << n;
     ASSERT_EQ(n - month_count(month(n)), day_fast(n)) << "Failed for n = " << n;
@@ -712,16 +712,20 @@ TEST(fast, month_rounding_down) {
  * Tests fast division by 1461.
  */
 TEST(fast, division_by_1461) {
+  
+  auto constexpr alpha_prime = std::uint64_t(2939745);
+
   auto constexpr N = std::uint32_t(28825529);
   for (std::uint32_t n = 0; n < N; ++n) {
-    auto const x = 2939745 * std::uint64_t(n);
-    auto const q = x / p32;
-    auto const r = x % p32 / 2939745;
+    auto const u = alpha_prime * n;
+    auto const q = std::uint32_t(u / p32);
+    auto const r = std::uint32_t(u % p32) / 2939745;
     ASSERT_EQ(q, n / 1461) << "Failed for n = " << n;
     ASSERT_EQ(r, n % 1461) << "Failed for n = " << n;
   }
-  ASSERT_NE(N / 1461, 2939745 * N / p32) << "Upper bound is not sharp.";
-  ASSERT_NE(N % 1461, 2939745 * N % p32) << "Upper bound is not sharp.";
+  auto const u = alpha_prime * N;
+  ASSERT_NE(N / 1461, std::uint32_t(u / p32)) << "Upper bound is not sharp.";
+  ASSERT_NE(N % 1461, std::uint32_t(u % p32) / 2939745) << "Upper bound is not sharp.";
 }
 
 /**

@@ -51,15 +51,14 @@ namespace neri_schneider {
   rata_die_t constexpr
   to_rata_die(date_t const& u2) noexcept {
 
-    using rata_die_t     = std::make_unsigned_t<::rata_die_t>;
-    auto constexpr z2    = rata_die_t(-1468000);
-    auto constexpr r2_e3 = rata_die_t(536895458);
+    auto constexpr z2    = std::uint32_t(-1468000);
+    auto constexpr r2_e3 = std::uint32_t(536895458);
 
-    auto const     y1    = rata_die_t(u2.year) - z2;
-    auto const     m1    = rata_die_t(u2.month);
-    auto const     d1    = rata_die_t(u2.day);
+    auto const     y1    = std::uint32_t(u2.year) - z2;
+    auto const     m1    = std::uint32_t(u2.month);
+    auto const     d1    = std::uint32_t(u2.day);
 
-    auto const     j     = rata_die_t(m1 < 3);
+    auto const     j     = std::uint32_t(m1 < 3);
     auto const     y0    = y1 - j;
     auto const     m0    = j ? m1 + 12 : m1;
     auto const     d0    = d1 - 1;
@@ -383,9 +382,8 @@ namespace reingold_dershowitz {
 date_t constexpr
 to_date(rata_die_t r) noexcept {
 
-  using rata_die_t     = std::make_unsigned_t<::rata_die_t>;
-  auto constexpr z2    = rata_die_t(-1468000);
-  auto constexpr r2_e3 = rata_die_t(536895458);
+  auto constexpr z2    = std::uint32_t(-1468000);
+  auto constexpr r2_e3 = std::uint32_t(536895458);
 
   auto const     r0    = r + r2_e3;
 
@@ -396,8 +394,8 @@ to_date(rata_die_t r) noexcept {
   auto constexpr p32   = std::uint64_t(1) << 32;
   auto const     n2    = 4 * r1 + 3;
   auto const     u2    = std::uint64_t(2939745) * n2;
-  auto const     q2    = rata_die_t(u2 / p32);
-  auto const     r2    = rata_die_t(u2 % p32 / 2939745 / 4);
+  auto const     q2    = std::uint32_t(u2 / p32);
+  auto const     r2    = std::uint32_t(u2 % p32) / 2939745 / 4;
 
   auto constexpr p16   = std::uint32_t(1) << 16;
   auto const     n3    = 2141 * r2 + 197657;

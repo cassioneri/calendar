@@ -26,6 +26,7 @@
  */
 
 #include <algorithm>
+#include <cinttypes>
 #include <cstring>
 #include <iostream>
 
@@ -33,18 +34,18 @@
  * @brief Coefficients of EAF.
  */
 struct eaf_t {
-  std::int64_t alpha;
-  std::int64_t beta;
-  std::int64_t delta;
+  std::uintmax_t alpha;
+  std::intmax_t  beta;
+  std::uintmax_t delta;
 };
 
 /**
  * @brief Coefficients and upper bound of fast EAFs.
  */
 struct fast_eaf_t {
-  eaf_t        fast;
-  std::int32_t k;
-  std::int64_t upper_bound;
+  eaf_t          fast;
+  std::uint32_t  k;
+  std::uintmax_t upper_bound;
 };
 
 std::ostream& operator <<(std::ostream& os, fast_eaf_t const& eaf) {
@@ -64,61 +65,62 @@ std::ostream& operator <<(std::ostream& os, fast_eaf_t const& eaf) {
  * @param   eaf       Original EAF.
  */
 fast_eaf_t constexpr
-get_fast_eaf(bool round_up, std::int32_t k, eaf_t const& eaf) noexcept {
+get_fast_eaf(bool round_up, std::uint32_t k, eaf_t const& eaf) noexcept {
 
-  auto const two_k       = std::int64_t(1) << k;
+  auto const two_k       = std::uintmax_t(1) << k;
   auto const two_k_alpha = two_k * eaf.alpha;
   auto const div         = two_k_alpha / eaf.delta;
   auto const mod         = two_k_alpha % eaf.delta;
   auto const alpha_prime = round_up ? div + 1 : div;
-  auto const nu          = round_up ? eaf.delta - mod : mod;
+  auto const epsilon     = round_up ? eaf.delta - mod : mod;
   
-  auto f = [&](std::int64_t r) {
+  // g(r) = alpha' * r - 2^k * f(r)
+  auto g = [&](std::uintmax_t r) {
 
-    auto const num = eaf.alpha * r + eaf.beta;
+    auto const num = std::intmax_t(eaf.alpha * r + eaf.beta);
     
     // Since operator / implements truncated division, we need to adjust negative numerators to get
     // the result of Euclidean division.
     auto const adjusted_num = num >= 0 ? num : num - (eaf.delta - 1);
     
-    return alpha_prime * r - two_k * (adjusted_num / eaf.delta);
+    return std::intmax_t(alpha_prime * r - two_k * (adjusted_num / eaf.delta));
   };
 
   auto const beta_prime = [&]() {
     if (round_up) {
-      auto min = f(0);
-      for (std::int64_t r = 1; r < eaf.delta; ++r)
-        min = std::min(min, f(r));
+      auto min = g(0);
+      for (std::uintmax_t r = 1; r < eaf.delta; ++r)
+        min = std::min(min, g(r));
       return -min;
     }
     else {
-      auto max = f(0);
-      for (std::int64_t r = 1; r < eaf.delta; ++r)
-        max = std::max(max, f(r));
-      return two_k - max - 1;
+      auto max = g(0);
+      for (std::uintmax_t r = 1; r < eaf.delta; ++r)
+        max = std::max(max, g(r));
+      return two_k - 1 - max;
     }
   }();
   
-  auto Nr = [&](std::int64_t r) {
+  auto M = [&](std::uintmax_t r) {
     if (round_up) {
-      auto const num = two_k - (f(r) + beta_prime);
+      auto const num = two_k - (g(r) + beta_prime);
       if (num <= 0) return r;
-      auto const q = (num + (nu - 1)) / nu;
+      auto const q = (num + (epsilon - 1)) / epsilon;
       return q * eaf.delta + r;
     }
     else {
-      auto const num = f(r) + beta_prime;
+      auto const num = g(r) + beta_prime;
       if (num < 0) return r;
-      auto const q = num / nu + 1;
+      auto const q = num / epsilon + 1;
       return q * eaf.delta + r;
     }
   };
 
-  auto N = Nr(0);
-  for (std::int64_t r = 1; r < eaf.delta; ++r)
-    N = std::min(N, Nr(r));
+  auto N = M(0);
+  for (std::uintmax_t r = 1; r < eaf.delta; ++r)
+    N = std::min(N, M(r));
     
-    return { { alpha_prime, beta_prime, two_k }, k, N };
+    return { { alpha_prime, beta_prime, two_k }, k, std::uintmax_t(N) };
 }
 
 /**
@@ -128,12 +130,12 @@ get_fast_eaf(bool round_up, std::int32_t k, eaf_t const& eaf) noexcept {
  * @param   eaf       Original EAF.
  */
 fast_eaf_t constexpr
-get_simple_fast_eaf(std::int32_t k, eaf_t const& eaf) noexcept {
-  auto const two_k = std::int64_t(1) << k;
+get_simple_fast_eaf(std::uint32_t k, eaf_t const& eaf) noexcept {
+  auto const two_k = std::intmax_t(1) << k;
   auto const mu    = two_k / eaf.delta + 1;
   auto const nu    = eaf.delta - two_k % eaf.delta;
   auto const N     = (mu / nu + (mu % nu != 0)) * eaf.delta - 1;
-  return { { mu * eaf.alpha, mu * eaf.beta, two_k }, k, (nu <= mu ? N : 0) };
+  return { { mu * eaf.alpha, mu * eaf.beta, two_k }, k, std::uintmax_t(nu <= mu ? N : 0) };
 }
 
 int main(int argc, char* argv[]) {
@@ -155,11 +157,27 @@ int main(int argc, char* argv[]) {
     std::cerr << argv[0] << ": unknown method '" << argv[1] << "'\n"; 
     exit (1);
   }
+  
+  char* end_ptr;
 
-  auto alpha = std::atoi(argv[2]);
-  auto beta  = std::atoi(argv[3]);
-  auto delta = std::atoi(argv[4]);
-
+  auto const alpha = std::strtoimax(argv[2], &end_ptr, 10);
+  if (end_ptr == argv[2]) {
+    std::cerr << argv[0] << ": cannot parse alpha argument.\n";
+    std::exit(1);
+  }
+  
+  auto const beta  = std::strtoimax(argv[3], &end_ptr, 10);
+  if (end_ptr == argv[3]) {
+    std::cerr << argv[0] << ": cannot parse beta argument.\n";
+    std::exit(1);
+  }
+  
+  auto const delta = std::strtoimax(argv[4], &end_ptr, 10);
+  if (end_ptr == argv[4]) {
+    std::cerr << argv[0] << ": cannot parse delta argument.\n";
+    std::exit(1);
+  }
+  
   if (alpha <= 0 || delta <= 0) {
     std::cerr << argv[0] << ": alpha and delta must be strictly positive.\n";
     std::exit(1);
@@ -169,7 +187,12 @@ int main(int argc, char* argv[]) {
   
   for (std::int32_t i = 5; i < argc; ++i) {
     
-    auto k = std::atoi(argv[i]);
+    auto k = std::strtoimax(argv[i], &end_ptr, 10);
+    if (end_ptr == argv[4]) {
+      std::cerr << argv[0] << ": cannot parse k argument.\n";
+      std::exit(1);
+    }
+
     if (k < 1 || k > 50) {
       std::cerr << argv[0] << ": k must be in [1, 50] (skipping k = " << k << ")\n\n";
       continue;

@@ -51,9 +51,8 @@ namespace neri_schneider {
   date_t constexpr
   to_date(rata_die_t r) noexcept {
 
-    using rata_die_t     = std::make_unsigned_t<::rata_die_t>;
-    auto constexpr z2    = rata_die_t(-1468000);
-    auto constexpr r2_e3 = rata_die_t(536895458);
+    auto constexpr z2    = std::uint32_t(-1468000);
+    auto constexpr r2_e3 = std::uint32_t(536895458);
 
     auto const     r0    = r + r2_e3;
 
@@ -64,8 +63,8 @@ namespace neri_schneider {
     auto constexpr p32   = std::uint64_t(1) << 32;
     auto const     n2    = 4 * r1 + 3;
     auto const     u2    = std::uint64_t(2939745) * n2;
-    auto const     q2    = rata_die_t(u2 / p32);
-    auto const     r2    = rata_die_t(u2 % p32 / 2939745 / 4);
+    auto const     q2    = std::uint32_t(u2 / p32);
+    auto const     r2    = std::uint32_t(u2 % p32) / 2939745 / 4;
 
     auto constexpr p16   = std::uint32_t(1) << 16;
     auto const     n3    = 2141 * r2 + 197657;
