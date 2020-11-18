@@ -34,18 +34,18 @@
  * @brief Coefficients of EAF.
  */
 struct eaf_t {
-  std::uintmax_t alpha;
-  std::intmax_t  beta;
-  std::uintmax_t delta;
+  std::intmax_t alpha;
+  std::intmax_t beta;
+  std::intmax_t delta;
 };
 
 /**
  * @brief Coefficients and upper bound of fast EAFs.
  */
 struct fast_eaf_t {
-  eaf_t          fast;
-  std::uint32_t  k;
-  std::uintmax_t upper_bound;
+  eaf_t         fast;
+  std::uint32_t k;
+  std::intmax_t upper_bound;
 };
 
 std::ostream& operator <<(std::ostream& os, fast_eaf_t const& eaf) {
@@ -67,7 +67,7 @@ std::ostream& operator <<(std::ostream& os, fast_eaf_t const& eaf) {
 fast_eaf_t constexpr
 get_fast_eaf(bool round_up, std::uint32_t k, eaf_t const& eaf) noexcept {
 
-  auto const two_k       = std::uintmax_t(1) << k;
+  auto const two_k       = std::intmax_t(1) << k;
   auto const two_k_alpha = two_k * eaf.alpha;
   auto const div         = two_k_alpha / eaf.delta;
   auto const mod         = two_k_alpha % eaf.delta;
@@ -75,33 +75,33 @@ get_fast_eaf(bool round_up, std::uint32_t k, eaf_t const& eaf) noexcept {
   auto const epsilon     = round_up ? eaf.delta - mod : mod;
   
   // g(r) = alpha' * r - 2^k * f(r)
-  auto g = [&](std::uintmax_t r) {
+  auto g = [&](std::intmax_t r) {
 
-    auto const num = std::intmax_t(eaf.alpha * r + eaf.beta);
+    auto const num = eaf.alpha * r + eaf.beta;
     
     // Since operator / implements truncated division, we need to adjust negative numerators to get
     // the result of Euclidean division.
     auto const adjusted_num = num >= 0 ? num : num - (eaf.delta - 1);
     
-    return std::intmax_t(alpha_prime * r - two_k * (adjusted_num / eaf.delta));
+    return alpha_prime * r - two_k * (adjusted_num / eaf.delta);
   };
 
   auto const beta_prime = [&]() {
     if (round_up) {
       auto min = g(0);
-      for (std::uintmax_t r = 1; r < eaf.delta; ++r)
+      for (std::intmax_t r = 1; r < eaf.delta; ++r)
         min = std::min(min, g(r));
       return -min;
     }
     else {
       auto max = g(0);
-      for (std::uintmax_t r = 1; r < eaf.delta; ++r)
+      for (std::intmax_t r = 1; r < eaf.delta; ++r)
         max = std::max(max, g(r));
       return two_k - 1 - max;
     }
   }();
   
-  auto M = [&](std::uintmax_t r) {
+  auto M = [&](std::intmax_t r) {
     if (round_up) {
       auto const num = two_k - (g(r) + beta_prime);
       if (num <= 0) return r;
@@ -117,25 +117,10 @@ get_fast_eaf(bool round_up, std::uint32_t k, eaf_t const& eaf) noexcept {
   };
 
   auto N = M(0);
-  for (std::uintmax_t r = 1; r < eaf.delta; ++r)
+  for (std::intmax_t r = 1; r < eaf.delta; ++r)
     N = std::min(N, M(r));
     
-    return { { alpha_prime, beta_prime, two_k }, k, std::uintmax_t(N) };
-}
-
-/**
- * @brief Finds coefficients and upper bound of simple fast EAF.
- * 
- * @param   k         Exponent of the divisor.
- * @param   eaf       Original EAF.
- */
-fast_eaf_t constexpr
-get_simple_fast_eaf(std::uint32_t k, eaf_t const& eaf) noexcept {
-  auto const two_k = std::intmax_t(1) << k;
-  auto const mu    = two_k / eaf.delta + 1;
-  auto const nu    = eaf.delta - two_k % eaf.delta;
-  auto const N     = (mu / nu + (mu % nu != 0)) * eaf.delta - 1;
-  return { { mu * eaf.alpha, mu * eaf.beta, two_k }, k, std::uintmax_t(nu <= mu ? N : 0) };
+    return { { alpha_prime, beta_prime, two_k }, k, N };
 }
 
 int main(int argc, char* argv[]) {
@@ -145,14 +130,12 @@ int main(int argc, char* argv[]) {
     exit (1);
   }
 
-  enum class method_t { up, down, simple };
+  enum class method_t { up, down };
   method_t method;
   if (std::strncmp(argv[1], "up", 3) == 0)
     method = method_t::up;
   else if (std::strncmp(argv[1], "down", 5) == 0)
     method = method_t::down;
-  else if (std::strncmp(argv[1], "simple", 7) == 0)
-    method = method_t::simple;
   else {
     std::cerr << argv[0] << ": unknown method '" << argv[1] << "'\n"; 
     exit (1);
@@ -198,8 +181,7 @@ int main(int argc, char* argv[]) {
       continue;
     }
     
-    auto const fast_eaf = (method == method_t::simple) ? get_simple_fast_eaf(k, eaf) :
-      get_fast_eaf(method == method_t::up, k, eaf);
+    auto const fast_eaf = get_fast_eaf(method == method_t::up, std::uint32_t(k), eaf);
 
     std::cout << fast_eaf << '\n';
   }
