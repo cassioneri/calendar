@@ -19,12 +19,12 @@ than others.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
-[to_date](https://quick-bench.com/q/rJ-RU0vuIfjCniYaBDtssFbUqSs): NeriSchneider is 6.8x faster than
+[to_date](https://quick-bench.com/q/nR8Jsrcs_k54RVxz3DwvRVZKQHA): NeriSchneider is 6.8x faster than
 ReingoldDershowitz, 6.2x faster than glibc, 3.5x faster than .NET, 2.8x faster than Hatcher, 2.8x
 faster than FliegelFlandern, 2.6x faster than Boost, 2.2x faster than libc++ and 1.5x faster than
 Baum.
 
-[to_rata_die](https://quick-bench.com/q/AFvqK6ncmHE1Ehr1W7bSDsOIUVg): NeriSchneider is 3.2x faster
+[to_rata_die](https://quick-bench.com/q/J_ujVucGDQv3sx0wnkH2I8kFmb0): NeriSchneider is 3.2x faster
 than ReingoldDershowitz, 2x faster than glibc, 1.8x faster than .NET, 2.3x faster than Hatcher, 2.2x
 faster than FliegelFlandern, 1.7x faster than Boost, 1.7x faster than libc++ and 1.5x faster than
 Baum.
