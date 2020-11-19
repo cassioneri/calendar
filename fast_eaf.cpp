@@ -125,7 +125,7 @@ get_fast_eaf(bool round_up, std::uint32_t k, eaf_t const& eaf) noexcept {
 
 int main(int argc, char* argv[]) {
 
-  if (argc < 5) {
+  if (argc < 6) {
     std::cerr << argv[0] << ": requires at least 5 arguments: method, alpha, beta, delta and k\n"; 
     exit (1);
   }
@@ -176,8 +176,8 @@ int main(int argc, char* argv[]) {
       std::exit(1);
     }
 
-    if (k < 1 || k > 50) {
-      std::cerr << argv[0] << ": k must be in [1, 50] (skipping k = " << k << ")\n\n";
+    if (k < 1 || k > 63) {
+      std::cerr << argv[0] << ": k must be in [1, 63] (skipping k = " << k << ")\n\n";
       continue;
     }
     
