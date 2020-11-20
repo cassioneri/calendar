@@ -20,7 +20,6 @@
  *
  ******************************************************************************/
 
-#include <benchmark/benchmark.h>
 #include <array>
 #include <cstdint>
 #include <random>
@@ -41,8 +40,8 @@ namespace neri_schneider {
 
   // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
-  bool constexpr
-  is_multiple_of_100(std::int32_t n) {
+  bool
+  is_multiple_of_100(std::int32_t n) noexcept {
     std::uint32_t constexpr multiplier   = 42949673;
     std::uint32_t constexpr bound        = 42949669;
     std::uint32_t constexpr max_dividend = 1073741799;
@@ -50,12 +49,12 @@ namespace neri_schneider {
     return multiplier * (n + offset) < bound;
   }
 
-  bool constexpr
+  bool
   is_leap_year(year_t year) noexcept {
     return (!is_multiple_of_100(year) || year % 16 == 0) & (year % 4 == 0);
   }
 
-  day_t constexpr
+  day_t
   last_day_of_month(year_t year, month_t month) noexcept {
     return month != 2 ? ((month ^ (month >> 3)) & 1) | 30 :
       is_leap_year(year) ? 29 : 28;
@@ -94,13 +93,13 @@ namespace boost {
   // DEALINGS IN THE SOFTWARE.
 
   // https://github.com/boostorg/date_time/blob/4e1b7cde45edf8fdda73ec5c60053c9257138292/include/boost/date_time/gregorian_calendar.ipp#L161
-  bool constexpr
-  is_leap_year(year_t year) {
+  bool
+  is_leap_year(year_t year) noexcept {
     return (!(year % 4))  && ((year % 100) || (!(year % 400)));
   }
 
   // https://github.com/boostorg/date_time/blob/4e1b7cde45edf8fdda73ec5c60053c9257138292/include/boost/date_time/gregorian_calendar.ipp#L175
-  day_t constexpr
+  day_t
   last_day_of_month(year_t year, month_t month) noexcept {
     switch (month) {
     case 2:
@@ -129,13 +128,13 @@ namespace libcxx {
   // See https://llvm.org/LICENSE.txt for license information.
 
   // https://github.com/llvm/llvm-project/blob/8e34be2f2511dfff7a8e3018bbd4188a93e446ea/libcxx/include/chrono#L1777
-  bool constexpr
+  bool
   is_leap_year(year_t __y) noexcept {
     return __y % 4 == 0 && (__y % 100 != 0 || __y % 400 == 0);
   }
 
   // https://github.com/llvm/llvm-project/blob/8e34be2f2511dfff7a8e3018bbd4188a93e446ea/libcxx/include/chrono#L2447
-  day_t constexpr
+  day_t
   last_day_of_month(year_t __y, month_t month) noexcept {
     day_t constexpr __d[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     return month != 2 || !is_leap_year(__y) ?
@@ -170,32 +169,32 @@ auto const months = [](){
 // Benchmark
 //----------------------------
 
-void Boost(benchmark::State& state) {
-  for (auto _ : state) {
-    for (std::int32_t i = 0; i < 16384; ++i) {
-      auto day = boost::last_day_of_month(years[i], months[i]);
-      benchmark::DoNotOptimize(day);
-    }
-  }
-}
-BENCHMARK(Boost);
+// If defined, likely to be running on quick-bench.
+#ifndef BENCHMARK
 
-void LibCxx(benchmark::State& state) {
-  for (auto _ : state) {
-    for (std::int32_t i = 0; i < 16384; ++i) {
-      auto day = libcxx::last_day_of_month(years[i], months[i]);
-      benchmark::DoNotOptimize(day);
-    }
-  }
-}
-BENCHMARK(LibCxx);
+  #include <benchmark/benchmark.h>
 
-void NeriSchneider(benchmark::State& state) {
-  for (auto _ : state) {
-    for (std::int32_t i = 0; i < 16384; ++i) {
-      auto day = neri_schneider::last_day_of_month(years[i], months[i]);
-      benchmark::DoNotOptimize(day);
-    }
+  void Scan(benchmark::State& state) {
+    for (auto _ : state)
+      for (std::uint32_t i = 0; i < years.size(); ++i)
+        benchmark::DoNotOptimize(i);
   }
-}
-BENCHMARK(NeriSchneider);
+  BENCHMARK(Scan);
+
+#endif
+
+#define DO_BENCHMARK(label, namespace)                                      \
+  void label(benchmark::State& state) {                                     \
+    for (auto _ : state) {                                                  \
+      for (std::uint32_t i = 0; i < years.size(); ++i) {                    \
+        auto const day = namespace::last_day_of_month(years[i], months[i]); \
+        benchmark::DoNotOptimize(i);                                        \
+        benchmark::DoNotOptimize(day);                                      \
+      }                                                                     \
+    }                                                                       \
+  }                                                                         \
+  BENCHMARK(label)                                                          \
+
+DO_BENCHMARK(Boost        , boost         );
+DO_BENCHMARK(LibCxx       , libcxx        );
+DO_BENCHMARK(NeriSchneider, neri_schneider);

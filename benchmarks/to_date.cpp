@@ -20,7 +20,6 @@
  *
  ******************************************************************************/
 
-#include <benchmark/benchmark.h>
 #include <array>
 #include <cstdint>
 #include <random>
@@ -48,37 +47,37 @@ namespace neri_schneider {
 
   // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
-  date_t constexpr
+  date_t
   to_date(rata_die_t r) noexcept {
 
     auto constexpr z2    = std::uint32_t(-1468000);
     auto constexpr r2_e3 = std::uint32_t(536895458);
 
-    auto const     r0    = r + r2_e3;
+    auto const r0 = r + r2_e3;
 
-    auto const     n1    = 4 * r0 + 3;
-    auto const     q1    = n1 / 146097;
-    auto const     r1    = n1 % 146097 / 4;
+    auto const n1 = 4 * r0 + 3;
+    auto const q1 = n1 / 146097;
+    auto const r1 = n1 % 146097 / 4;
 
-    auto constexpr p32   = std::uint64_t(1) << 32;
-    auto const     n2    = 4 * r1 + 3;
-    auto const     u2    = std::uint64_t(2939745) * n2;
-    auto const     q2    = std::uint32_t(u2 / p32);
-    auto const     r2    = std::uint32_t(u2 % p32) / 2939745 / 4;
+    auto constexpr p32 = std::uint64_t(1) << 32;
+    auto const n2 = 4 * r1 + 3;
+    auto const u2 = std::uint64_t(2939745) * n2;
+    auto const q2 = std::uint32_t(u2 / p32);
+    auto const r2 = std::uint32_t(u2 % p32) / 2939745 / 4;
 
-    auto constexpr p16   = std::uint32_t(1) << 16;
-    auto const     n3    = 2141 * r2 + 197657;
-    auto const     q3    = n3 / p16;
-    auto const     r3    = n3 % p16 / 2141;
+    auto constexpr p16 = std::uint32_t(1) << 16;
+    auto const n3 = 2141 * r2 + 197657;
+    auto const q3 = n3 / p16;
+    auto const r3 = n3 % p16 / 2141;
 
-    auto const     y0    = 100 * q1 + q2;
-    auto const     m0    = q3;
-    auto const     d0    = r3;
+    auto const y0 = 100 * q1 + q2;
+    auto const m0 = q3;
+    auto const d0 = r3;
 
-    auto const     j     = r2 >= 306;
-    auto const     y1    = y0 + j;
-    auto const     m1    = j ? m0 - 12 : m0;
-    auto const     d1    = d0 + 1;
+    auto const j  = r2 >= 306;
+    auto const y1 = y0 + j;
+    auto const m1 = j ? m0 - 12 : m0;
+    auto const d1 = d0 + 1;
 
     return { year_t(y1 + z2), month_t(m1), day_t(d1) };
   }
@@ -90,7 +89,7 @@ namespace baum {
   // https://www.researchgate.net/publication/316558298_Date_Algorithms
 
   // Section 6.2.1/3
-  date_t static constexpr
+  date_t
   to_date(rata_die_t n) noexcept {
     auto const z  = std::uint32_t(n) + 719469; // adjusted to unix epoch
     auto const h  = 100 * z - 25;
@@ -139,7 +138,7 @@ namespace boost {
   // DEALINGS IN THE SOFTWARE.
 
   // https://github.com/boostorg/date_time/blob/4e1b7cde45edf8fdda73ec5c60053c9257138292/include/boost/date_time/gregorian_calendar.ipp#L109
-  date_t constexpr
+  date_t
   to_date(rata_die_t dayNumber) noexcept {
     rata_die_t a = dayNumber + 32044;
     rata_die_t b = (4*a + 3)/146097;
@@ -184,19 +183,19 @@ namespace dotnet {
   // SOFTWARE.
 
   // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L102
-  rata_die_t static constexpr s_daysToMonth365[] = {
+  rata_die_t constexpr s_daysToMonth365[] = {
     0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
-  rata_die_t static constexpr s_daysToMonth366[] = {
+  rata_die_t constexpr s_daysToMonth366[] = {
     0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
 
   // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L64
-  rata_die_t static constexpr DaysPerYear = 365;
-  rata_die_t static constexpr DaysPer4Years = DaysPerYear * 4 + 1;       // 1461
-  rata_die_t static constexpr DaysPer100Years = DaysPer4Years * 25 - 1;  // 36524
-  rata_die_t static constexpr DaysPer400Years = DaysPer100Years * 4 + 1; // 146097
+  rata_die_t constexpr DaysPerYear = 365;
+  rata_die_t constexpr DaysPer4Years = DaysPerYear * 4 + 1;       // 1461
+  rata_die_t constexpr DaysPer100Years = DaysPer4Years * 25 - 1;  // 36524
+  rata_die_t constexpr DaysPer400Years = DaysPer100Years * 4 + 1; // 146097
 
   // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L938
-  date_t static constexpr
+  date_t
   to_date(rata_die_t rata_die) noexcept {
     rata_die_t n = rata_die + 719162; // adjusted to unix epoch
     rata_die_t y400 = n / DaysPer400Years;
@@ -223,7 +222,7 @@ namespace dotnet {
 
 namespace fliegel_flandern {
 
-  date_t static constexpr
+  date_t
   to_date(rata_die_t n) noexcept {
     auto const JD = n + 2440588; // adjusted to unix epoch
     auto       L  = JD + 68569;
@@ -264,7 +263,7 @@ namespace glibc {
   // <https://www.gnu.org/licenses/>.
 
   // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l173
-  unsigned short int static constexpr __mon_yday[2][13] =
+  unsigned short int constexpr __mon_yday[2][13] =
     {
       /* Normal years.  */
       { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
@@ -277,7 +276,7 @@ namespace glibc {
     ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
 
   // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/offtime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l24
-  date_t static constexpr
+  date_t
   to_date(rata_die_t days) noexcept {
 
     rata_die_t y = 1970;
@@ -312,24 +311,24 @@ namespace hatcher {
   // E. G. Richards, Mapping Time, The calendar and its history, Oxford University Press, 1998.
 
   // Table 25.1, page 311.
-  auto static constexpr y = rata_die_t(4716);
-  auto static constexpr m = rata_die_t(3);
-  auto static constexpr n = rata_die_t(12);
-  auto static constexpr r = rata_die_t(4);
-  auto static constexpr p = rata_die_t(1461);
-  auto static constexpr v = rata_die_t(3);
-  auto static constexpr u = rata_die_t(5);
-  auto static constexpr s = rata_die_t(153);
-  auto static constexpr w = rata_die_t(2);
+  auto constexpr y = rata_die_t(4716);
+  auto constexpr m = rata_die_t(3);
+  auto constexpr n = rata_die_t(12);
+  auto constexpr r = rata_die_t(4);
+  auto constexpr p = rata_die_t(1461);
+  auto constexpr v = rata_die_t(3);
+  auto constexpr u = rata_die_t(5);
+  auto constexpr s = rata_die_t(153);
+  auto constexpr w = rata_die_t(2);
 
   // Table 25.4, page 320.
-  auto static constexpr B = rata_die_t(274277);
-  auto static constexpr G = rata_die_t(-38);
+  auto constexpr B = rata_die_t(274277);
+  auto constexpr G = rata_die_t(-38);
   // Page 319
-  auto static constexpr K = 36524;
+  auto constexpr K = 36524;
 
   // Algorithm F, page 324.
-  date_t static constexpr
+  date_t static
   to_date(rata_die_t x) noexcept {
     auto const J  = x + rata_die_t(2440575); // adjusted to unix epoch
     auto const g  = 3 * ((4 * J + B) / (4 * K + 1)) / 4 + G;
@@ -355,7 +354,7 @@ namespace libcxx {
   // See https://llvm.org/LICENSE.txt for license information.
 
   // https://github.com/llvm/llvm-project/blob/8e34be2f2511dfff7a8e3018bbd4188a93e446ea/libcxx/include/chrono#L2305
-  date_t constexpr
+  date_t
   to_date(rata_die_t __d) noexcept {
     const int      __z = __d + 719468;
     const int      __era = (__z >= 0 ? __z : __z - 146096) / 146097;
@@ -377,10 +376,10 @@ namespace reingold_dershowitz {
   // University Press, 2018.
 
   // Table 1.2, page 17.
-  rata_die_t static constexpr gregorian_epoch = 1;
+  rata_die_t constexpr gregorian_epoch = 1;
 
   // alt-fixed-from-gregorian, equation (2.28), page 65:
-  rata_die_t static constexpr
+  rata_die_t
   to_rata_die(date_t date) noexcept {
 
     auto const year  = rata_die_t(date.year );
@@ -406,7 +405,7 @@ namespace reingold_dershowitz {
   }
 
   // gregorian-year-from-fixed, equation (2.21), page 61:
-  rata_die_t static constexpr
+  rata_die_t
   gregorian_year_from_fixed(rata_die_t date) noexcept {
     auto const d0   = date - gregorian_epoch;
     auto const n400 = d0 / 146097;
@@ -421,18 +420,18 @@ namespace reingold_dershowitz {
   }
 
   // alt-fixed-from-gregorian, equation (2.28), page 65:
-  rata_die_t static constexpr
+  rata_die_t
   fixed_from_gregorian(date_t date) noexcept {
     return to_rata_die(date) + 719163;
   }
 
-  rata_die_t static constexpr
+  rata_die_t
   mod_1_12(rata_die_t month) noexcept {
     return month > 12 ? month - 12 : month;
   }
 
   // alt-gregorian-from-fixed, equation (2.29), page 66:
-  date_t static constexpr
+  date_t
   to_date(rata_die_t date) noexcept {
     date = date + 719163; // adjusted to unix epoch
     auto const y          = gregorian_year_from_fixed(gregorian_epoch - 1 + date + 306);
@@ -463,92 +462,37 @@ auto const rata_dies = [](){
 // Benchmark
 //----------------------------
 
-void ReingoldDershowitz(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = reingold_dershowitz::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
-  }
-}
-BENCHMARK(ReingoldDershowitz);
+// If defined, likely to be running on quick-bench.
+#ifndef BENCHMARK
 
-void GLibC(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = glibc::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
-  }
-}
-BENCHMARK(GLibC);
+  #include <benchmark/benchmark.h>
 
-void DotNet(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = dotnet::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
+  void Scan(benchmark::State& state) {
+    for (auto _ : state)
+      for (auto const rata_die : rata_dies)
+        benchmark::DoNotOptimize(rata_die);
   }
-}
-BENCHMARK(DotNet);
+  BENCHMARK(Scan);
 
-void Hatcher(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = hatcher::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
-  }
-}
-BENCHMARK(Hatcher);
+#endif
 
-void FliegelFlandern(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = fliegel_flandern::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
-  }
-}
-BENCHMARK(FliegelFlandern);
+#define DO_BENCHMARK(label, namespace)                  \
+  void label(benchmark::State& state) {                 \
+    for (auto _ : state) {                              \
+      for (auto const rata_die : rata_dies) {           \
+        auto const date = namespace::to_date(rata_die); \
+        benchmark::DoNotOptimize(date);                 \
+      }                                                 \
+    }                                                   \
+  }                                                     \
+  BENCHMARK(label)                                      \
 
-void Boost(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = boost::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
-  }
-}
-BENCHMARK(Boost);
-
-void LibCxx(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = libcxx::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
-  }
-}
-BENCHMARK(LibCxx);
-
-void Baum(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = baum::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
-  }
-}
-BENCHMARK(Baum);
-
-void NeriSchneider(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const n : rata_dies) {
-      auto u = neri_schneider::to_date(n);
-      benchmark::DoNotOptimize(u);
-    }
-  }
-}
-BENCHMARK(NeriSchneider);
+DO_BENCHMARK(ReingoldDershowitz, reingold_dershowitz);
+DO_BENCHMARK(GLibC             , glibc              );
+DO_BENCHMARK(DotNet            , dotnet             );
+DO_BENCHMARK(Hatcher           , hatcher            );
+DO_BENCHMARK(FliegelFlandern   , fliegel_flandern   );
+DO_BENCHMARK(Boost             , boost              );
+DO_BENCHMARK(LibCxx            , libcxx             );
+DO_BENCHMARK(Baum              , baum               );
+DO_BENCHMARK(NeriSchneider     , neri_schneider     );

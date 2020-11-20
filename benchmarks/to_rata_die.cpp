@@ -20,10 +20,9 @@
  *
  ******************************************************************************/
 
-#include <benchmark/benchmark.h>
+#include <array>
 #include <cstdint>
 #include <random>
-#include <type_traits>
 
 //----------------------------
 // Config
@@ -48,27 +47,27 @@ namespace neri_schneider {
 
   // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
-  rata_die_t constexpr
+  rata_die_t
   to_rata_die(date_t const& u2) noexcept {
 
     auto constexpr z2    = std::uint32_t(-1468000);
     auto constexpr r2_e3 = std::uint32_t(536895458);
 
-    auto const     y1    = std::uint32_t(u2.year) - z2;
-    auto const     m1    = std::uint32_t(u2.month);
-    auto const     d1    = std::uint32_t(u2.day);
+    auto const y1 = std::uint32_t(u2.year) - z2;
+    auto const m1 = std::uint32_t(u2.month);
+    auto const d1 = std::uint32_t(u2.day);
 
-    auto const     j     = std::uint32_t(m1 < 3);
-    auto const     y0    = y1 - j;
-    auto const     m0    = j ? m1 + 12 : m1;
-    auto const     d0    = d1 - 1;
+    auto const j  = std::uint32_t(m1 < 3);
+    auto const y0 = y1 - j;
+    auto const m0 = j ? m1 + 12 : m1;
+    auto const d0 = d1 - 1;
 
-    auto const     q1    = y0 / 100;
-    auto const     yc    = 1461 * y0 / 4 - q1 + q1 / 4;
-    auto const     mc    = (979 * m0 - 2919) / 32;
-    auto const     dc    = d0;
+    auto const q1 = y0 / 100;
+    auto const yc = 1461 * y0 / 4 - q1 + q1 / 4;
+    auto const mc = (979 * m0 - 2919) / 32;
+    auto const dc = d0;
 
-    auto const     r3    = yc + mc + dc - r2_e3;
+    auto const r3 = yc + mc + dc - r2_e3;
 
     return r3;
   }
@@ -80,7 +79,7 @@ namespace baum {
   // https://www.researchgate.net/publication/316558298_Date_Algorithms
 
   // Section 5.1
-  rata_die_t static constexpr
+  rata_die_t
   to_rata_die(const date_t& u) noexcept {
     auto const j = u.month < 3;
     auto const z = u.year - j;                                      // step 1 / alternative 2
@@ -123,7 +122,7 @@ namespace boost {
   // DEALINGS IN THE SOFTWARE.
 
   // https://github.com/boostorg/date_time/blob/4e1b7cde45edf8fdda73ec5c60053c9257138292/include/boost/date_time/gregorian_calendar.ipp#L68
-  rata_die_t constexpr
+  rata_die_t
   to_rata_die(const date_t& ymd) noexcept {
     unsigned short a = static_cast<unsigned short>((14-ymd.month)/12);
     unsigned short y = static_cast<unsigned short>(ymd.year + 4800 - a);
@@ -163,19 +162,19 @@ namespace dotnet {
   // SOFTWARE.
 
   // // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L102
-  rata_die_t static constexpr s_daysToMonth365[] = {
+  rata_die_t constexpr s_daysToMonth365[] = {
     0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
-  rata_die_t static constexpr s_daysToMonth366[] = {
+  rata_die_t constexpr s_daysToMonth366[] = {
     0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
 
   // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L1123
-  bool static constexpr
+  bool
   IsLeapYear(year_t year) noexcept {
     return (year & 3) == 0 && ((year & 15) == 0 || (year % 25) != 0);
   }
 
   // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L625
-  rata_die_t static constexpr
+  rata_die_t
   to_rata_die(const date_t& date) noexcept {
     rata_die_t const* days = IsLeapYear(date.year) ? s_daysToMonth366 : s_daysToMonth365;
     rata_die_t y = date.year - 1;
@@ -187,7 +186,7 @@ namespace dotnet {
 
 namespace fliegel_flandern {
 
-  rata_die_t static constexpr
+  rata_die_t
   to_rata_die(const date_t& u) noexcept {
     auto const I  = rata_die_t(u.year);
     auto const J  = rata_die_t(u.month);
@@ -223,7 +222,7 @@ namespace glibc {
   // <https://www.gnu.org/licenses/>.
 
   // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l138
-  rata_die_t static constexpr
+  rata_die_t
   shr(rata_die_t a, int b) noexcept {
     rata_die_t one = 1;
     return (-one >> 1 == -1 ? a >> b : a / (one << b) - (a % (one << b) < 0));
@@ -234,14 +233,14 @@ namespace glibc {
   #define TM_YEAR_BASE 1900
 
   // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l161
-  bool static constexpr
+  bool
   leapyear (rata_die_t year) noexcept {
     return ((year & 3) == 0 && (year % 100 != 0 ||
       ((year / 100) & 3) == (- (TM_YEAR_BASE / 100) & 3)));
   }
 
   // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l173
-  unsigned short int static constexpr __mon_yday[2][13] =
+  unsigned short int constexpr __mon_yday[2][13] =
     {
       /* Normal years.  */
       { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
@@ -250,7 +249,7 @@ namespace glibc {
     };
 
   // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l194
-  rata_die_t static constexpr
+  rata_die_t
   ydhms_diff (rata_die_t year1, rata_die_t yday1, rata_die_t year0) noexcept {
     rata_die_t a4 = shr (year1, 2) + shr (TM_YEAR_BASE, 2) - ! (year1 & 3);
     rata_die_t b4 = shr (year0, 2) + shr (TM_YEAR_BASE, 2) - ! (year0 & 3);
@@ -265,7 +264,7 @@ namespace glibc {
   }
 
   // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l312
-  rata_die_t static constexpr
+  rata_die_t
   to_rata_die(const date_t& date) noexcept {
     rata_die_t mday     = date.day;
     rata_die_t mon      = date.month - 1;
@@ -284,22 +283,22 @@ namespace hatcher {
   // E. G. Richards, Mapping Time, The calendar and its history, Oxford University Press, 1998.
 
   // Table 25.1, page 311.
-  auto static constexpr y = rata_die_t(4716);
-  auto static constexpr m = rata_die_t(3);
-  auto static constexpr n = rata_die_t(12);
-  auto static constexpr r = rata_die_t(4);
-  auto static constexpr p = rata_die_t(1461);
-  auto static constexpr q = rata_die_t(0);
-  auto static constexpr u = rata_die_t(5);
-  auto static constexpr s = rata_die_t(153);
-  auto static constexpr t = rata_die_t(2);
+  auto constexpr y = rata_die_t(4716);
+  auto constexpr m = rata_die_t(3);
+  auto constexpr n = rata_die_t(12);
+  auto constexpr r = rata_die_t(4);
+  auto constexpr p = rata_die_t(1461);
+  auto constexpr q = rata_die_t(0);
+  auto constexpr u = rata_die_t(5);
+  auto constexpr s = rata_die_t(153);
+  auto constexpr t = rata_die_t(2);
 
   // Table 25.4, page 320.
-  auto static constexpr A = rata_die_t(184);
-  auto static constexpr G = rata_die_t(-38);
+  auto constexpr A = rata_die_t(184);
+  auto constexpr G = rata_die_t(-38);
 
   // Algorithm E, page 323.
-  rata_die_t static constexpr
+  rata_die_t
   to_rata_die(const date_t& x) noexcept {
     auto const Y  = rata_die_t(x.year);
     auto const M  = rata_die_t(x.month);
@@ -325,7 +324,7 @@ namespace libcxx {
   // See https://llvm.org/LICENSE.txt for license information.
 
   // https://github.com/llvm/llvm-project/blob/8e34be2f2511dfff7a8e3018bbd4188a93e446ea/libcxx/include/chrono#L2325
-  rata_die_t constexpr
+  rata_die_t
   to_rata_die(const date_t& date) noexcept {
     const int      __yr  = static_cast<int>(date.year) - (date.month <= 2);
     const unsigned __mth = static_cast<unsigned>(date.month);
@@ -345,10 +344,10 @@ namespace reingold_dershowitz {
   // University Press, 2018.
 
   // Table 1.2, page 17.
-  rata_die_t static constexpr gregorian_epoch = 1;
+  rata_die_t constexpr gregorian_epoch = 1;
 
   // alt-fixed-from-gregorian, equation (2.28), page 65:
-  rata_die_t static constexpr
+  rata_die_t
   to_rata_die(date_t date) noexcept {
 
     auto const year  = rata_die_t(date.year );
@@ -379,37 +378,37 @@ namespace reingold_dershowitz {
 // Benchmark data
 //----------------------------
 
-date_t constexpr
+date_t
 to_date(rata_die_t r) noexcept {
 
   auto constexpr z2    = std::uint32_t(-1468000);
   auto constexpr r2_e3 = std::uint32_t(536895458);
 
-  auto const     r0    = r + r2_e3;
+  auto const r0 = r + r2_e3;
 
-  auto const     n1    = 4 * r0 + 3;
-  auto const     q1    = n1 / 146097;
-  auto const     r1    = n1 % 146097 / 4;
+  auto const n1 = 4 * r0 + 3;
+  auto const q1 = n1 / 146097;
+  auto const r1 = n1 % 146097 / 4;
 
-  auto constexpr p32   = std::uint64_t(1) << 32;
-  auto const     n2    = 4 * r1 + 3;
-  auto const     u2    = std::uint64_t(2939745) * n2;
-  auto const     q2    = std::uint32_t(u2 / p32);
-  auto const     r2    = std::uint32_t(u2 % p32) / 2939745 / 4;
+  auto constexpr p32 = std::uint64_t(1) << 32;
+  auto const n2 = 4 * r1 + 3;
+  auto const u2 = std::uint64_t(2939745) * n2;
+  auto const q2 = std::uint32_t(u2 / p32);
+  auto const r2 = std::uint32_t(u2 % p32) / 2939745 / 4;
 
-  auto constexpr p16   = std::uint32_t(1) << 16;
-  auto const     n3    = 2141 * r2 + 197657;
-  auto const     q3    = n3 / p16;
-  auto const     r3    = n3 % p16 / 2141;
+  auto constexpr p16 = std::uint32_t(1) << 16;
+  auto const n3 = 2141 * r2 + 197657;
+  auto const q3 = n3 / p16;
+  auto const r3 = n3 % p16 / 2141;
 
-  auto const     y0    = 100 * q1 + q2;
-  auto const     m0    = q3;
-  auto const     d0    = r3;
+  auto const y0 = 100 * q1 + q2;
+  auto const m0 = q3;
+  auto const d0 = r3;
 
-  auto const     j     = r2 >= 306;
-  auto const     y1    = y0 + j;
-  auto const     m1    = j ? m0 - 12 : m0;
-  auto const     d1    = d0 + 1;
+  auto const j  = r2 >= 306;
+  auto const y1 = y0 + j;
+  auto const m1 = j ? m0 - 12 : m0;
+  auto const d1 = d0 + 1;
 
   return { year_t(y1 + z2), month_t(m1), day_t(d1) };
 }
@@ -427,92 +426,37 @@ auto const dates = [](){
 // Benchmark
 //----------------------------
 
-void ReingoldDershowitz(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& u : dates) {
-      auto n = reingold_dershowitz::to_rata_die(u);
-      benchmark::DoNotOptimize(n);
-    }
-  }
-}
-BENCHMARK(ReingoldDershowitz);
+// If defined, likely to be running on quick-bench.
+#ifndef BENCHMARK
 
-void GLibC(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& u : dates) {
-      auto n = glibc::to_rata_die(u);
-      benchmark::DoNotOptimize(n);
-    }
-  }
-}
-BENCHMARK(GLibC);
+  #include <benchmark/benchmark.h>
 
-void DotNet(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& u : dates) {
-      auto n = dotnet::to_rata_die(u);
-      benchmark::DoNotOptimize(n);
-    }
+  void Scan(benchmark::State& state) {
+    for (auto _ : state)
+      for (auto const& date : dates)
+        benchmark::DoNotOptimize(date);
   }
-}
-BENCHMARK(DotNet);
+  BENCHMARK(Scan);
 
-void Hatcher(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& u : dates) {
-      auto n = hatcher::to_rata_die(u);
-      benchmark::DoNotOptimize(n);
-    }
-  }
-}
-BENCHMARK(Hatcher);
+#endif
 
-void FliegelFlandern(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& u : dates) {
-      auto n = fliegel_flandern::to_rata_die(u);
-      benchmark::DoNotOptimize(n);
-    }
-  }
-}
-BENCHMARK(FliegelFlandern);
+#define DO_BENCHMARK(label, namespace)                \
+  void label(benchmark::State& state) {               \
+    for (auto _ : state) {                            \
+      for (auto const& date : dates) {                \
+        auto rata_die = namespace::to_rata_die(date); \
+        benchmark::DoNotOptimize(rata_die);           \
+      }                                               \
+    }                                                 \
+  }                                                   \
+  BENCHMARK(label)                                    \
 
-void Boost(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& u : dates) {
-      auto n = boost::to_rata_die(u);
-      benchmark::DoNotOptimize(n);
-    }
-  }
-}
-BENCHMARK(Boost);
-
-void LibCxx(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& u : dates) {
-      auto n = libcxx::to_rata_die(u);
-      benchmark::DoNotOptimize(n);
-    }
-  }
-}
-BENCHMARK(LibCxx);
-
-void Baum(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& u : dates) {
-      auto n = baum::to_rata_die(u);
-      benchmark::DoNotOptimize(n);
-    }
-  }
-}
-BENCHMARK(Baum);
-
-void NeriSchneider(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& u : dates) {
-      auto n = neri_schneider::to_rata_die(u);
-      benchmark::DoNotOptimize(n);
-    }
-  }
-}
-BENCHMARK(NeriSchneider);
+DO_BENCHMARK(ReingoldDershowitz, reingold_dershowitz);
+DO_BENCHMARK(GLibC             , glibc              );
+DO_BENCHMARK(DotNet            , dotnet             );
+DO_BENCHMARK(Hatcher           , hatcher            );
+DO_BENCHMARK(FliegelFlandern   , fliegel_flandern   );
+DO_BENCHMARK(Boost             , boost              );
+DO_BENCHMARK(LibCxx            , libcxx             );
+DO_BENCHMARK(Baum              , baum               );
+DO_BENCHMARK(NeriSchneider     , neri_schneider     );

@@ -20,7 +20,6 @@
  *
  ******************************************************************************/
 
-#include <benchmark/benchmark.h>
 #include <array>
 #include <cstdint>
 #include <random>
@@ -39,30 +38,38 @@ namespace neri_schneider {
 
   // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
-  bool constexpr
-  is_leap_year_mod(year_t year) noexcept {
-    return (year % 100 != 0 || year % 400 == 0) & (year % 4 == 0);
-  }
+  namespace mod {
 
-  bool constexpr
-  is_multiple_of_100(std::int32_t n) {
-    std::uint32_t constexpr multiplier   = 42949673;
-    std::uint32_t constexpr bound        = 42949669;
-    std::uint32_t constexpr max_dividend = 1073741799;
-    std::uint32_t constexpr offset       = max_dividend / 2 / 100 * 100;
-    return multiplier * (n + offset) < bound;
-  }
+    bool
+    is_leap_year(year_t year) noexcept {
+      return (year % 100 != 0 || year % 400 == 0) & (year % 4 == 0);
+    }
 
-  bool constexpr
-  is_leap_year_mcomp(year_t year) noexcept {
-    return (!is_multiple_of_100(year) || year % 16 == 0) & (year % 4 == 0);
-  }
+  } // namespace mod
+
+  namespace mcomp {
+
+    bool
+    is_multiple_of_100(std::int32_t n) noexcept {
+      std::uint32_t constexpr multiplier   = 42949673;
+      std::uint32_t constexpr bound        = 42949669;
+      std::uint32_t constexpr max_dividend = 1073741799;
+      std::uint32_t constexpr offset       = max_dividend / 2 / 100 * 100;
+      return multiplier * (n + offset) < bound;
+    }
+
+    bool
+    is_leap_year(year_t year) noexcept {
+      return (!is_multiple_of_100(year) || year % 16 == 0) & (year % 4 == 0);
+    }
+
+  } // namespace mcomp
 
 } // namespace neri_schneider
 
 namespace ubiquitous {
 
-  bool constexpr
+  bool
   is_leap_year(year_t y) noexcept {
     return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
   }
@@ -86,32 +93,31 @@ auto const years = [](){
 // Benchmark
 //----------------------------
 
-void Ubiquitous(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& year : years) {
-      auto b = ubiquitous::is_leap_year(year);
-      benchmark::DoNotOptimize(b);
-    }
-  }
-}
-BENCHMARK(Ubiquitous);
+// If defined, likely to be running on quick-bench.
+#ifndef BENCHMARK
 
-void NeriSchneider_mod(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& year : years) {
-      auto b = neri_schneider::is_leap_year_mod(year);
-      benchmark::DoNotOptimize(b);
-    }
-  }
-}
-BENCHMARK(NeriSchneider_mod);
+  #include <benchmark/benchmark.h>
 
-void NeriSchneider_mcomp(benchmark::State& state) {
-  for (auto _ : state) {
-    for (auto const& year : years) {
-      auto b = neri_schneider::is_leap_year_mcomp(year);
-      benchmark::DoNotOptimize(b);
-    }
+  void Scan(benchmark::State& state) {
+    for (auto _ : state)
+      for (auto const year : years)
+        benchmark::DoNotOptimize(year);
   }
-}
-BENCHMARK(NeriSchneider_mcomp);
+  BENCHMARK(Scan);
+
+  #endif
+
+#define DO_BENCHMARK(label, namespace)                \
+  void label(benchmark::State& state) {               \
+    for (auto _ : state) {                            \
+      for (auto const year : years) {                 \
+        auto const b = namespace::is_leap_year(year); \
+        benchmark::DoNotOptimize(b);                  \
+      }                                               \
+    }                                                 \
+  }                                                   \
+  BENCHMARK(label)                                    \
+
+DO_BENCHMARK(Ubiquitous         , ubiquitous           );
+DO_BENCHMARK(NeriSchneider_mod  , neri_schneider::mod  );
+DO_BENCHMARK(NeriSchneider_mcomp, neri_schneider::mcomp);

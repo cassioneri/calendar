@@ -19,7 +19,7 @@
 
 /**
  * @file calendar.hpp
- * 
+ *
  * @brief Calendar algorithms.
  */
 
@@ -248,23 +248,23 @@ struct ugregorian_t {
    */
   rata_die_t static constexpr
   to_rata_die(date_t const& u1) noexcept {
-    
+
     auto const y1 = rata_die_t(u1.year);
     auto const m1 = rata_die_t(u1.month);
     auto const d1 = rata_die_t(u1.day);
-    
+
     auto const j  = rata_die_t(m1 < 3);
     auto const y0 = y1 - j;
     auto const m0 = j ? m1 + 12 : m1;
     auto const d0 = d1 - 1;
-    
+
     auto const q1 = y0 / 100;
     auto const yc = 1461 * y0 / 4 - q1 + q1 / 4;
     auto const mc = (979 * m0 - 2919) / 32;
     auto const dc = d0;
-    
+
     auto const r1 = yc + mc + dc;
-    
+
     return r1;
   }
 
@@ -276,7 +276,7 @@ struct ugregorian_t {
    */
   date_t static constexpr
   to_date(rata_die_t r0) noexcept {
-    
+
     auto const     n1  = 4 * r0 + 3;
     auto const     q1  = n1 / 146097;
     auto const     r1  = n1 % 146097 / 4;
@@ -286,16 +286,16 @@ struct ugregorian_t {
     auto const     u2  = std::uint64_t(2939745) * n2;
     auto const     q2  = std::uint32_t(u2 / p32);
     auto const     r2  = std::uint32_t(u2 % p32) / 2939745 / 4;
-    
+
     auto constexpr p16 = std::uint32_t(1) << 16;
     auto const     n3  = 2141 * r2 + 197913;
     auto const     q3  = n3 / p16;
     auto const     r3  = n3 % p16 / 2141;
-    
+
     auto const     y0  = 100 * q1 + q2;
     auto const     m0  = q3;
     auto const     d0  = r3;
-    
+
     auto const     j   = r2 >= 306;
     auto const     y1  = y0 + j;
     auto const     m1  = j ? m0 - 12 : m0;
@@ -313,11 +313,11 @@ struct ugregorian_t {
   * @brief  Maximum date allowed as input to to_rata_die.
   */
   date_t static constexpr date_max = []{
-    
+
     auto constexpr y = max<rata_die_t> / 1461;
     if (max<year_t> <= y)
       return max<date_t>;
-    
+
     return date_t{year_t(y + 1), month_t(2), day_t(28 + is_leap_year(y + 1))};
   }();
 
