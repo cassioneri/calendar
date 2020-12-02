@@ -41,7 +41,7 @@ they might emit substantially different instructions). They compare implementati
 2020-May-02 which might have been slightly edited to get: (a) consistent function signatures; (b)
 consistent storage types (for years, months, days and day counts) closer to C++20 requirements; (c)
 consistent epoch (unix time 1970-Jan-01). Some originals deal with date and time but the variants
-used here work on dates only (except, to_time).
+used here work on dates only.
 
 Tests show correctness and compliance with the C++ Standard, that is, `to_rata_die` and `to_date`
 are strictly increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in

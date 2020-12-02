@@ -26,36 +26,42 @@
  */
 
 #include <algorithm>
+#include <cassert>
 #include <cinttypes>
 #include <cstring>
 #include <iostream>
+#include <limits>
 
 /**
  * @brief Coefficients of EAF.
  */
 struct eaf_t {
-  std::intmax_t alpha;
-  std::intmax_t beta;
-  std::intmax_t delta;
+  uint64_t alpha;
+  int64_t  beta;
+  uint64_t delta;
 };
 
 /**
  * @brief Coefficients and upper bound of fast EAFs.
  */
 struct fast_eaf_t {
-  eaf_t         fast;
-  std::uint32_t k;
-  std::intmax_t upper_bound;
+  eaf_t    fast;
+  uint32_t k;
+  uint64_t upper_bound;
 };
 
 std::ostream& operator <<(std::ostream& os, fast_eaf_t const& eaf) {
-  return os <<
+  os <<
     "alpha'      = " << eaf.fast.alpha  << "\n"
     "beta'       = " << eaf.fast.beta   << "\n"
-    "delta'      = " << eaf.fast.delta  << "\n"
+    "delta'      = ";
+    if (eaf.k == 64)
+      os << "18446744073709551616\n";
+    else
+      os << eaf.fast.delta << "\n";
+  return os <<
     "k           = " << eaf.k           << "\n"
-    "upper bound = " << eaf.upper_bound << "\n"
-    ;
+    "upper bound = " << eaf.upper_bound << "\n";
 }
 
 /**
@@ -65,9 +71,9 @@ std::ostream& operator <<(std::ostream& os, fast_eaf_t const& eaf) {
  * @param   eaf       Original EAF.
  */
 fast_eaf_t constexpr
-get_fast_eaf(bool round_up, std::uint32_t k, eaf_t const& eaf) noexcept {
+get_fast_eaf(bool round_up, uint32_t k, eaf_t const& eaf) noexcept {
 
-  auto const two_k       = std::intmax_t(1) << k;
+  auto const two_k       = __int128_t(1) << k;
   auto const two_k_alpha = two_k * eaf.alpha;
   auto const div         = two_k_alpha / eaf.delta;
   auto const mod         = two_k_alpha % eaf.delta;
@@ -75,7 +81,7 @@ get_fast_eaf(bool round_up, std::uint32_t k, eaf_t const& eaf) noexcept {
   auto const epsilon     = round_up ? eaf.delta - mod : mod;
   
   // g(r) = alpha' * r - 2^k * f(r)
-  auto g = [&](std::intmax_t r) {
+  auto g = [&](__int128_t r) {
 
     auto const num = eaf.alpha * r + eaf.beta;
     
@@ -89,19 +95,19 @@ get_fast_eaf(bool round_up, std::uint32_t k, eaf_t const& eaf) noexcept {
   auto const beta_prime = [&]() {
     if (round_up) {
       auto min = g(0);
-      for (std::intmax_t r = 1; r < eaf.delta; ++r)
+      for (uint64_t r = 1; r < eaf.delta; ++r)
         min = std::min(min, g(r));
       return -min;
     }
     else {
       auto max = g(0);
-      for (std::intmax_t r = 1; r < eaf.delta; ++r)
+      for (uint64_t r = 1; r < eaf.delta; ++r)
         max = std::max(max, g(r));
       return two_k - 1 - max;
     }
   }();
   
-  auto M = [&](std::intmax_t r) {
+  auto M = [&](__int128_t r) {
     if (round_up) {
       auto const num = two_k - (g(r) + beta_prime);
       if (num <= 0) return r;
@@ -117,14 +123,18 @@ get_fast_eaf(bool round_up, std::uint32_t k, eaf_t const& eaf) noexcept {
   };
 
   auto N = M(0);
-  for (std::intmax_t r = 1; r < eaf.delta; ++r)
+  for (uint64_t r = 1; r < eaf.delta; ++r)
     N = std::min(N, M(r));
-    
-    return { { alpha_prime, beta_prime, two_k }, k, N };
+  
+  assert(alpha_prime <= std::numeric_limits<uint64_t>::max());
+  assert(beta_prime  <= std::numeric_limits<int64_t >::max());
+  assert(N           <= std::numeric_limits<uint64_t >::max());
+
+  return { { uint64_t(alpha_prime), int64_t(beta_prime), uint64_t(two_k) }, k, uint64_t(N) };
 }
 
 int main(int argc, char* argv[]) {
-
+  
   if (argc < 6) {
     std::cerr << argv[0] << ": requires at least 5 arguments: method, alpha, beta, delta and k\n"; 
     exit (1);
@@ -143,7 +153,7 @@ int main(int argc, char* argv[]) {
   
   char* end_ptr;
 
-  auto const alpha = std::strtoimax(argv[2], &end_ptr, 10);
+  auto const alpha = std::strtoumax(argv[2], &end_ptr, 10);
   if (end_ptr == argv[2]) {
     std::cerr << argv[0] << ": cannot parse alpha argument.\n";
     std::exit(1);
@@ -155,7 +165,7 @@ int main(int argc, char* argv[]) {
     std::exit(1);
   }
   
-  auto const delta = std::strtoimax(argv[4], &end_ptr, 10);
+  auto const delta = std::strtoumax(argv[4], &end_ptr, 10);
   if (end_ptr == argv[4]) {
     std::cerr << argv[0] << ": cannot parse delta argument.\n";
     std::exit(1);
@@ -176,8 +186,8 @@ int main(int argc, char* argv[]) {
       std::exit(1);
     }
 
-    if (k < 1 || k > 63) {
-      std::cerr << argv[0] << ": k must be in [1, 63] (skipping k = " << k << ")\n\n";
+    if (k < 1 || k > 64) {
+      std::cerr << argv[0] << ": k must be in [1, 64] (skipping k = " << k << ")\n\n";
       continue;
     }
     
