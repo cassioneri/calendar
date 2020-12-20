@@ -13,8 +13,8 @@ the following C++20's functions:
     std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
 
 Our implementations are benchmarked against counterparts, including some of the most widely used
-C, C++, C# and Java libraries (glibc, .NET, Boost and libc++) and our own implementations of
-algorithms found in academic literature. Charts below suggest that our algorithms perform
+C (glibc), C++ (boost and libc++), C# (.NET) and Java (OpenJDK) libraries; and our implementations
+of algorithms found in academic literature. Charts below suggest that our algorithms perform
 considerably faster than others.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
@@ -52,10 +52,9 @@ implementation used virtually everywhere) is
 
 **Disclaimer**: Benchmarks above show a single run and YMMV (especially when changing compiler since
 they might emit substantially different instructions). They compare implementations as of
-2020-May-02 which might have been slightly edited to get consistent: (a) function signatures; (b)
-storage types (for years, months, days and day counts) closer to C++20 requirements; (c) epoch (unix
-time 1970-Jan-01). Some originals deal with date and time but the variants used here work on dates
-only.
+2020-May-02 which were slightly edited to get consistent: (a) function signatures; (b) storage types
+(for years, months, days and day counts) closer to C++20 requirements; (c) epoch (unix time
+1970-Jan-01). Some originals deal with date and time but the variants used here work on dates only.
 
 Tests show correctness and compliance with the C++ Standard, that is, `to_rata_die` and `to_date`
 are strictly increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in
@@ -75,7 +74,6 @@ The same techniques used for calendar algorithms can be used to other problems. 
 conversion from elapsed seconds since the start of the day to hour, minute and seconds, is
 customarily implemented through division by 3600 and 60. Similarly, implementations of itoa usualy
 perform repeated division by 10. Charts below suggest improvements for these problems.
-
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/others.png)
 
