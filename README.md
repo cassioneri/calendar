@@ -13,35 +13,49 @@ the following C++20's functions:
     std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
 
 Our implementations are benchmarked against counterparts, including some of the most widely used
-C, C++ and C# libraries (glibc, .NET, Boost and libc++) and our own implementations of algorithms
-found in academic literature. Charts below suggest that our algorithms perform considerably faster
-than others.
+C, C++, C# and Java libraries (glibc, .NET, Boost and libc++) and our own implementations of
+algorithms found in academic literature. Charts below suggest that our algorithms perform
+considerably faster than others.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
-[to_date](https://quick-bench.com/q/LEze0Yohqr8a__4DaCbQzqbbZfo): NeriSchneider is 6.8x faster than
-ReingoldDershowitz, 6.1x faster than glibc, 3.5x faster than .NET, 2.8x faster than Hatcher, 2.7x
-faster than FliegelFlandern, 2.5x faster than Boost, 2.2x faster than libc++ and 1.5x faster than
-Baum.
+[to_date](https://quick-bench.com/q/7_qkiecSoshHkMFqca4OYgq-45s): NeriSchneider is
+1.5x faster than Baum,
+1.4x faster than Boost,
+3.7x faster than .NET,
+2.7x faster than FliegelFlandern,
+6.5x faster than glibc,
+2.8x faster than Hatcher,
+2.2x faster than libc++,
+2.2x faster than OpenJDK and
+6.9x faster than ReingoldDershowitz.
 
-[to_rata_die](https://quick-bench.com/q/fJPAhuv47BhcAoe1HNtFV6jbOCo): NeriSchneider is 3.3x faster
-than ReingoldDershowitz, 2.1x faster than glibc, 1.9x faster than .NET, 2.5x faster than Hatcher,
-2.3x faster than FliegelFlandern, 1.7x faster than Boost, 1.7x faster than libc++ and 1.6x faster
-than Baum.
+[to_rata_die](https://quick-bench.com/q/q4wjIkZdQP2QN2FVLkeZbxai-sM): NeriSchneider is
+1.5x faster than Baum,
+1.7x faster than Boost,
+1.7x faster than .NET,
+2.2x faster than FliegelFlandern,
+2.2x faster than glibc,
+2.3x faster than Hatcher,
+1.7x faster than libc++,
+2.5x faster than OpenJDK and
+3.2x faster than ReingoldDershowitz.
 
-[is_leap_year](https://quick-bench.com/q/rU060TpLQH6hJPYWw0DSKhbyEhw): NeriSchneider_mcomp is 3.1x
-faster than Ubiquitous (the implementation used virtually everywhere.) NeriSchneider_mod is 1.9x
-faster than Ubiquitous.
+[is_leap_year](https://quick-bench.com/q/XaGQzTtRLGNhRSBDAzw4l0T0Xl8): Ubiquitous (the
+implementation used virtually everywhere) is
+1.8x slower than NeriSchneider_mod and
+3.0x slower than NeriSchneider_mcomp.
 
-[last_day_of_month](https://quick-bench.com/q/bts1zuXbVp1WJ_j3lnH0KgpdIWg): NeriSchneider is 2.1x
-faster than Boost and 1.1x faster than libc++.
+[last_day_of_month](https://quick-bench.com/q/LYFKOSJrbpjVzHmR_EMk8AILkNI): NeriSchneider is
+2.1x faster than Boost and
+1.1x faster than libc++.
 
 **Disclaimer**: Benchmarks above show a single run and YMMV (especially when changing compiler since
 they might emit substantially different instructions). They compare implementations as of
-2020-May-02 which might have been slightly edited to get: (a) consistent function signatures; (b)
-consistent storage types (for years, months, days and day counts) closer to C++20 requirements; (c)
-consistent epoch (unix time 1970-Jan-01). Some originals deal with date and time but the variants
-used here work on dates only.
+2020-May-02 which might have been slightly edited to get consistent: (a) function signatures; (b)
+storage types (for years, months, days and day counts) closer to C++20 requirements; (c) epoch (unix
+time 1970-Jan-01). Some originals deal with date and time but the variants used here work on dates
+only.
 
 Tests show correctness and compliance with the C++ Standard, that is, `to_rata_die` and `to_date`
 are strictly increasing 1-to-1 maps between dates in [-32768-Jan-01, 32767-Dec-31] and day counts in
@@ -65,10 +79,10 @@ perform repeated division by 10. Charts below suggest improvements for these pro
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/others.png)
 
-[to_time](https://quick-bench.com/q/cKorWwjuN6VMVK4yfpJ0BpKqpic): NeriSchneider is 1.2x faster than
+[to_time](https://quick-bench.com/q/n21P53DGEDPtIp6wu3YZ1ebLLtg): NeriSchneider is 1.2x faster than
 Ubiquitous.
 
-[itoa](https://quick-bench.com/q/gqlLwA56BxGj9J6bYrX8SCFeDaE): NeriSchneider is 1.1x faster than
+[itoa](https://quick-bench.com/q/-iNSxF1zQFE6LgUwbyuN8ae_4CQ): NeriSchneider is 1.1x faster than
 Ubiquitous.
 
 ## Design choices

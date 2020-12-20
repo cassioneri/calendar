@@ -1,41 +1,30 @@
-/*******************************************************************************
- *
- * to_date benchmarks
- *
- * Copyright (C) 2020 Cassio Neri and Lorenz Schneider
- *
- * This file is part of https://github.com/cassioneri/calendar.
- *
- * This file is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
- *
- * This file is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this file. If not, see <https://www.gnu.org/licenses/>.
- *
- ******************************************************************************/
+/*
+ to_date benchmarks
+
+ Copyright (C) 2020 Cassio Neri and Lorenz Schneider
+
+ This file is part of https://github.com/cassioneri/calendar.
+
+ This file is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
+
+ This file is distributed in the hope that it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+ See <https://www.gnu.org/licenses/>.
+*/
 
 #include <array>
 #include <cstdint>
 #include <random>
 
-//----------------------------
-// Config
-//----------------------------
-
-using year_t     = std::int16_t; // as in std::chrono::year
-using month_t    = std::uint8_t; // as in std::chrono::month
-using day_t      = std::uint8_t; // as in std::chrono::day
-using rata_die_t = std::int32_t; // as in std::chrono::days
-
-//----------------------------
-// Implementations
-//----------------------------
+using year_t     = int16_t;
+using month_t    = uint8_t;
+using day_t      = uint8_t;
+using rata_die_t = int32_t;
 
 struct date_t {
   year_t  year;
@@ -45,292 +34,284 @@ struct date_t {
 
 namespace neri_schneider {
 
-  // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
+// https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
-  date_t
-  to_date(rata_die_t r) noexcept {
+date_t to_date(rata_die_t r) {
 
-    auto constexpr z2    = std::uint32_t(-1468000);
-    auto constexpr r2_e3 = std::uint32_t(536895458);
+  auto constexpr z2    = uint32_t(-1468000);
+  auto constexpr r2_e3 = uint32_t(536895458);
 
-    auto const r0 = r + r2_e3;
+  auto const r0 = r + r2_e3;
 
-    auto const n1 = 4 * r0 + 3;
-    auto const q1 = n1 / 146097;
-    auto const r1 = n1 % 146097 / 4;
+  auto const n1 = 4 * r0 + 3;
+  auto const q1 = n1 / 146097;
+  auto const r1 = n1 % 146097 / 4;
 
-    auto constexpr p32 = std::uint64_t(1) << 32;
-    auto const n2 = 4 * r1 + 3;
-    auto const u2 = std::uint64_t(2939745) * n2;
-    auto const q2 = std::uint32_t(u2 / p32);
-    auto const r2 = std::uint32_t(u2 % p32) / 2939745 / 4;
+  auto constexpr p32 = uint64_t(1) << 32;
+  auto const n2 = 4 * r1 + 3;
+  auto const u2 = uint64_t(2939745) * n2;
+  auto const q2 = uint32_t(u2 / p32);
+  auto const r2 = uint32_t(u2 % p32) / 2939745 / 4;
 
-    auto constexpr p16 = std::uint32_t(1) << 16;
-    auto const n3 = 2141 * r2 + 197657;
-    auto const q3 = n3 / p16;
-    auto const r3 = n3 % p16 / 2141;
+  auto constexpr p16 = uint32_t(1) << 16;
+  auto const n3 = 2141 * r2 + 197657;
+  auto const q3 = n3 / p16;
+  auto const r3 = n3 % p16 / 2141;
 
-    auto const y0 = 100 * q1 + q2;
-    auto const m0 = q3;
-    auto const d0 = r3;
+  auto const y0 = 100 * q1 + q2;
+  auto const m0 = q3;
+  auto const d0 = r3;
 
-    auto const j  = r2 >= 306;
-    auto const y1 = y0 + j;
-    auto const m1 = j ? m0 - 12 : m0;
-    auto const d1 = d0 + 1;
+  auto const j  = r2 >= 306;
+  auto const y1 = y0 + j;
+  auto const m1 = j ? m0 - 12 : m0;
+  auto const d1 = d0 + 1;
 
-    return { year_t(y1 + z2), month_t(m1), day_t(d1) };
-  }
-
-} // namespace neri_schneider
+  return {year_t(y1 + z2), month_t(m1), day_t(d1)};
+}
+}
 
 namespace baum {
 
-  // https://www.researchgate.net/publication/316558298_Date_Algorithms
+// https://tinyurl.com/y44rgx2j
 
-  // Section 6.2.1/3
-  date_t
-  to_date(rata_die_t n) noexcept {
-    auto const z  = std::uint32_t(n) + 719469; // adjusted to unix epoch
-    auto const h  = 100 * z - 25;
-    auto const a  = h / 3652425;
-    auto const b  = a - a / 4;
-    auto const y_ = (100 * b + h) / 36525;
-    auto const c  = b + z - 365 * y_ - y_ / 4;
-    auto const m_ = (535 * c + 48950) / 16384;
-    auto const d  = c - (979 * m_ - 2918) / 32;
-    auto const j  = m_ > 12;
-    auto const y  = y_ + j;
-    auto const m  = j ? m_ - 12 : m_;
-    return { year_t(y), month_t(m), day_t(d) };
-  }
+// Section 6.2.1/3
+date_t to_date(rata_die_t n) {
+  auto const z  = uint32_t(n) + 719469;
+  auto const h  = 100 * z - 25;
+  auto const a  = h / 3652425;
+  auto const b  = a - a / 4;
+  auto const y_ = (100 * b + h) / 36525;
+  auto const c  = b + z - 365 * y_ - y_ / 4;
+  auto const m_ = (535 * c + 48950) / 16384;
+  auto const d  = c - (979 * m_ - 2918) / 32;
+  auto const j  = m_ > 12;
+  auto const y  = y_ + j;
+  auto const m  = j ? m_ - 12 : m_;
+  return {year_t(y), month_t(m), day_t(d)};
+}
+}
 
-} // namespace baum
+/*
+ Code in next namespace is subject to the following terms.
 
+ Copyright (c) 2002,2003 CrystalClear Software, Inc.
+
+ Boost Software License - Version 1.0 - August 17th, 2003
+
+ Permission is hereby granted, free of charge, to any person or organization
+ obtaining a copy of the software and accompanying documentation covered by
+ this license (the "Software") to use, reproduce, display, distribute,
+ execute, and transmit the Software, and to prepare derivative works of the
+ Software, and to permit third-parties to whom the Software is furnished to
+ do so, all subject to the following:
+
+ The copyright notices in the Software and this entire statement, including
+ the above license grant, this restriction and the following disclaimer,
+ must be included in all copies of the Software, in whole or in part, and
+ all derivative works of the Software, unless such copies or derivative
+ works are solely in the form of machine-executable object code generated by
+ a source language processor.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+ SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+ FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
+*/
 namespace boost {
 
-  // Code in this namespace is subject to the following terms.
+// https://tinyurl.com/ybq2ozhm
+date_t to_date(rata_die_t dayNumber) {
+  uint32_t a = dayNumber + 32044 + 2440588;
+  uint32_t b = (4*a + 3)/146097;
+  uint32_t c = a-((146097*b)/4);
+  uint32_t d = (4*c + 3)/1461;
+  uint32_t e = c - (1461*d)/4;
+  uint32_t m = (5*e + 2)/153;
+  day_t day = static_cast<day_t>(e - ((153*m + 2)/5) + 1);
+  month_t month = static_cast<month_t>(m + 3 - 12 * (m/10));
+  year_t year = static_cast<year_t>(100*b + d - 4800 + (m/10));
+  return {year, month, day};
+}
+}
 
-  // Copyright (c) 2002,2003 CrystalClear Software, Inc.
+/*
+ Code in next namespace is subject to the following terms.
 
-  // Boost Software License - Version 1.0 - August 17th, 2003
+ The MIT License (MIT)
 
-  // Permission is hereby granted, free of charge, to any person or organization
-  // obtaining a copy of the software and accompanying documentation covered by
-  // this license (the "Software") to use, reproduce, display, distribute,
-  // execute, and transmit the Software, and to prepare derivative works of the
-  // Software, and to permit third-parties to whom the Software is furnished to
-  // do so, all subject to the following:
+ Copyright (c) .NET Foundation and Contributors
 
-  // The copyright notices in the Software and this entire statement, including
-  // the above license grant, this restriction and the following disclaimer,
-  // must be included in all copies of the Software, in whole or in part, and
-  // all derivative works of the Software, unless such copies or derivative
-  // works are solely in the form of machine-executable object code generated by
-  // a source language processor.
+ All rights reserved.
 
-  // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  // FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
-  // SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
-  // FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
-  // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-  // DEALINGS IN THE SOFTWARE.
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
 
-  // https://github.com/boostorg/date_time/blob/4e1b7cde45edf8fdda73ec5c60053c9257138292/include/boost/date_time/gregorian_calendar.ipp#L109
-  date_t
-  to_date(rata_die_t dayNumber) noexcept {
-    rata_die_t a = dayNumber + 32044;
-    rata_die_t b = (4*a + 3)/146097;
-    rata_die_t c = a-((146097*b)/4);
-    rata_die_t d = (4*c + 3)/1461;
-    rata_die_t e = c - (1461*d)/4;
-    rata_die_t m = (5*e + 2)/153;
-    day_t day = static_cast<day_t>(e - ((153*m + 2)/5) + 1);
-    month_t month = static_cast<month_t>(m + 3 - 12 * (m/10));
-    year_t year = static_cast<year_t>(100*b + d - 4800 + (m/10));
-    return date_t{static_cast<year_t>(year),month,day};
-  }
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
 
-} // namespace boost
-
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+*/
 namespace dotnet {
 
-  // Code in this namespace is subject to the following terms.
+// https://tinyurl.com/y85q3qrp
+int constexpr s_daysToMonth365[] = {
+  0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
+int constexpr s_daysToMonth366[] = {
+  0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
 
-  // The MIT License (MIT)
+// https://tinyurl.com/yctslxyt
+int constexpr DaysPerYear = 365;
+int constexpr DaysPer4Years = DaysPerYear * 4 + 1;       // 1461
+int constexpr DaysPer100Years = DaysPer4Years * 25 - 1;  // 36524
+int constexpr DaysPer400Years = DaysPer100Years * 4 + 1; // 146097
 
-  // Copyright (c) .NET Foundation and Contributors
-
-  // All rights reserved.
-
-  // Permission is hereby granted, free of charge, to any person obtaining a copy
-  // of this software and associated documentation files (the "Software"), to deal
-  // in the Software without restriction, including without limitation the rights
-  // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  // copies of the Software, and to permit persons to whom the Software is
-  // furnished to do so, subject to the following conditions:
-
-  // The above copyright notice and this permission notice shall be included in all
-  // copies or substantial portions of the Software.
-
-  // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  // SOFTWARE.
-
-  // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L102
-  rata_die_t constexpr s_daysToMonth365[] = {
-    0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
-  rata_die_t constexpr s_daysToMonth366[] = {
-    0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
-
-  // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L64
-  rata_die_t constexpr DaysPerYear = 365;
-  rata_die_t constexpr DaysPer4Years = DaysPerYear * 4 + 1;       // 1461
-  rata_die_t constexpr DaysPer100Years = DaysPer4Years * 25 - 1;  // 36524
-  rata_die_t constexpr DaysPer400Years = DaysPer100Years * 4 + 1; // 146097
-
-  // https://github.com/dotnet/runtime/blob/bddbb03b33162a758e99c14ae821665a647b77c7/src/libraries/System.Private.CoreLib/src/System/DateTime.cs#L938
-  date_t
-  to_date(rata_die_t rata_die) noexcept {
-    rata_die_t n = rata_die + 719162; // adjusted to unix epoch
-    rata_die_t y400 = n / DaysPer400Years;
-    n -= y400 * DaysPer400Years;
-    rata_die_t y100 = n / DaysPer100Years;
-    if (y100 == 4) y100 = 3;
-    n -= y100 * DaysPer100Years;
-    rata_die_t y4 = n / DaysPer4Years;
-    n -= y4 * DaysPer4Years;
-    rata_die_t y1 = n / DaysPerYear;
-    if (y1 == 4) y1 = 3;
-    year_t year = y400 * 400 + y100 * 100 + y4 * 4 + y1 + 1;
-    n -= y1 * DaysPerYear;
-    bool leapYear = y1 == 3 && (y4 != 24 || y100 == 3);
-    rata_die_t const* days = leapYear ? s_daysToMonth366 : s_daysToMonth365;
-    month_t m = (n >> 5) + 1;
-    while (n >= days[m]) m++;
-    month_t month = m;
-    day_t day = n - days[m - 1] + 1;
-    return date_t{year, month, day};
-  }
-
-} // namespace dotnet
+// https://tinyurl.com/ybyoqjep
+date_t to_date(rata_die_t rata_die) {
+  int n = rata_die + 719162;
+  int y400 = n / DaysPer400Years;
+  n -= y400 * DaysPer400Years;
+  int y100 = n / DaysPer100Years;
+  if (y100 == 4) y100 = 3;
+  n -= y100 * DaysPer100Years;
+  int y4 = n / DaysPer4Years;
+  n -= y4 * DaysPer4Years;
+  int y1 = n / DaysPerYear;
+  if (y1 == 4) y1 = 3;
+  int year = y400 * 400 + y100 * 100 + y4 * 4 + y1 + 1;
+  n -= y1 * DaysPerYear;
+  bool leapYear = y1 == 3 && (y4 != 24 || y100 == 3);
+  int const* days = leapYear ? s_daysToMonth366 : s_daysToMonth365;
+  int m = (n >> 5) + 1;
+  while (n >= days[m]) m++;
+  month_t month = m;
+  int day = n - days[m - 1] + 1;
+  return {year_t(year), month_t(month), day_t(day)};
+}
+}
 
 namespace fliegel_flandern {
 
-  date_t
-  to_date(rata_die_t n) noexcept {
-    auto const JD = n + 2440588; // adjusted to unix epoch
-    auto       L  = JD + 68569;
-    auto const N  = 4 * L / 146097;
-               L  = L - (146097 * N + 3) / 4;
-    auto       I  = 4000 * (L + 1) / 1461001;
-               L  = L - 1461 * I / 4 + 31;
-    auto       J  = 80 * L / 2447;
-    auto const K  = L - 2447 * J / 80;
-               L  = J / 11;
-               J  = J + 2 - 12 * L;
-               I  = 100 * (N - 49) + I + L;
-    return { year_t(I), month_t(J), day_t(K) };
-  }
+// H.F. Fliegel and T.C.V. Flandern, A Machine Algorithm for Processing Calendar Dates
+// Communications of the ACM, Vol. 11, No. 10 (1968), p657.
 
-} // namespace fliegel_flandern
+date_t to_date(rata_die_t n) {
+  auto const JD = n + 2440588;
+  auto       L  = JD + 68569;
+  auto const N  = 4 * L / 146097;
+             L  = L - (146097 * N + 3) / 4;
+  auto       I  = 4000 * (L + 1) / 1461001;
+             L  = L - 1461 * I / 4 + 31;
+  auto       J  = 80 * L / 2447;
+  auto const K  = L - 2447 * J / 80;
+             L  = J / 11;
+             J  = J + 2 - 12 * L;
+             I  = 100 * (N - 49) + I + L;
+  return {year_t(I), month_t(J), day_t(K)};
+}
+}
 
+/*
+ Code in next namespace is subject to the following terms.
+
+ Copyright (C) 1993-2020 Free Software Foundation, Inc.
+
+ This section of the file is part of the GNU C Library.
+ Contributed by Paul Eggert <eggert@twinsun.com>.
+ The GNU C Library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+
+ The GNU C Library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ Lesser General Public License for more details.
+
+ See <https://www.gnu.org/licenses/>.
+*/
 namespace glibc {
 
-  // Code in this namespace is subject to the following terms.
+// https://tinyurl.com/y9bkozw6
+unsigned short int constexpr __mon_yday[2][13] =
+  {
+    /* Normal years.  */
+    { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
+    /* Leap years.  */
+    { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
+  };
 
-  // Copyright (C) 1993-2020 Free Software Foundation, Inc.
+// https://tinyurl.com/y7y3doog
+#define __isleap(year) \
+  ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
 
-  // This section of the file is part of the GNU C Library.
-  // Contributed by Paul Eggert <eggert@twinsun.com>.
-  // The GNU C Library is free software; you can redistribute it and/or
-  // modify it under the terms of the GNU Lesser General Public
-  // License as published by the Free Software Foundation; either
-  // version 2.1 of the License, or (at your option) any later version.
+// https://tinyurl.com/ycdpf72e
+date_t to_date(rata_die_t days) {
 
-  // The GNU C Library is distributed in the hope that it will be useful,
-  // but WITHOUT ANY WARRANTY; without even the implied warranty of
-  // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  // Lesser General Public License for more details.
+  long int y = 1970;
+  #define DIV(a, b) ((a) / (b) - ((a) % (b) < 0))
+  #define LEAPS_THRU_END_OF(y) (DIV (y, 4) - DIV (y, 100) + DIV (y, 400))
 
-  // You should have received a copy of the GNU Lesser General Public
-  // License along with the GNU C Library; if not, see
-  // <https://www.gnu.org/licenses/>.
-
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/mktime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l173
-  unsigned short int constexpr __mon_yday[2][13] =
+  while (days < 0 || days >= (__isleap (y) ? 366 : 365))
     {
-      /* Normal years.  */
-      { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
-      /* Leap years.  */
-      { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
-    };
+      /* Guess a corrected year, assuming 365 days per year.  */
+      long int yg = y + days / 365 - (days % 365 < 0);
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/time.h;hb=d614a7539657941a9201c236b2f15afac18e1213#l179
-  #define __isleap(year)	\
-    ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
+      /* Adjust DAYS and Y to match the guessed year.  */
+      days -= ((yg - y) * 365
+              + LEAPS_THRU_END_OF (yg - 1)
+              - LEAPS_THRU_END_OF (y - 1));
+      y = yg;
+    }
 
-  // https://sourceware.org/git/?p=glibc.git;a=blob;f=time/offtime.c;hb=d614a7539657941a9201c236b2f15afac18e1213#l24
-  date_t
-  to_date(rata_die_t days) noexcept {
-
-    rata_die_t y = 1970;
-    #define DIV(a, b) ((a) / (b) - ((a) % (b) < 0))
-    #define LEAPS_THRU_END_OF(y) (DIV (y, 4) - DIV (y, 100) + DIV (y, 400))
-
-    while (days < 0 || days >= (__isleap (y) ? 366 : 365))
-      {
-        /* Guess a corrected year, assuming 365 days per year.  */
-        rata_die_t yg = y + days / 365 - (days % 365 < 0);
-
-        /* Adjust DAYS and Y to match the guessed year.  */
-        days -= ((yg - y) * 365
-                + LEAPS_THRU_END_OF (yg - 1)
-                - LEAPS_THRU_END_OF (y - 1));
-        y = yg;
-      }
-
-    auto ip = __mon_yday[__isleap(y)];
-    rata_die_t m = 0;
-    for (m = 11; days < (long int) ip[m]; --m)
-      continue;
-    days -= ip[m];
-    return date_t{year_t(y), month_t(m + 1), day_t(days + 1)};
-  }
-
-} // namespace glibc
+  auto ip = __mon_yday[__isleap(y)];
+  long int m = 0;
+  for (m = 11; days < (long int) ip[m]; --m)
+    continue;
+  days -= ip[m];
+  return {year_t(y), month_t(m + 1), day_t(days + 1)};
+}
+}
 
 namespace hatcher {
 
-  // Algorithms by D. A. Hactcher as appeared in
-  // E. G. Richards, Mapping Time, The calendar and its history, Oxford University Press, 1998.
+  // Algorithms by D.A. Hactcher
+  // E.G. Richards, Mapping Time, The CALENDAR and its HISTORY, Oxford University Press, 1998
 
   // Table 25.1, page 311.
-  auto constexpr y = rata_die_t(4716);
-  auto constexpr m = rata_die_t(3);
-  auto constexpr n = rata_die_t(12);
-  auto constexpr r = rata_die_t(4);
-  auto constexpr p = rata_die_t(1461);
-  auto constexpr v = rata_die_t(3);
-  auto constexpr u = rata_die_t(5);
-  auto constexpr s = rata_die_t(153);
-  auto constexpr w = rata_die_t(2);
+  rata_die_t constexpr y = 4716;
+  rata_die_t constexpr m = 3;
+  rata_die_t constexpr n = 12;
+  rata_die_t constexpr r = 4;
+  rata_die_t constexpr p = 1461;
+  rata_die_t constexpr v = 3;
+  rata_die_t constexpr u = 5;
+  rata_die_t constexpr s = 153;
+  rata_die_t constexpr w = 2;
 
   // Table 25.4, page 320.
-  auto constexpr B = rata_die_t(274277);
-  auto constexpr G = rata_die_t(-38);
-  // Page 319
-  auto constexpr K = 36524;
+  rata_die_t constexpr B = 274277;
+  rata_die_t constexpr G = -38;
+
+  // P. 319
+  rata_die_t constexpr K = 36524;
 
   // Algorithm F, page 324.
-  date_t static
-  to_date(rata_die_t x) noexcept {
-    auto const J  = x + rata_die_t(2440575); // adjusted to unix epoch
+  date_t static to_date(rata_die_t x) {
+    auto const J  = x + 2440575;
     auto const g  = 3 * ((4 * J + B) / (4 * K + 1)) / 4 + G;
     auto const j  = 1401 + g;
     auto const Jp = J + j + g;
@@ -341,21 +322,20 @@ namespace hatcher {
     auto const D  = Dp + 1;
     auto const M  = (Mp + m - 1) % n + 1;
     auto const Y  = Yp - y + (n + m - 1 - M) / n;
-    return date_t{year_t(Y), month_t(M), day_t(D)};
+    return {year_t(Y), month_t(M), day_t(D)};
   }
+}
 
-} // namespace hatcher
+/*
+ Code in next namespace is subject to the following terms.
 
+ Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
+ See https://llvm.org/LICENSE.txt for license information.
+*/
 namespace libcxx {
 
-  // Code in this namespace is subject to the following terms.
-
-  // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
-  // See https://llvm.org/LICENSE.txt for license information.
-
-  // https://github.com/llvm/llvm-project/blob/8e34be2f2511dfff7a8e3018bbd4188a93e446ea/libcxx/include/chrono#L2305
-  date_t
-  to_date(rata_die_t __d) noexcept {
+  // https://tinyurl.com/yd7odvjd
+  date_t to_date(rata_die_t __d) {
     const int      __z = __d + 719468;
     const int      __era = (__z >= 0 ? __z : __z - 146096) / 146097;
     const unsigned __doe = static_cast<unsigned>(__z - __era * 146097);              // [0, 146096]
@@ -367,132 +347,219 @@ namespace libcxx {
     const unsigned __mth = __mp + (__mp < 10 ? 3 : -9);                              // [1, 12]
     return date_t{year_t(__yr + (__mth <= 2)), month_t(__mth), day_t(__dy)};
   }
+}
 
-} // namespace libcxx
+/*
+ Code in next namespace is subject to the following terms.
+
+ Copyright (c) 2012, 2019, Oracle and/or its affiliates. All rights reserved.
+ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+
+ This code is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License version 2 only, as
+ published by the Free Software Foundation.  Oracle designates this
+ particular file as subject to the "Classpath" exception as provided
+ by Oracle in the LICENSE file that accompanied this code.
+
+ This code is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ version 2 for more details (a copy is included in the LICENSE file that
+ accompanied this code).
+
+ You should have received a copy of the GNU General Public License version
+ 2 along with this work; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ 
+ Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+ or visit www.oracle.com if you need additional information or have any
+ questions.
+
+ ---
+
+ This file is available under and governed by the GNU General Public
+ License version 2 only, as published by the Free Software Foundation.
+ However, the following notice accompanied the original version of this
+ file:
+
+ Copyright (c) 2007-2012, Stephen Colebourne & Michael Nascimento Santos
+
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+ * Neither the name of JSR-310 nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+namespace openjdk {
+
+// https://tinyurl.com/y99vybz9
+int constexpr DAYS_PER_CYCLE = 146097;
+int constexpr DAYS_0000_TO_1970 = (DAYS_PER_CYCLE * 5L) - (30L * 365L + 7L);
+
+// https://tinyurl.com/ybb3nnhw
+date_t to_date(rata_die_t epochDay) {
+
+  long zeroDay = epochDay + DAYS_0000_TO_1970;
+  // find the march-based year
+  zeroDay -= 60;  // adjust to 0000-03-01 so leap day is at end of four year cycle
+  long adjust = 0;
+  if (zeroDay < 0) {
+      // adjust negative years to positive for calculation
+      long adjustCycles = (zeroDay + 1) / DAYS_PER_CYCLE - 1;
+      adjust = adjustCycles * 400;
+      zeroDay += -adjustCycles * DAYS_PER_CYCLE;
+  }
+  long yearEst = (400 * zeroDay + 591) / DAYS_PER_CYCLE;
+  long doyEst = zeroDay - (365 * yearEst + yearEst / 4 - yearEst / 100 + yearEst / 400);
+  if (doyEst < 0) {
+      // fix estimate
+      yearEst--;
+      doyEst = zeroDay - (365 * yearEst + yearEst / 4 - yearEst / 100 + yearEst / 400);
+  }
+  yearEst += adjust; // reset any negative year
+  int marchDoy0 = (int) doyEst;
+
+  // convert march-based values back to january-based
+  int marchMonth0 = (marchDoy0 * 5 + 2) / 153;
+  int month = (marchMonth0 + 2) % 12 + 1;
+  int dom = marchDoy0 - (marchMonth0 * 306 + 5) / 10 + 1;
+  yearEst += marchMonth0 / 10;
+
+  // check year now we are certain it is correct
+  int year = (int) yearEst;
+
+  return {year_t(yearEst), month_t(month), day_t(dom)};
+}
+}
 
 namespace reingold_dershowitz {
 
-  // E. M. Reingold and N. Dershowitz, Calendrical Calculations, The Ultimate Edition, Cambridge
-  // University Press, 2018.
+// E.M. Reingold and N.Dershowitz, Calendrical Calculations, The Ultimate Edition, Cambridge
+// University Press, 2018
 
-  // Table 1.2, page 17.
-  rata_die_t constexpr gregorian_epoch = 1;
+// Table 1.2, page 17.
+rata_die_t constexpr gregorian_epoch = 1;
 
-  // alt-fixed-from-gregorian, equation (2.28), page 65:
-  rata_die_t
-  to_rata_die(date_t date) noexcept {
+// alt-fixed-from-gregorian, equation (2.28), page 65.
+rata_die_t to_rata_die(date_t date) {
 
-    auto const year  = rata_die_t(date.year );
-    auto const month = rata_die_t(date.month);
-    auto const day   = rata_die_t(date.day  );
+  auto const year  = rata_die_t(date.year );
+  auto const month = rata_die_t(date.month);
+  auto const day   = rata_die_t(date.day  );
 
-    // In the book mp = (month - 3) mod 12, where mod denotes Euclidean remainder. When month < 3 we
-    // have month - 3 < 0 and % does not match mod. The alternative below provides the intended
-    // result even in this case and keeps the expected performance of the original formula.
-    auto const mp = (month + 9) % 12;
-    auto const yp = year - mp / 10;
+  // mp := (month - 3) mod 12. If month - 3 < 0, then % doesn't match mod. The below provides the
+  // intended result and keeps performance of the original formula.
+  auto const mp = (month + 9) % 12;
+  auto const yp = year - mp / 10;
 
-    // Equation (1.42), page 28, with b = <4, 25, 4>, i.e., b0 = 4, b1 = 25 and b2 = 4 gives
-    auto const a0 = (yp / 400);
-    auto const a1 = (yp / 100) %  4;
-    auto const a2 = (yp /   4) % 25;
-    auto const a3 = (yp /   1) %  4;
-    // On page 66, quantities above are denoted by n400, n100, n4 and n1.
+  // On page 66, quantities below are denoted by n400, n100, n4 and n1.
+  // Equation (1.42), page 28, with b = <4, 25, 4>, i.e., b0 = 4, b1 = 25 and b2 = 4 gives
+  auto const a0 = (yp / 400);
+  auto const a1 = (yp / 100) %  4;
+  auto const a2 = (yp /   4) % 25;
+  auto const a3 = (yp /   1) %  4;
 
-    auto const n = gregorian_epoch - 1 - 306 + 365 * yp + 97 * a0 + 24 * a1 + 1 * a2 + 0 * a3 +
-      (3 * mp + 2) / 5 + 30 * mp + day;
-    return n - 719163; // adjusted to unix epoch
-  }
+  auto const n = gregorian_epoch - 1 - 306 + 365 * yp + 97 * a0 + 24 * a1 + 1 * a2 + 0 * a3 +
+    (3 * mp + 2) / 5 + 30 * mp + day;
+  return n - 719163;
+}
 
-  // gregorian-year-from-fixed, equation (2.21), page 61:
-  rata_die_t
-  gregorian_year_from_fixed(rata_die_t date) noexcept {
-    auto const d0   = date - gregorian_epoch;
-    auto const n400 = d0 / 146097;
-    auto const d1   = d0 % 146097;
-    auto const n100 = d1 / 36524;
-    auto const d2   = d1 % 36524;
-    auto const n4   = d2 / 1461;
-    auto const d3   = d2 % 1461;
-    auto const n1   = d3 / 365;
-    auto const year = 400 * n400 + 100 * n100 + 4 * n4 + n1;
-    return (n100 == 4 | n1 == 4) ? year : year + 1;
-  }
+// gregorian-year-from-fixed, equation (2.21), page 61.
+rata_die_t gregorian_year_from_fixed(rata_die_t const& date) {
+  auto const d0   = date - gregorian_epoch;
+  auto const n400 = d0 / 146097;
+  auto const d1   = d0 % 146097;
+  auto const n100 = d1 / 36524;
+  auto const d2   = d1 % 36524;
+  auto const n4   = d2 / 1461;
+  auto const d3   = d2 % 1461;
+  auto const n1   = d3 / 365;
+  auto const year = 400 * n400 + 100 * n100 + 4 * n4 + n1;
+  return (n100 == 4 | n1 == 4) ? year : year + 1;
+}
 
-  // alt-fixed-from-gregorian, equation (2.28), page 65:
-  rata_die_t
-  fixed_from_gregorian(date_t date) noexcept {
-    return to_rata_die(date) + 719163;
-  }
+// alt-fixed-from-gregorian, equation (2.28), page 65.
+rata_die_t fixed_from_gregorian(date_t const& date) {
+  return to_rata_die(date) + 719163;
+}
 
-  rata_die_t
-  mod_1_12(rata_die_t month) noexcept {
-    return month > 12 ? month - 12 : month;
-  }
+rata_die_t mod_1_12(rata_die_t month) {
+  return month > 12 ? month - 12 : month;
+}
 
-  // alt-gregorian-from-fixed, equation (2.29), page 66:
-  date_t
-  to_date(rata_die_t date) noexcept {
-    date = date + 719163; // adjusted to unix epoch
-    auto const y          = gregorian_year_from_fixed(gregorian_epoch - 1 + date + 306);
-    auto const prior_days = date - fixed_from_gregorian(date_t{year_t(y - 1), 3, 1});
-    auto const month      = mod_1_12((5 * prior_days + 2) / 153 + 3);
-    auto const year       = y - (month + 9) / 12;
-    auto const day        = date - fixed_from_gregorian(date_t{year_t(year), month_t(month), 1})
-      + 1;
-    return { year_t(year), month_t(month), day_t(day) };
-  }
-
-} // namespace reingold_dershowitz
-
-//----------------------------
-// Benchmark data
-//----------------------------
+// alt-gregorian-from-fixed, equation (2.29), page 66.
+date_t to_date(rata_die_t date) {
+  date = date + 719163;
+  auto const y          = gregorian_year_from_fixed(gregorian_epoch - 1 + date + 306);
+  auto const prior_days = date - fixed_from_gregorian(date_t{year_t(y - 1), 3, 1});
+  auto const month      = mod_1_12((5 * prior_days + 2) / 153 + 3);
+  auto const year       = y - (month + 9) / 12;
+  auto const day        = date - fixed_from_gregorian(date_t{year_t(year), month_t(month), 1})
+    + 1;
+  return {year_t(year), month_t(month), day_t(day)};
+}
+}
 
 auto const rata_dies = [](){
   std::uniform_int_distribution<rata_die_t> uniform_dist(-146097, 146096);
   std::mt19937 rng;
-  std::array<std::int32_t, 16384> rata_dies;
+  std::array<int32_t, 16384> rata_dies;
   for (auto& n : rata_dies)
     n = uniform_dist(rng);
   return rata_dies;
 }();
 
-//----------------------------
-// Benchmark
-//----------------------------
-
-// If defined, likely to be running on quick-bench.
 #ifndef BENCHMARK
-
+  // Not on quick-bench
   #include <benchmark/benchmark.h>
-
   void Scan(benchmark::State& state) {
     for (auto _ : state)
       for (auto const rata_die : rata_dies)
         benchmark::DoNotOptimize(rata_die);
   }
   BENCHMARK(Scan);
-
 #endif
 
-#define DO_BENCHMARK(label, namespace)                  \
-  void label(benchmark::State& state) {                 \
-    for (auto _ : state) {                              \
-      for (auto const rata_die : rata_dies) {           \
+#define DO_BENCHMARK(label, namespace) \
+  void label(benchmark::State& state) { \
+    for (auto _ : state) { \
+      for (auto const rata_die : rata_dies) { \
         auto const date = namespace::to_date(rata_die); \
-        benchmark::DoNotOptimize(date);                 \
-      }                                                 \
-    }                                                   \
-  }                                                     \
-  BENCHMARK(label)                                      \
+        benchmark::DoNotOptimize(date); \
+      } \
+    } \
+  } \
+  BENCHMARK(label)
 
+DO_BENCHMARK(Baum, baum);
+DO_BENCHMARK(Boost, boost);
+DO_BENCHMARK(DotNet, dotnet);
+DO_BENCHMARK(FliegelFlandern, fliegel_flandern);
+DO_BENCHMARK(GLibC, glibc);
+DO_BENCHMARK(Hatcher, hatcher);
+DO_BENCHMARK(LibCxx, libcxx);
+DO_BENCHMARK(OpenJDK, openjdk);
 DO_BENCHMARK(ReingoldDershowitz, reingold_dershowitz);
-DO_BENCHMARK(GLibC             , glibc              );
-DO_BENCHMARK(DotNet            , dotnet             );
-DO_BENCHMARK(Hatcher           , hatcher            );
-DO_BENCHMARK(FliegelFlandern   , fliegel_flandern   );
-DO_BENCHMARK(Boost             , boost              );
-DO_BENCHMARK(LibCxx            , libcxx             );
-DO_BENCHMARK(Baum              , baum               );
-DO_BENCHMARK(NeriSchneider     , neri_schneider     );
+DO_BENCHMARK(NeriSchneider, neri_schneider);
