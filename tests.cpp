@@ -19,11 +19,11 @@
 
 /**
  * @file tests.cpp
- * 
+ *
  * @brief Tests of calendar algorithms. (Requires googletest [1].)
  *
  * [1] https://github.com/google/googletest
- * 
+ *
  * Compile with: g++ -O3 -std=c++2a tests.cpp -o tests -lgtest -lgtest_main
  */
 
@@ -44,11 +44,6 @@ using day_t      = std::uint8_t; // as in std::chrono::day
 using rata_die_t = std::int32_t; // as in std::chrono::days
 
 auto constexpr enable_static_asserts = true;
-auto constexpr test_baum             = true;
-auto constexpr test_dotnet           = true;
-auto constexpr test_reingold         = true;
-auto constexpr test_glibc            = true;
-auto constexpr test_hatcher          = true;
 
 //--------------------------------------------------------------------------------------------------
 // Third party algorithms
@@ -533,7 +528,7 @@ struct hatcher : third_party {
  You should have received a copy of the GNU General Public License version
  2 along with this work; if not, write to the Free Software Foundation,
  Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- 
+
  Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  or visit www.oracle.com if you need additional information or have any
  questions.
@@ -870,9 +865,9 @@ auto constexpr month       = [](auto n) { return (5 * n + 461) / 153; };
  * Tests fast month count. (Rounding up.)
  */
 TEST(fast, month_count_rounding_up) {
-  
+
   auto constexpr month_count_fast = [](auto n) { return (980 * n - 2928) / 32; };
-  
+
   auto constexpr N = std::uint32_t(12);
   for (std::uint32_t n = 3; n < N; ++n)
     ASSERT_EQ(month_count(n), month_count_fast(n)) << "Failed for n = " << n;
@@ -883,9 +878,9 @@ TEST(fast, month_count_rounding_up) {
  * Tests fast month count. (Rounding down.)
  */
 TEST(fast, month_count_rounding_down) {
-  
+
   auto constexpr month_count_fast = [](auto n) { return (979 * n - 2919) / 32; };
-  
+
   auto constexpr N = std::uint32_t(34);
   for (std::uint32_t n = 3; n < N; ++n)
     ASSERT_EQ(month_count(n), month_count_fast(n)) << "Failed for n = " << n;
@@ -896,7 +891,7 @@ TEST(fast, month_count_rounding_down) {
  * Tests fast month. (Rounding up.)
  */
 TEST(fast, month_rounding_up) {
- 
+
   auto constexpr month_fast = [](auto n) { return (2142 * n + 197428) / p16; };
   auto constexpr day_fast   = [](auto n) { return (2142 * n + 197428) % p16 / 2142; };
 
@@ -912,7 +907,7 @@ TEST(fast, month_rounding_up) {
  * Tests fast residual for month. (Rounding down.)
  */
 TEST(fast, month_rounding_down) {
-  
+
   auto constexpr month_fast = [](auto n) { return (2141 * n + 197913) / p16; };
   auto constexpr day_fast   = [](auto n) { return (2141 * n + 197913) % p16 / 2142; };
 
@@ -928,7 +923,7 @@ TEST(fast, month_rounding_down) {
  * Tests fast division by 1461.
  */
 TEST(fast, division_by_1461) {
-  
+
   auto constexpr alpha_prime = std::uint64_t(2939745);
 
   auto constexpr N = std::uint32_t(28825529);
