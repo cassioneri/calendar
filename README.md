@@ -19,7 +19,7 @@ considerably faster than others.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
-[to_date](https://quick-bench.com/q/7_qkiecSoshHkMFqca4OYgq-45s): NeriSchneider is
+[to_date](https://quick-bench.com/q/hfPkKtGaBZFhF5dCR7Ha0ms_Z38): NeriSchneider is
 1.5x faster than Baum,
 1.4x faster than Boost,
 3.7x faster than .NET,
@@ -30,7 +30,7 @@ considerably faster than others.
 2.2x faster than OpenJDK and
 6.9x faster than ReingoldDershowitz.
 
-[to_rata_die](https://quick-bench.com/q/q4wjIkZdQP2QN2FVLkeZbxai-sM): NeriSchneider is
+[to_rata_die](https://quick-bench.com/q/SXJ_w2Lq_F_EDkhINNCV8ZnvCz0): NeriSchneider is
 1.5x faster than Baum,
 1.7x faster than Boost,
 1.7x faster than .NET,
