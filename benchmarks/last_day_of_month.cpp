@@ -38,7 +38,7 @@ bool is_multiple_of_100(int32_t n) {
 }
 
 bool is_leap_year(year_t year) {
-  return (!is_multiple_of_100(year) || year % 16 == 0) & (year % 4 == 0);
+  return (!is_multiple_of_100(year) || year % 16 == 0) && (year % 4 == 0);
 }
 
 day_t last_day_of_month(year_t year, month_t month) {

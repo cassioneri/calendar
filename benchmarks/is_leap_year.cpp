@@ -28,7 +28,7 @@ namespace neri_schneider::mod {
 // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
 bool is_leap_year(year_t year) {
-  return (year % 100 != 0 || year % 400 == 0) & (year % 4 == 0);
+  return (year % 100 != 0 || year % 400 == 0) && (year % 4 == 0);
 }
 }
 
@@ -43,7 +43,7 @@ bool is_multiple_of_100(int32_t n) {
 }
 
 bool is_leap_year(year_t year) {
-  return (!is_multiple_of_100(year) || year % 16 == 0) & (year % 4 == 0);
+  return (!is_multiple_of_100(year) || year % 16 == 0) && (year % 4 == 0);
 }
 }
 

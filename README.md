@@ -41,12 +41,12 @@ considerably faster than others.
 2.5x faster than OpenJDK and
 3.2x faster than ReingoldDershowitz.
 
-[is_leap_year](https://quick-bench.com/q/XaGQzTtRLGNhRSBDAzw4l0T0Xl8): Ubiquitous (the
+[is_leap_year](https://quick-bench.com/q/ZhYkSzwHgnAzCdIGvHRXu2np8WM): Ubiquitous (the
 implementation used virtually everywhere) is
-1.8x slower than NeriSchneider_mod and
-3.0x slower than NeriSchneider_mcomp.
+2.5x slower than NeriSchneider_mod and
+3.2x slower than NeriSchneider_mcomp.
 
-[last_day_of_month](https://quick-bench.com/q/LYFKOSJrbpjVzHmR_EMk8AILkNI): NeriSchneider is
+[last_day_of_month](https://quick-bench.com/q/yZg62AlZGDx1dE8Wv-38qpwHR7c): NeriSchneider is
 2.1x faster than Boost and
 1.1x faster than libc++.
 
