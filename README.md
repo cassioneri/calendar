@@ -2,10 +2,10 @@
 
 ## TL;DR
 
-This is a pracademic project on Gregorian calendar algorithms. Its academic side will be shown by
-a paper (to appear) that reviews literature and brings new mathematical insights. For practioners,
-the project provides working implementations that could be used in many pieces of software including
-the following C++20's functions:
+This is a pracademic project on Gregorian calendar algorithms. Its academic side is supported by the
+mathematical study of Euclidean Affine Functions (EAF for short) [[1]](#EAF-arxiv). For practioners,
+this project provides working implementations that could be used in many pieces of software
+including the following C++20's functions:
 
     std::chrono::year::is_leap()                                 // a.k.a. is_leap_year
     std::chrono::year_month_day_last::day()                      // a.k.a. last_day_of_month
@@ -13,9 +13,9 @@ the following C++20's functions:
     std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
 
 Our implementations are benchmarked against counterparts, including some of the most widely used
-C (glibc), C++ (boost and libc++), C# (.NET) and Java (OpenJDK) libraries; and our implementations
-of algorithms found in academic literature. Charts below suggest that our algorithms perform
-considerably faster than others.
+C (glibc and Linux Kernel), C++ (boost and libc++), C# (.NET) and Java (OpenJDK and Android)
+libraries; and our own implementations of algorithms found in academic literature. Charts below
+suggest that our algorithms perform considerably faster than others.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
@@ -83,6 +83,14 @@ Ubiquitous.
 [itoa](https://quick-bench.com/q/-iNSxF1zQFE6LgUwbyuN8ae_4CQ): NeriSchneider is 1.1x faster than
 Ubiquitous.
 
+## Improving instruction level parallelism of division and modular calculations.
+
+Example 3.12 of [[1]](#EAF-arxiv) provides an alternative for the evaluations of q = n / 1461 and
+r = n % 1461, claiming it foster instruction-level parallelism implemented by superscalar processors
+and they profit from the backward compatibility features that drove the design of the x86_64
+instruction set. Document ![Parallelism](https://github.com/cassioneri/calendar/blob/master/Parallelism.md)
+provides more details.
+
 ## Design choices
 
 The code does not implement a full date library. However, despite its limited usage, some design
@@ -119,3 +127,9 @@ corresponding function in `ugregorian_t`.
 2. `tests.cpp`    : Tests.
 3. `fast_eaf.cpp` : Fast EAF algorithms.
 4. `troesch.cpp`  : Coefficients search algorithm by Albert Troesch.
+
+## References
+
+<span id="EAF-arxiv">[1] Cassio Neri and Lorenz Schneider,
+*Euclidean Affine Functions and Applications to Calendar Algorithms*,
+[preprint](https://arxiv.org/abs/2102.06959), February 2021.<br>
