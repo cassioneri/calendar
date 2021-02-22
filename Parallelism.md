@@ -148,6 +148,11 @@ performing a `mov` and `% 2³²` in a single instruction). (Unfortunately,
 [gcc 10.2](https://godbolt.org/z/vjv56E) adds `mov edi, edi` to reset the 32 most significant bits
 of `rdi`.)
 
+
+## Acknowledgment
+
+Many thanks to Fabio Fernandes for givin me interesting insights on this matter.
+
 ## References
 
 <span id="EAF-arxiv">[1] Cassio Neri and Lorenz Schneider.
