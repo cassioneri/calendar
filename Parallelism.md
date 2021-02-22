@@ -82,9 +82,11 @@ In the traditional implementation, the compiler replaces `n / 1461` with `(n * 3
 `q` is stored at `rax`. Then `r` is evaluated through the expression `r = n - 1461 * q`
 (4<sup>th</sup> and 5<sup>th</sup> assembly lines, where `q` is stored in `eax`, a sort of "alias"
 of `rax`). Therefore, although not obvious in the C++ code, there is a data dependency forcing the
-CPU to wait the calculation of `q` to finish before it starts that of `r`.
+CPU to wait the calculation of `q` to finish before it starts that of `r`. Notice also the usage of
+`edi` at the first and last lines. This indicates another kind of data dependency and `edi` is
+"locked" holding the value of `n` during the entire execution of the code.
 
-The alternative implementation does not suffer from this problem as we shall see but, first things
+The alternative implementation does not suffer from these problems as we shall see. But first things
 first. Similarly to tradional's assembly, `q` is evaluated by a product and a right bitwise shift:
 `(n * 2939745) >> 32`. However, this strengh reduction is done manually in C++ rather than relying
 on the compiler which would, otherwise, choose 39 bits instead of 32. We prefer the latter because
@@ -98,7 +100,8 @@ In contrast to the traditional's C++ listing, the alternative's does not hid a d
 `q`. This dependency does not exist but both `q` and `r` depedend on `p`. Therefore, their
 calculations require `p` to be stored in two different registers and hence, the `mov ecx, eax`. This
 makes the alternative's listing longer than the traditional's (6 instructions as opposed to 5) but
-this extra instruction is a worthwhile price to pay for breaking the data dependency.
+this extra instruction is a worthwhile price to pay for breaking the data dependency. The other
+issue of the traditional code about `edi` being blocked is clearly absent in the alternative code.
 
 We used the [LLVM Machine Code Analyser](https://www.llvm.org/docs/CommandGuide/llvm-mca.html) to
 assess the throughput of the two assembly listings. Simulating 100 iterations for the
@@ -114,9 +117,10 @@ Total uOps   | 500        | 600
 
 Although, as expected, the traditional implementation executes 500 instructions (5 per iteration)
 and the alternative does 600 (6 per iteration), the former takes 903 cycles whereas the latter takes
-207. This is a considerable increase in throughput. Further confirmation comes from looking at the
-timelines. For the last instruction (#4 for traditional and #5 for alternative) of iteration #7 they
-are as below:
+207. This is a considerable increase in throughput. (To be honest, I find this result "to good to
+be true" and I cannot totally understand it. Any help would be appreciated.) Further confirmation
+comes from looking at the timelines. For the last instruction (#4 for traditional and #5 for
+alternative) of iteration #7 they are as below:
 
 | Implementation | Timeline                                                                    |
 |----------------|-----------------------------------------------------------------------------|
