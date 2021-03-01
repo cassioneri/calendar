@@ -54,7 +54,7 @@ date_t to_date(rata_die_t r) {
   auto const r2 = uint32_t(u2 % p32) / 2939745 / 4;
 
   auto constexpr p16 = uint32_t(1) << 16;
-  auto const n3 = 2141 * r2 + 197657;
+  auto const n3 = 2141 * r2 + 197913;
   auto const q3 = n3 / p16;
   auto const r3 = n3 % p16 / 2141;
 

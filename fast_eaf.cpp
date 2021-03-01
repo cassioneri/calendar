@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
     std::cerr << argv[0] << ": unknown method '" << argv[1] << "'\n"; 
     exit (1);
   }
-  
+
   char* end_ptr;
 
   auto const alpha = std::strtoumax(argv[2], &end_ptr, 10);
@@ -158,28 +158,28 @@ int main(int argc, char* argv[]) {
     std::cerr << argv[0] << ": cannot parse alpha argument.\n";
     std::exit(1);
   }
-  
+
   auto const beta  = std::strtoimax(argv[3], &end_ptr, 10);
   if (end_ptr == argv[3]) {
     std::cerr << argv[0] << ": cannot parse beta argument.\n";
     std::exit(1);
   }
-  
+
   auto const delta = std::strtoumax(argv[4], &end_ptr, 10);
   if (end_ptr == argv[4]) {
     std::cerr << argv[0] << ": cannot parse delta argument.\n";
     std::exit(1);
   }
-  
+
   if (alpha <= 0 || delta <= 0) {
     std::cerr << argv[0] << ": alpha and delta must be strictly positive.\n";
     std::exit(1);
   }
-  
+
   auto const eaf = eaf_t{ alpha, beta, delta };
-  
+
   for (std::int32_t i = 5; i < argc; ++i) {
-    
+
     auto k = std::strtoimax(argv[i], &end_ptr, 10);
     if (end_ptr == argv[4]) {
       std::cerr << argv[0] << ": cannot parse k argument.\n";
@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
       std::cerr << argv[0] << ": k must be in [1, 64] (skipping k = " << k << ")\n\n";
       continue;
     }
-    
+
     auto const fast_eaf = get_fast_eaf(method == method_t::up, std::uint32_t(k), eaf);
 
     std::cout << fast_eaf << '\n';
