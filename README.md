@@ -15,7 +15,8 @@ including the following C++20's functions:
 Our implementations are benchmarked against counterparts, including some of the most widely used
 C (glibc and Linux Kernel), C++ (boost and libc++), C# (.NET) and Java (OpenJDK and Android)
 libraries; and our own implementations of algorithms found in academic literature. Charts below
-suggest that our algorithms perform considerably faster than others.
+suggest that our algorithms perform considerably faster than others. (Our algorithms were
+implemented in libstdc++ and should be part of gcc 11.0.)
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
