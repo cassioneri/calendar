@@ -46,10 +46,10 @@ using rata_die_t = std::int32_t; // as in std::chrono::days
 auto constexpr enable_static_asserts = true;
 
 //--------------------------------------------------------------------------------------------------
-// Third party algorithms
+// Standalone algorithms
 //--------------------------------------------------------------------------------------------------
 
-struct third_party {
+struct standalone {
   using year_t     = ::year_t;
   using month_t    = ::month_t;
   using day_t      = ::day_t;
@@ -57,7 +57,88 @@ struct third_party {
   using date_t     = ::date_t<year_t>;
 };
 
-struct baum : third_party {
+struct neri_schneider : standalone {
+
+  date_t     static constexpr epoch              = unix_epoch<year_t>;
+
+  date_t     static constexpr date_min           = min<date_t>;
+  date_t     static constexpr date_max           = max<date_t>;
+  rata_die_t static constexpr rata_die_min       = -12687794;
+  rata_die_t static constexpr rata_die_max       = 11248737;
+
+  date_t     static constexpr round_date_min     = min<date_t>;
+  date_t     static constexpr round_date_max     = max<date_t>;
+  rata_die_t static constexpr round_rata_die_min = -12687794;
+  rata_die_t static constexpr round_rata_die_max = 11248737;
+
+  // Neri and Schneider, Euclidean Affine Functions and Applications to Calendar Algorithms
+  // https://arxiv.org/pdf/2102.06959.pdf
+
+  // Proposition 6.2.
+  rata_die_t static constexpr
+  to_rata_die(date_t const& u2) noexcept {
+
+    auto constexpr z2    = uint32_t(-1468000);
+    auto constexpr r2_e3 = uint32_t(536895458);
+
+    auto const y1 = uint32_t(u2.year) - z2;
+    auto const m1 = uint32_t(u2.month);
+    auto const d1 = uint32_t(u2.day);
+
+    auto const j  = uint32_t(m1 < 3);
+    auto const y0 = y1 - j;
+    auto const m0 = j ? m1 + 12 : m1;
+    auto const d0 = d1 - 1;
+
+    auto const q1 = y0 / 100;
+    auto const yc = 1461 * y0 / 4 - q1 + q1 / 4;
+    auto const mc = (979 * m0 - 2919) / 32;
+    auto const dc = d0;
+
+    auto const r3 = yc + mc + dc - r2_e3;
+
+    return r3;
+  }
+
+  // Proposition 6.3.
+  date_t static constexpr
+  to_date(rata_die_t r) noexcept {
+
+    auto constexpr z2    = uint32_t(-1468000);
+    auto constexpr r2_e3 = uint32_t(536895458);
+
+    auto const r0 = r + r2_e3;
+
+    auto const n1 = 4 * r0 + 3;
+    auto const q1 = n1 / 146097;
+    auto const r1 = n1 % 146097 / 4;
+
+    auto constexpr p32 = uint64_t(1) << 32;
+    auto const n2 = 4 * r1 + 3;
+    auto const u2 = uint64_t(2939745) * n2;
+    auto const q2 = uint32_t(u2 / p32);
+    auto const r2 = uint32_t(u2 % p32) / 2939745 / 4;
+
+    auto constexpr p16 = uint32_t(1) << 16;
+    auto const n3 = 2141 * r2 + 197913;
+    auto const q3 = n3 / p16;
+    auto const r3 = n3 % p16 / 2141;
+
+    auto const y0 = 100 * q1 + q2;
+    auto const m0 = q3;
+    auto const d0 = r3;
+
+    auto const j  = r2 >= 306;
+    auto const y1 = y0 + j;
+    auto const m1 = j ? m0 - 12 : m0;
+    auto const d1 = d0 + 1;
+
+    return {year_t(y1 + z2), month_t(m1), day_t(d1)};
+  }
+
+}; // struct neri_schneider
+
+struct baum : standalone {
 
   date_t     static constexpr epoch              = unix_epoch<year_t>;
 
@@ -132,7 +213,7 @@ struct baum : third_party {
  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
 */
-struct boost : third_party {
+struct boost : standalone {
 
   date_t     static constexpr epoch              = unix_epoch<year_t>;
 
@@ -200,7 +281,7 @@ struct boost : third_party {
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 */
-struct dotnet : third_party {
+struct dotnet : standalone {
 
   date_t     static constexpr epoch              = unix_epoch<year_t>;
 
@@ -267,7 +348,7 @@ struct dotnet : third_party {
 
 }; // struct dotnet
 
-struct fliegel_flandern : third_party {
+struct fliegel_flandern : standalone {
 
   date_t     static constexpr epoch              = unix_epoch<year_t>;
 
@@ -332,7 +413,7 @@ struct fliegel_flandern : third_party {
 
  See <https://www.gnu.org/licenses/>.
 */
-struct glibc : third_party {
+struct glibc : standalone {
 
   date_t     static constexpr epoch              = unix_epoch<year_t>;
 
@@ -434,7 +515,7 @@ struct glibc : third_party {
 
 }; // struct glibc
 
-struct hatcher : third_party {
+struct hatcher : standalone {
 
   date_t     static constexpr epoch              = unix_epoch<year_t>;
 
@@ -570,7 +651,7 @@ struct hatcher : third_party {
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-struct openjdk : third_party {
+struct openjdk : standalone {
 
   date_t     static constexpr epoch              = unix_epoch<year_t>;
 
@@ -655,7 +736,7 @@ struct openjdk : third_party {
 
 }; // struct openjdk
 
-struct reingold_dershowitz : third_party {
+struct reingold_dershowitz : standalone {
 
   date_t     static constexpr epoch              = unix_epoch<year_t>;
 
@@ -957,7 +1038,11 @@ struct calendar_tests : public ::testing::Test {
 
 using implementations = ::testing::Types<
 
-  // Other implementations
+  // Standalone implementation
+
+  neri_schneider,
+
+  // Third party implementations
 
   baum,
   boost,
@@ -977,14 +1062,14 @@ using implementations = ::testing::Types<
   gregorian_t <std:: int16_t, std:: int32_t, date_t<std::int16_t>{-    1, 1, 1}>,
   gregorian_t <std:: int16_t, std:: int32_t, date_t<std::int16_t>{-  400, 1, 1}>,
   gregorian_t <std:: int16_t, std:: int32_t, date_t<std::int16_t>{- 1970, 1, 1}>,
-  gregorian_t< std:: int16_t, std:: int32_t, date_t<std::int16_t>{-32768, 1, 1}>,
+  gregorian_t <std:: int16_t, std:: int32_t, date_t<std::int16_t>{-32768, 1, 1}>,
 
   // 32 bits
 
   ugregorian_t<std::uint32_t, std::uint32_t>,
   gregorian_t <std:: int32_t, std:: int32_t>,
   gregorian_t <std:: int32_t, std:: int32_t, date_t<std::int32_t>{  1912, 6, 23}>,
-  gregorian_t< std:: int32_t, std:: int32_t, date_t<std::int32_t>{- 1912, 6, 23}>
+  gregorian_t <std:: int32_t, std:: int32_t, date_t<std::int32_t>{- 1912, 6, 23}>
 >;
 
 TYPED_TEST_SUITE(calendar_tests, implementations);
