@@ -42,7 +42,7 @@ bool is_leap_year(year_t year) {
 }
 
 day_t last_day_of_month(year_t year, month_t month) {
-  return month != 2 ? ((month ^ (month >> 3)) & 1) | 30 :
+  return month != 2 ? (month ^ (month >> 3)) | 30 :
     is_leap_year(year) ? 29 : 28;
 }
 }

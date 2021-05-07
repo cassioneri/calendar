@@ -47,7 +47,7 @@ implementation used virtually everywhere) is
 2.7x slower than NeriSchneider_mod and
 3.2x slower than NeriSchneider_mcomp.
 
-[last_day_of_month](https://quick-bench.com/q/yZg62AlZGDx1dE8Wv-38qpwHR7c): NeriSchneider is
+[last_day_of_month](https://quick-bench.com/q/bf6NKrwWTgkqsz5fRGorD7nJIbo): NeriSchneider is
 2.1x faster than Boost and
 1.1x faster than libc++.
 
