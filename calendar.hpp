@@ -26,8 +26,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <limits>
-#include <type_traits>
 #include <ostream>
+#include <type_traits>
 
 /**
  * @brief   Month storage type.
@@ -190,7 +190,7 @@ template <typename T>
 bool constexpr
 is_leap_year(T y) noexcept {
   // http://stackoverflow.com/a/60646967/1137388
-  return (!is_multiple_of_100(y) || y % 16 == 0) & (y % 4 == 0);
+  return (!is_multiple_of_100(y) || y % 16 == 0) && (y % 4 == 0);
 }
 
 /**
