@@ -83,6 +83,7 @@ auto const ns = [](){
         benchmark::DoNotOptimize(n);
   }
   BENCHMARK(Scan);
+
 #endif
 
 #define DO_BENCHMARK(label, namespace) \
@@ -90,7 +91,7 @@ auto const ns = [](){
     for (auto _ : state) \
       for (auto const n : ns) { \
         auto const digits = namespace::itoa(n); \
-        benchmark::DoNotOptimize(time); \
+        benchmark::DoNotOptimize(digits); \
     } \
   } \
   BENCHMARK(label)
