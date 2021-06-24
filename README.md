@@ -15,8 +15,10 @@ including the following C++20's functions:
 Our implementations are benchmarked against counterparts, including some of the most widely used
 C (glibc and Linux Kernel), C++ (boost and libc++), C# (.NET) and Java (OpenJDK and Android)
 libraries; and our own implementations of algorithms found in academic literature. Charts below
-suggest that our algorithms perform considerably faster than others. (Our algorithms were
-implemented in libstdc++ and should be part of gcc 11.0.)
+suggest that our algorithms perform considerably faster than others.
+
+#### Notes:
+  April 2021 - Our algorithms were implemented in libstdc++ released with gcc 11.0.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
@@ -42,13 +44,16 @@ implemented in libstdc++ and should be part of gcc 11.0.)
 2.5x faster than OpenJDK and
 3.2x faster than ReingoldDershowitz.
 
-[is_leap_year](https://quick-bench.com/q/eW97LXeb5oUQWaTmQvaYPkZ7TPA): Ubiquitous (the
+[is_leap_year](https://quick-bench.com/q/gK6a9RUDJYFnbgBX-h_xECTxF9E): Ubiquitous (the
 implementation used virtually everywhere) is
-2.7x slower than NeriSchneider_mod and
-3.3x slower than NeriSchneider_mcomp.
+2.6x slower than NeriSchneider_mod,
+3.3x slower than NeriSchneider_mcomp,
+1.9x slower than Drepper,
+3.3x slower than DrepperNeriSchneider_mcomp1 and
+3.6x slower than DrepperNeriSchneider_mcomp2.
 
-[last_day_of_month](https://quick-bench.com/q/bf6NKrwWTgkqsz5fRGorD7nJIbo): NeriSchneider is
-2.1x faster than Boost and
+[last_day_of_month](https://quick-bench.com/q/jpbILbbUq5AeGKds3etV5gwMCyk): NeriSchneider is
+2.0x faster than Boost and
 1.1x faster than libc++.
 
 **Disclaimer**: Benchmarks above show a single run and YMMV (especially when changing compiler since

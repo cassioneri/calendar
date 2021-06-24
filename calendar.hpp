@@ -167,7 +167,7 @@ is_multiple_of_100(std::int32_t n) noexcept {
 }
 
 /**
- * @brief   Checks if a given number is multiple of 100 or not uisng built-in operator %.
+ * @brief   Checks if a given number is multiple of 100 or not using built-in operator %.
  *
  * @tparam  T         The type of the given number.
  * @param   n         The given number.
@@ -189,8 +189,10 @@ is_multiple_of_100(T n) noexcept {
 template <typename T>
 bool constexpr
 is_leap_year(T y) noexcept {
-  // http://stackoverflow.com/a/60646967/1137388
-  return (!is_multiple_of_100(y) || y % 16 == 0) && (y % 4 == 0);
+  // Originally, the ternary expression was similar to
+  //   is_multiple_of_100(y) ? y % 16 == 0 : y % 4 == 0;
+  // and Ulrich Drepper suggested the following twist.
+  return (y & (is_multiple_of_100(y) ? 15 : 3)) == 0;
 }
 
 /**
@@ -203,6 +205,9 @@ is_leap_year(T y) noexcept {
 template <typename Y>
 month_t constexpr
 last_day_of_month(Y y, month_t m) noexcept {
+  // Originally the 2nd operand of the 1st ternary operator was
+  //   (month ^ (month >> 3)) & 1 | 30
+  // and Dr. Matthias Kretz realised '& 1' was unnecessary.
   return m != 2 ? ((m ^ (m >> 3))) | 30 : is_leap_year(y) ? 29 : 28;
 }
 

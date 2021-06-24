@@ -25,10 +25,9 @@ using year_t  = int16_t;
 using month_t = uint8_t;
 using day_t   = uint8_t;
 
-namespace neri_schneider {
-
 // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
+// https://accu.org/journals/overload/28/155/overload155.pdf#page=16
 bool is_multiple_of_100(int32_t n) {
   uint32_t constexpr multiplier   = 42949673;
   uint32_t constexpr bound        = 42949669;
@@ -38,10 +37,14 @@ bool is_multiple_of_100(int32_t n) {
 }
 
 bool is_leap_year(year_t year) {
-  return (!is_multiple_of_100(year) || year % 16 == 0) && (year % 4 == 0);
+  return (year & (is_multiple_of_100(year) ? 15 : 3)) == 0;
 }
 
+namespace neri_schneider {
 day_t last_day_of_month(year_t year, month_t month) {
+  // Originally the 2nd operand of the 1st ternary operator was
+  //   (month ^ (month >> 3)) & 1 | 30
+  // and Dr. Matthias Kretz realised '& 1' was unnecessary.
   return month != 2 ? (month ^ (month >> 3)) | 30 :
     is_leap_year(year) ? 29 : 28;
 }

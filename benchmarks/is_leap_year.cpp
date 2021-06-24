@@ -21,19 +21,11 @@
 #include <cstdint>
 #include <random>
 
-using year_t = int16_t;
-
-namespace neri_schneider::mod {
-
 // https://github.com/cassioneri/calendar/blob/master/calendar.hpp
 
-bool is_leap_year(year_t year) {
-  return year % 100 != 0 ? year % 4 == 0 : year % 400 == 0;
-}
-}
+using year_t = int16_t;
 
-namespace neri_schneider::mcomp {
-
+// https://accu.org/journals/overload/28/155/overload155.pdf#page=16
 bool is_multiple_of_100(int32_t n) {
   uint32_t constexpr multiplier   = 42949673;
   uint32_t constexpr bound        = 42949669;
@@ -42,13 +34,49 @@ bool is_multiple_of_100(int32_t n) {
   return multiplier * (n + offset) < bound;
 }
 
+namespace neri_schneider::mod {
 bool is_leap_year(year_t year) {
-  return (!is_multiple_of_100(year) || year % 16 == 0) && (year % 4 == 0);
+  // The ternary expression used here is equivalent to:
+  //   year % 100 == 0 ? year % 16 == 0 : year % 4 == 0;
+  // Surprinsingly, GCC generates worse code for it.
+  return year % 100 == 0 ? year % 400 == 0 : year % 4 == 0;
+}
+}
+
+namespace neri_schneider::mcomp {
+bool is_leap_year(year_t year) {
+  return is_multiple_of_100(year) ? year % 16 == 0 : year % 4 == 0;
+}
+}
+
+// Ulrich Drepper.
+namespace drepper {
+bool is_leap_year(year_t year) {
+  return (year & (year % 100 == 0 ? 15 : 3)) == 0;
+}
+}
+
+namespace drepper_neri_schneider::mcomp1 {
+bool is_leap_year(year_t year) {
+  return (year & (is_multiple_of_100(year) ? 15 : 3)) == 0;
+}
+}
+
+namespace drepper_neri_schneider::mcomp2 {
+bool is_leap_year(year_t year) {
+  // https://accu.org/journals/overload/28/155/overload155.pdf#page=16
+  uint32_t constexpr multiplier         = 42949673;
+  uint32_t constexpr bound              = 42949669;
+  uint32_t constexpr max_dividend       = 1073741799;
+  uint32_t constexpr offset             = max_dividend / 2 / 100 * 100;
+  uint32_t const     sum                = year + offset;
+  bool     const     is_multiple_of_100 = multiplier * sum < bound;
+  // offset & 15 == 0 and hence, year & 15 == sum & 15.
+  return (sum & (is_multiple_of_100 ? 15 : 3)) == 0;
 }
 }
 
 namespace ubiquitous {
-
 bool is_leap_year(year_t y) {
   return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
 }
@@ -88,3 +116,6 @@ auto const years = [](){
 DO_BENCHMARK(Ubiquitous, ubiquitous);
 DO_BENCHMARK(NeriSchneider_mod , neri_schneider::mod);
 DO_BENCHMARK(NeriSchneider_mcomp, neri_schneider::mcomp);
+DO_BENCHMARK(Drepper, drepper);
+DO_BENCHMARK(DrepperNeriSchneider_mcomp1, drepper_neri_schneider::mcomp1);
+DO_BENCHMARK(DrepperNeriSchneider_mcomp2, drepper_neri_schneider::mcomp2);
