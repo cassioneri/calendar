@@ -1273,3 +1273,18 @@ TYPED_TEST(calendar_tests, to_rata_die_backward) {
     ASSERT_EQ(yesterday, --rata_die) << "Failed for date = " << date;
   }
 }
+
+TEST(calendar_tests, show_offset) {
+
+    using year_t          = int64_t;
+    using rata_die_t      = int64_t;
+    auto constexpr epoch  = date_t<year_t>{1970, 1, 1};
+
+    using uyear_t         = std::make_unsigned_t<rata_die_t>;
+    using calendar        = gregorian_t<year_t, rata_die_t, epoch>;
+    auto constexpr offset = calendar::offset;
+
+    std::cout << "             offset.year (s) = " << year_t(offset.year) << '\n';
+    std::cout << "             offset.year (u) = " << offset.year     << '\n';
+    std::cout << "             offset.rata_die = " << offset.rata_die << '\n';
+}

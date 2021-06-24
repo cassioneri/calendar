@@ -203,7 +203,7 @@ is_leap_year(T y) noexcept {
 template <typename Y>
 month_t constexpr
 last_day_of_month(Y y, month_t m) noexcept {
-  return m != 2 ? ((m ^ (m >> 3)) & 1) | 30 : is_leap_year(y) ? 29 : 28;
+  return m != 2 ? ((m ^ (m >> 3))) | 30 : is_leap_year(y) ? 29 : 28;
 }
 
 /**
@@ -424,6 +424,8 @@ private:
   using ugregorian_t = ::ugregorian_t<uyear_t, urata_die_t>;
   using udate_t      = typename ugregorian_t::date_t;
 
+public:
+
   struct offset_t {
     uyear_t     year;
     urata_die_t rata_die;
@@ -447,6 +449,8 @@ private:
 
     return offset_t{z2, n2_e3};
   }();
+
+private:
 
   /**
    * @brief Adjusts rata die from signed to unsigned.
