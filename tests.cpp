@@ -1288,3 +1288,21 @@ TEST(calendar_tests, show_offset) {
     std::cout << "             offset.year (u) = " << offset.year     << '\n';
     std::cout << "             offset.rata_die = " << offset.rata_die << '\n';
 }
+
+TEST(calendar_tests, date_diff) {
+
+    using year_t     = uint32_t;
+    using rata_die_t = uint32_t;
+    using calendar_t = ugregorian_t<year_t, rata_die_t>;
+    using date_t     = calendar_t::date_t;
+
+    auto const d0    = date_t{   0, 3, 1};
+    auto const d1    = date_t{1970, 1, 1};
+
+    auto const n0    = calendar_t::to_rata_die(d0);
+    auto const n1    = calendar_t::to_rata_die(d1);
+
+    std::cout << "             From      " << d0 << '\n';
+    std::cout << "             to        " << d1 << '\n';
+    std::cout << "             there are " << (n1 - n0) << " days.\n";
+}
