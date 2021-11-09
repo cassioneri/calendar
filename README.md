@@ -13,12 +13,17 @@ including the following C++20's functions:
     std::chrono::year_month_day::year_month_day(const sys_days&) // a.k.a. to_date
 
 Our implementations are benchmarked against counterparts, including some of the most widely used
-C (glibc and Linux Kernel), C++ (boost and libc++), C# (.NET) and Java (OpenJDK and Android)
+C (glibc), C++ (boost and libc++), C# (.NET) and Java (OpenJDK and Android)
 libraries; and our own implementations of algorithms found in academic literature. Charts below
 suggest that our algorithms perform considerably faster than others.
 
 #### Notes:
-  April 2021 - Our algorithms were implemented in libstdc++ released with gcc 11.0.
+  April 2021 - Our algorithms were implemented in [libstdc++](https://gcc.gnu.org/git/?p=gcc.git;a=blob;f=libstdc%2B%2B-v3/include/std/chrono;hb=b92d12d3fe3f1aa56d190d960e40c62869a6cfbb#l2453)
+    released with gcc 11.0.
+
+  June 2021 - One of our algorithms was implemented in the [Linux Kernel](https://github.com/torvalds/linux/blob/276010551664f73b6f1616dde471d6f0d63a73ba/kernel/time/timeconv.c#L77)
+    released with version 5.14. Another [implementation](https://github.com/torvalds/linux/blob/1d1bb12a8b1805ddeef9793ebeb920179fb0fa38/drivers/rtc/lib.c#L69)
+    in the RTC subsystem is expected on a forthcoming release.
 
 ![Benchmarks](https://github.com/cassioneri/calendar/blob/master/benchmarks/benchmarks.png)
 
