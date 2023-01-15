@@ -1,5 +1,9 @@
 # Gregorian calendar algorithms
 
+## This repository is obsolete.</span>
+
+A research article [[2]](#EAF-spe) on the topic has been published by Wiley and a new [repository](https://github.com/cassioneri/eaf) for the article's supplementary is now available.
+
 ## TL;DR
 
 This is a pracademic project on Gregorian calendar algorithms. Its academic side is supported by the
@@ -144,3 +148,6 @@ corresponding function in `ugregorian_t`.
 <span id="EAF-arxiv">[1] Cassio Neri and Lorenz Schneider,
 *Euclidean Affine Functions and Applications to Calendar Algorithms*,
 [preprint](https://arxiv.org/abs/2102.06959), February 2021.<br>
+    
+<span id="EAF-spe">[2] Cassio Neri and Lorenz Schneider,
+*Euclidean affine functions and their application tocalendar algorithms*. Softw Pract Exper. 2022;1-34. [doi: 10.1002/spe.3172](https://onlinelibrary.wiley.com/doi/full/10.1002/spe.3172).
